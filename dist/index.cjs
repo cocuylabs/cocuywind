@@ -46,6 +46,9 @@ __export(src_exports, {
   doom64Theme: () => doom64Theme,
   elegantLuxuryTheme: () => elegantLuxuryTheme,
   extendTheme: () => extendTheme,
+  fetchAllTweakCNThemes: () => fetchAllTweakCNThemes,
+  fetchTweakCNRegistry: () => fetchTweakCNRegistry,
+  fetchTweakCNTheme: () => fetchTweakCNTheme,
   forestTheme: () => forestTheme,
   generateCSS: () => generateCSS,
   generatePattern: () => generatePattern,
@@ -85,7 +88,10 @@ __export(src_exports, {
   themeFromCSS: () => themeFromCSS,
   themeFromCSSVars: () => themeFromCSSVars,
   themeFromSnippetOutput: () => themeFromSnippetOutput,
+  themeFromTweakCNItem: () => themeFromTweakCNItem,
   themes: () => themes,
+  tweakcnBookmarkletUrl: () => tweakcnBookmarkletUrl,
+  tweakcnSnippet: () => tweakcnSnippet,
   tweakcnThemes: () => tweakcnThemes,
   twitterTheme: () => twitterTheme,
   vintagePaperTheme: () => vintagePaperTheme,
@@ -586,6 +592,7 @@ function generateCSS(theme) {
 }
 function storedThemeToCSS(stored) {
   const { styles, fonts, pattern, radius } = stored;
+  if (!styles?.light || !styles?.dark) return "";
   const lines = [];
   lines.push(":root {");
   for (const [key, value] of Object.entries(styles.light)) {
@@ -815,23 +822,24 @@ function themeFromCSSVars(vars, meta) {
   };
 }
 function themeFromCSS(cssText, meta) {
-  const light = extractVarsFromBlock(cssText, [
+  const unwrapped = cssText.replace(/@layer\s+base\s*\{([\s\S]*?)\}\s*(?=@layer|\s*$)/g, "$1").replace(/@layer\s+base\s*\{([\s\S]*)\}[\s]*$/g, "$1");
+  const light = extractVarsFromBlock(unwrapped, [
     /:root\s*\{([^}]*)\}/gs,
     /html\s*\{([^}]*)\}/gs,
     /\[data-theme="light"\]\s*\{([^}]*)\}/gs
   ]);
-  const dark = extractVarsFromBlock(cssText, [
+  const dark = extractVarsFromBlock(unwrapped, [
     /\.dark\s*\{([^}]*)\}/gs,
     /\[data-theme="dark"\]\s*\{([^}]*)\}/gs,
     /@media\s*\(prefers-color-scheme:\s*dark\)\s*\{[^{]*:root\s*\{([^}]*)\}/gs,
     /@media\s*\(prefers-color-scheme:\s*dark\)\s*\{\s*html\s*\{([^}]*)\}/gs
   ]);
   const darkTokens = Object.keys(dark).length > 0 ? dark : { ...light };
-  const radius = light["radius"] ?? extractSingleVar(cssText, "radius") ?? "0.5rem";
+  const radius = light["radius"] ?? extractSingleVar(unwrapped, "radius") ?? "0.5rem";
   const fonts = {};
-  const sansCandidates = [light["font-sans"], extractSingleVar(cssText, "font-sans")];
-  const serifCandidates = [light["font-serif"], extractSingleVar(cssText, "font-serif")];
-  const monoCandidates = [light["font-mono"], extractSingleVar(cssText, "font-mono")];
+  const sansCandidates = [light["font-sans"], extractSingleVar(unwrapped, "font-sans")];
+  const serifCandidates = [light["font-serif"], extractSingleVar(unwrapped, "font-serif")];
+  const monoCandidates = [light["font-mono"], extractSingleVar(unwrapped, "font-mono")];
   const firstDefined = (arr) => arr.find((v) => v !== void 0);
   const sanVal = firstDefined(sansCandidates);
   const serVal = firstDefined(serifCandidates);
@@ -948,6 +956,126 @@ function extractSingleVar(css, varName) {
   const m = css.match(pattern);
   return m ? m[1].trim() : void 0;
 }
+
+// src/steal-tweakcn.ts
+var COLOR_VARS2 = [
+  "background",
+  "foreground",
+  "card",
+  "card-foreground",
+  "popover",
+  "popover-foreground",
+  "primary",
+  "primary-foreground",
+  "secondary",
+  "secondary-foreground",
+  "muted",
+  "muted-foreground",
+  "accent",
+  "accent-foreground",
+  "destructive",
+  "destructive-foreground",
+  "border",
+  "input",
+  "ring"
+];
+function kebabToCamel2(s) {
+  return s.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+}
+function normalizeColor2(value) {
+  return value.trim().replace(/\s+/g, " ");
+}
+function extractTokens(vars) {
+  const result = {};
+  for (const varName of COLOR_VARS2) {
+    const value = vars[`--${varName}`] ?? vars[varName];
+    if (value) {
+      result[kebabToCamel2(varName)] = normalizeColor2(value);
+    }
+  }
+  return result;
+}
+function themeFromTweakCNItem(item, meta) {
+  const lightTokens = extractTokens(item.cssVars.light);
+  const darkTokens = extractTokens(item.cssVars.dark);
+  const darkResolved = Object.keys(darkTokens).length > 0 ? darkTokens : { ...lightTokens };
+  const themeVars = item.cssVars.theme ?? {};
+  const combined = { ...item.cssVars.light, ...themeVars };
+  const radius = (combined["--radius"] ?? combined["radius"] ?? "0.5rem").trim();
+  const fonts = {};
+  const sanVal = combined["--font-sans"] ?? combined["font-sans"];
+  const serVal = combined["--font-serif"] ?? combined["font-serif"];
+  const monoVal = combined["--font-mono"] ?? combined["font-mono"];
+  if (sanVal) fonts.sans = sanVal.trim();
+  if (serVal) fonts.serif = serVal.trim();
+  if (monoVal) fonts.mono = monoVal.trim();
+  return {
+    name: meta?.name ?? item.name,
+    label: meta?.label ?? item.title,
+    styles: { light: lightTokens, dark: darkResolved },
+    fonts,
+    pattern: { type: "none" },
+    radius,
+    _source: "custom"
+  };
+}
+async function fetchTweakCNTheme(themeName, meta) {
+  const url = `https://tweakcn.com/r/themes/${encodeURIComponent(themeName)}.json`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`tweakcn: failed to fetch theme "${themeName}" (HTTP ${res.status})`);
+  }
+  const item = await res.json();
+  return themeFromTweakCNItem(item, meta);
+}
+async function fetchTweakCNRegistry() {
+  const url = "https://tweakcn.com/r/themes/registry.json";
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`tweakcn: failed to fetch registry (HTTP ${res.status})`);
+  }
+  const data = await res.json();
+  const entries = Array.isArray(data) ? data : data.themes ?? [];
+  return entries;
+}
+async function fetchAllTweakCNThemes() {
+  const registry = await fetchTweakCNRegistry();
+  const themeEntries = registry.filter((e) => !e.type || e.type === "theme" || e.type === "registry:theme");
+  const results = await Promise.allSettled(
+    themeEntries.map((entry) => fetchTweakCNTheme(entry.name))
+  );
+  return results.filter((r) => r.status === "fulfilled").map((r) => r.value);
+}
+var tweakcnSnippet = (
+  /* js */
+  `(async function() {
+  // Try to detect theme name from URL params or hash
+  var url = new URL(location.href);
+  var name = url.searchParams.get('theme') ||
+             url.searchParams.get('name') ||
+             url.hash.replace('#', '') ||
+             prompt('Enter tweakcn theme name (e.g. catppuccin):');
+  if (!name) { console.warn('No theme name provided.'); return; }
+  name = name.trim();
+  var apiUrl = 'https://tweakcn.com/r/themes/' + encodeURIComponent(name) + '.json';
+  console.log('%c tailtheme: fetching ' + apiUrl, 'color: #60a5fa;');
+  try {
+    var res = await fetch(apiUrl);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var item = await res.json();
+    var out = JSON.stringify(item, null, 2);
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(out);
+      console.log('%c tailtheme: copied tweakcn theme JSON to clipboard!', 'color: #4ade80; font-weight: bold;');
+    }
+    console.log(out);
+    return item;
+  } catch(e) {
+    console.error('tailtheme steal-tweakcn:', e);
+  }
+})();`
+);
+var tweakcnBookmarkletUrl = `javascript:${encodeURIComponent(tweakcnSnippet)}`;
 
 // src/fonts.ts
 var FONTS = {
@@ -3398,6 +3526,9 @@ var themes = [...builtinThemes, ...tweakcnThemes];
   doom64Theme,
   elegantLuxuryTheme,
   extendTheme,
+  fetchAllTweakCNThemes,
+  fetchTweakCNRegistry,
+  fetchTweakCNTheme,
   forestTheme,
   generateCSS,
   generatePattern,
@@ -3437,7 +3568,10 @@ var themes = [...builtinThemes, ...tweakcnThemes];
   themeFromCSS,
   themeFromCSSVars,
   themeFromSnippetOutput,
+  themeFromTweakCNItem,
   themes,
+  tweakcnBookmarkletUrl,
+  tweakcnSnippet,
   tweakcnThemes,
   twitterTheme,
   vintagePaperTheme,

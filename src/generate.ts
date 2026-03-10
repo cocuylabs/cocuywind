@@ -105,6 +105,7 @@ export function generateCSS(theme: Theme): string {
  */
 export function storedThemeToCSS(stored: StoredTheme): string {
   const { styles, fonts, pattern, radius } = stored
+  if (!styles?.light || !styles?.dark) return ''
   const lines: string[] = []
 
   // ─── :root (light mode) ──────────────────────────────────────────────────

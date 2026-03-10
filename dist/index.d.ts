@@ -258,6 +258,97 @@ declare function themeFromSnippetOutput(snippetOutput: {
     dark: Record<string, string>;
 }, meta?: StealMeta): StoredTheme;
 
+/**
+ * Shape of a single theme from the tweakcn public registry API.
+ * Endpoint: GET https://tweakcn.com/r/themes/{name}.json
+ */
+interface TweakCNThemeItem {
+    name: string;
+    title: string;
+    cssVars: {
+        /** Light-mode CSS custom property values (keys include leading --) */
+        light: Record<string, string>;
+        /** Dark-mode CSS custom property values (keys include leading --) */
+        dark: Record<string, string>;
+        /** Shared vars: --radius, --font-sans, --font-serif, --font-mono */
+        theme?: Record<string, string>;
+    };
+}
+/**
+ * Shape of a single entry in the tweakcn registry index.
+ * Endpoint: GET https://tweakcn.com/r/themes/registry.json
+ */
+interface TweakCNRegistryEntry {
+    name: string;
+    title: string;
+    /** Registry item type — always "theme" for theme entries */
+    type?: string;
+}
+/**
+ * Convert a tweakcn registry item (the JSON returned by their public API) into
+ * a `StoredTheme`.  Only the 19 shadcn/ui-compatible color tokens are extracted;
+ * chart-*, sidebar-*, shadow-*, and spacing vars are intentionally ignored.
+ *
+ * @example
+ * const json = await fetch('https://tweakcn.com/r/themes/catppuccin.json').then(r => r.json())
+ * const stored = themeFromTweakCNItem(json)
+ */
+declare function themeFromTweakCNItem(item: TweakCNThemeItem, meta?: StealMeta): StoredTheme;
+/**
+ * Fetch a single theme from the tweakcn public registry by name and convert it
+ * to a `StoredTheme`.
+ *
+ * Requires a global `fetch` (Node ≥ 18, browsers, Bun, Deno).
+ *
+ * @example
+ * const stored = await fetchTweakCNTheme('catppuccin')
+ * // → StoredTheme ready to persist or pass to ThemeProvider
+ *
+ * @example
+ * // With custom name/label override:
+ * const stored = await fetchTweakCNTheme('catppuccin', { name: 'brand', label: 'Brand Theme' })
+ */
+declare function fetchTweakCNTheme(themeName: string, meta?: StealMeta): Promise<StoredTheme>;
+/**
+ * Fetch all available themes from the tweakcn public registry.
+ * Returns the registry index (name + title for each theme) — does NOT fetch
+ * individual theme data.  Use `fetchTweakCNTheme` for that.
+ *
+ * @example
+ * const registry = await fetchTweakCNRegistry()
+ * console.log(registry.map(t => t.name))
+ * // → ['catppuccin', 'violet-bloom', 'modern-minimal', ...]
+ */
+declare function fetchTweakCNRegistry(): Promise<TweakCNRegistryEntry[]>;
+/**
+ * Fetch every theme from tweakcn and return them all as `StoredTheme` objects.
+ * Makes N+1 HTTP requests (1 for registry + 1 per theme).
+ * Prefer `fetchTweakCNTheme` when you only need a specific theme.
+ *
+ * @example
+ * const all = await fetchAllTweakCNThemes()
+ * // → StoredTheme[] — ready to spread into your themes array
+ */
+declare function fetchAllTweakCNThemes(): Promise<StoredTheme[]>;
+/**
+ * A browser DevTools snippet that detects the current tweakcn theme name from
+ * the page URL or DOM, fetches it from tweakcn's public API, and copies the
+ * `StoredTheme`-compatible JSON to clipboard.
+ *
+ * Works when run on tweakcn.com (detects theme from URL hash/search params)
+ * and on any page after you identify the theme name.
+ *
+ * @example
+ * // Paste into DevTools console while on tweakcn.com/?theme=catppuccin
+ * console.log(tweakcnSnippet)
+ */
+declare const tweakcnSnippet = "(async function() {\n  // Try to detect theme name from URL params or hash\n  var url = new URL(location.href);\n  var name = url.searchParams.get('theme') ||\n             url.searchParams.get('name') ||\n             url.hash.replace('#', '') ||\n             prompt('Enter tweakcn theme name (e.g. catppuccin):');\n  if (!name) { console.warn('No theme name provided.'); return; }\n  name = name.trim();\n  var apiUrl = 'https://tweakcn.com/r/themes/' + encodeURIComponent(name) + '.json';\n  console.log('%c tailtheme: fetching ' + apiUrl, 'color: #60a5fa;');\n  try {\n    var res = await fetch(apiUrl);\n    if (!res.ok) throw new Error('HTTP ' + res.status);\n    var item = await res.json();\n    var out = JSON.stringify(item, null, 2);\n    if (navigator.clipboard) {\n      await navigator.clipboard.writeText(out);\n      console.log('%c tailtheme: copied tweakcn theme JSON to clipboard!', 'color: #4ade80; font-weight: bold;');\n    }\n    console.log(out);\n    return item;\n  } catch(e) {\n    console.error('tailtheme steal-tweakcn:', e);\n  }\n})();";
+/**
+ * Bookmarklet URL version of `tweakcnSnippet`.
+ * Drag to bookmarks bar — clicking it on tweakcn.com fetches the current theme.
+ */
+declare const tweakcnBookmarkletUrl: string;
+
 type FontFamily = string;
 /**
  * Curated font constants — system fonts and popular Google Fonts.
@@ -408,4 +499,4 @@ declare const tweakcnThemes: Theme[];
 /** All 47 themes — 10 built-in + 37 tweakcn */
 declare const themes: Theme[];
 
-export { type ColorToken, type CreateThemeConfig, FONTS, type FontFamily, type FontKey, type PatternStyle, type PatternType, type RawColor, type ResolvedTokens, type StealMeta, type StoredTheme, TAILWIND_COLORS, type TailwindColor, type TailwindShade, type TailwindToken, type Theme, type ThemeFonts, type ThemePattern, type ThemeTokens, amberMinimalTheme, amberTheme, amethystHazeTheme, boldTechTheme, bookmarkletUrl, browserSnippet, bubblegumTheme, builtinThemes, caffeineTheme, candyTheme, candylandTheme, catppuccinTheme, claudeTheme, claymorphismTheme, cleanSlateTheme, cosmicNightTheme, createTheme, cyberpunkTheme, defaultTheme, defineTheme, deserializeTheme, doom64Theme, elegantLuxuryTheme, extendTheme, forestTheme, generateCSS, generatePattern, generateThemeVariables, googleFontsUrl, graphiteTheme, indigoTheme, kodamaGroveTheme, midnightBloomTheme, midnightTheme, mochaMousseTheme, modernMinimalTheme, natureTheme, neoBrutalismTheme, northernLightsTheme, notebookTheme, oceanBreezeTheme, oceanTheme, pastelDreamsTheme, perpetuityTheme, quantumRoseTheme, raw, resolveColor, resolveTokens, retroArcadeTheme, roseTheme, serializeTheme, solarDuskTheme, starryNightTheme, storedThemeToCSS, sunsetHorizonTheme, sunsetTheme, supabaseTheme, t3ChatTheme, tangerineTheme, tealTheme, themeFromCSS, themeFromCSSVars, themeFromSnippetOutput, themes, tweakcnThemes, twitterTheme, vintagePaperTheme, violetBloomTheme };
+export { type ColorToken, type CreateThemeConfig, FONTS, type FontFamily, type FontKey, type PatternStyle, type PatternType, type RawColor, type ResolvedTokens, type StealMeta, type StoredTheme, TAILWIND_COLORS, type TailwindColor, type TailwindShade, type TailwindToken, type Theme, type ThemeFonts, type ThemePattern, type ThemeTokens, type TweakCNRegistryEntry, type TweakCNThemeItem, amberMinimalTheme, amberTheme, amethystHazeTheme, boldTechTheme, bookmarkletUrl, browserSnippet, bubblegumTheme, builtinThemes, caffeineTheme, candyTheme, candylandTheme, catppuccinTheme, claudeTheme, claymorphismTheme, cleanSlateTheme, cosmicNightTheme, createTheme, cyberpunkTheme, defaultTheme, defineTheme, deserializeTheme, doom64Theme, elegantLuxuryTheme, extendTheme, fetchAllTweakCNThemes, fetchTweakCNRegistry, fetchTweakCNTheme, forestTheme, generateCSS, generatePattern, generateThemeVariables, googleFontsUrl, graphiteTheme, indigoTheme, kodamaGroveTheme, midnightBloomTheme, midnightTheme, mochaMousseTheme, modernMinimalTheme, natureTheme, neoBrutalismTheme, northernLightsTheme, notebookTheme, oceanBreezeTheme, oceanTheme, pastelDreamsTheme, perpetuityTheme, quantumRoseTheme, raw, resolveColor, resolveTokens, retroArcadeTheme, roseTheme, serializeTheme, solarDuskTheme, starryNightTheme, storedThemeToCSS, sunsetHorizonTheme, sunsetTheme, supabaseTheme, t3ChatTheme, tangerineTheme, tealTheme, themeFromCSS, themeFromCSSVars, themeFromSnippetOutput, themeFromTweakCNItem, themes, tweakcnBookmarkletUrl, tweakcnSnippet, tweakcnThemes, twitterTheme, vintagePaperTheme, violetBloomTheme };
