@@ -42,6 +42,10 @@ export function serializeTheme(theme: Theme): StoredTheme {
 export function deserializeTheme(stored: StoredTheme): Theme {
   const { name, label, styles, fonts, pattern, radius } = stored
 
+  if (!styles?.light || !styles?.dark) {
+    throw new Error(`deserializeTheme: stored theme "${name}" is missing styles.light / styles.dark`)
+  }
+
   // Resolved values are valid CSS strings — they pass through resolveColor as-is
   const lightTokens = Object.fromEntries(
     Object.entries(styles.light).map(([k, v]) => [k, v])

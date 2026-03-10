@@ -744,6 +744,9 @@ function serializeTheme(theme) {
 }
 function deserializeTheme(stored) {
   const { name, label, styles, fonts, pattern, radius } = stored;
+  if (!styles?.light || !styles?.dark) {
+    throw new Error(`deserializeTheme: stored theme "${name}" is missing styles.light / styles.dark`);
+  }
   const lightTokens = Object.fromEntries(
     Object.entries(styles.light).map(([k, v]) => [k, v])
   );
