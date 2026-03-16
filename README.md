@@ -6,6 +6,91 @@ Built for the dashboard → DB → derived app flow: a Next.js dashboard where u
 
 ---
 
+## How it works
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        TAILTHEME FLOW                           │
+└─────────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │  DEFINE  (theme authoring)                                   │
+  │                                                              │
+  │  createTheme({ primary: 'blue', neutral: 'slate' })         │
+  │    └─ TailwindToken refs  →  Theme object                    │
+  │                                                              │
+  │  defineTheme({ light: { background: raw('oklch(...)') } })  │
+  │    └─ Raw CSS strings    →  Theme object                     │
+  └───────────────────┬──────────────────────────────────────────┘
+                      │  Theme
+                      ▼
+  ┌──────────────────────────────────────────────────────────────┐
+  │  SERIALIZE  (before saving to DB)                            │
+  │                                                              │
+  │  serializeTheme(theme)                                       │
+  │    resolves:  'blue-600'  →  'oklch(0.546 0.245 262.881)'   │
+  │    resolves:  raw('…')    →  passes through as-is           │
+  │    output:    StoredTheme  (only resolved CSS strings)       │
+  └───────────────────┬──────────────────────────────────────────┘
+                      │  StoredTheme (plain JSON)
+                      ▼
+  ┌──────────────────────────────────────────────────────────────┐
+  │  DATABASE  (stores serialized JSON)                          │
+  │                                                              │
+  │  { styles: { light: { background: 'oklch(...)' },           │
+  │              dark:  { background: 'oklch(...)' } },         │
+  │    fonts: { sans: 'Inter' }, radius: '0.5rem' }             │
+  └──────────┬─────────────────────────┬────────────────────────┘
+             │                         │
+             ▼                         ▼
+  ┌──────────────────┐      ┌─────────────────────────────────┐
+  │  NEXT.JS DASHBOARD│      │  CONSUMER APPS (no dep needed)  │
+  │                  │      │                                  │
+  │  deserializeTheme│      │  storedThemeToCSS(stored)        │
+  │  → Theme         │      │  → raw CSS string                │
+  │                  │      │                                  │
+  │  ThemeProvider   │      │  <!-- Astro / React / any -->    │
+  │  ThemePicker     │      │  <style set:html={css} />        │
+  │  useTheme()      │      │                                  │
+  └──────────────────┘      └────────────┬────────────────────┘
+                                         │
+                                         ▼
+                            ┌────────────────────────────────┐
+                            │  Generated CSS                 │
+                            │                                │
+                            │  :root {                       │
+                            │    --background: oklch(1 0 0); │
+                            │    --primary: oklch(0.54 …);   │
+                            │    --radius: 0.5rem;           │
+                            │    --font-sans: 'Inter', …;    │
+                            │  }                             │
+                            │  .dark { --background: … }     │
+                            │  @theme inline {               │
+                            │    --color-primary: var(…);    │
+                            │  }                             │
+                            └────────────────────────────────┘
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  THEME STEALING (optional — import from existing sites)         │
+│                                                                 │
+│  Browser DevTools  →  browserSnippet  →  JSON clipboard         │
+│  themeFromSnippetOutput(json)  →  StoredTheme                   │
+│                                                                 │
+│  CSS text paste    →  themeFromCSS(cssText)  →  StoredTheme     │
+│  TweakCN API       →  fetchTweakCNTheme(name)  →  StoredTheme   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key insight:** `StoredTheme` is the **single contract** between apps. It's plain JSON with resolved CSS strings — consumer apps only need `storedThemeToCSS()`, which is pure string formatting with no color resolution and no `tailtheme` runtime dependency.
+
+The two color forms collapse to the same resolved CSS string at `serializeTheme()` time:
+- `TailwindToken` (`'blue-600'`) — used in built-in themes, readable and maintainable
+- `raw('oklch(...)')` — used in TweakCN ports, exact values with no color drift
+
+---
+
 ## Requirements
 
 - **Node.js** 18+

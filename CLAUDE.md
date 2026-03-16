@@ -155,8 +155,11 @@ Keys are **camelCase** in TypeScript. `generate.ts` maps them to `--kebab-case` 
   --primary: oklch(0.623 0.214 259.815);
   /* ... all 19 color vars ... */
   --radius: 0.5rem;
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Playfair Display', Georgia, serif;
 }
+:root { font-family: var(--font-body); }
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }
 .dark {
   --background: oklch(0.145 0 0);
   /* ... dark overrides ... */
@@ -165,6 +168,8 @@ Keys are **camelCase** in TypeScript. `generate.ts` maps them to `--kebab-case` 
   --color-background: var(--background);
   --color-primary: var(--primary);
   /* ... maps all 19 → Tailwind utility classes ... */
+  --font-sans: var(--font-body);      /* powers Tailwind font-sans utility */
+  --font-heading: var(--font-heading);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 4px);
@@ -183,25 +188,74 @@ This is the **Astro path** — no Theme object needed. The consumer formats stor
 ```
 Light mode:
   primary: primary-600
-  background: neutral-50
-  card: neutral-100
-  secondary/accent: neutral-200
-  muted: neutral-100
+  background: primary-50    ← uses PRIMARY family, not neutral
+  card: primary-100
+  secondary/accent: primary-200
+  muted: primary-100
+  foreground/text: neutral-950  ← stays neutral for readability
   mutedForeground: neutral-500
   destructive: red-600
 
 Dark mode:
   primary: primary-400
-  background: neutral-950
-  card: neutral-900
-  secondary/accent: neutral-800
-  muted: neutral-800
+  background: primary-950   ← uses PRIMARY family, not neutral
+  card: primary-900
+  secondary/accent: primary-800   ← lighter surface, visible for badges/pills
+  muted: primary-900
+  foreground/text: neutral-50    ← stays neutral for readability
   mutedForeground: neutral-400
   destructive: red-400
 ```
 
+Dark mode uses the **primary color family** for all background/surface tokens so the theme's hue is immediately visible. Text tokens (`foreground`, `cardForeground`, `mutedForeground`) stay on the neutral family for maximum readability. This means `secondary` at `primary-800` contrasts clearly against `card` at `primary-900`, making price badges and secondary chips visible.
+
+### Neutral base as a background override
+
+By default `createTheme` uses the **primary color family** for all background/surface tokens (`background`, `card`, `popover`, `muted`, `border`, `input`). The `neutral` param only drives text tokens (`foreground`, `cardForeground`, `popoverForeground`, `secondaryForeground`, `accentForeground`, `mutedForeground`).
+
+To get neutral backgrounds instead, pass the neutral family in `overrides`:
+
+```typescript
+createTheme({
+  primary: 'violet', neutral: 'zinc', radius: '0.5rem',
+  overrides: {
+    light: { background: 'zinc-50', card: 'zinc-100', popover: 'zinc-50', muted: 'zinc-100', border: 'zinc-200', input: 'zinc-200' },
+    dark:  { background: 'zinc-950', card: 'zinc-900', popover: 'zinc-950', muted: 'zinc-900', border: 'zinc-800', input: 'zinc-800' },
+  },
+})
+```
+
+**ThemePicker custom builder exposes this as "Neutral Base":**
+- `none` (default) — backgrounds use the primary family (the standard chromatic look)
+- `slate / gray / zinc / neutral / stone` — overrides all background/surface tokens with that neutral family; text tokens still use the selected neutral
+
 `extendTheme(base, overrides)` — merges token-level overrides into an existing theme.
 `defineTheme(theme)` — identity function + type validation for fully explicit definitions.
+
+---
+
+## Neutral Color Convention (built-in + basic themes)
+
+The **neutral** color family drives backgrounds, surfaces, borders, and muted text. Choosing the wrong neutral makes dark-mode backgrounds look off-color:
+
+| Neutral | Dark-mode hue | Use when primary is… |
+|---|---|---|
+| `slate` | Blue-navy (`hue ≈ 265°`) | `cyan`, `sky`, `blue`, `indigo` |
+| `zinc` | Near-neutral (`chroma ≈ 0.005`) | `lime`, `green`, `emerald`, `teal`, `violet`, `purple`, `fuchsia`, `pink`, `rose` |
+| `stone` | Warm brown tint | `red`, `orange`, `amber`, `yellow` |
+| `neutral` | Perfectly neutral | Any |
+
+**Rule**: Never pair green/purple/pink primaries with `slate` neutral — `slate-950` has a strong blue cast that visually overwhelms the primary hue in dark mode.
+
+For built-in tailored themes, dark backgrounds should use the **primary color family** (not generic neutral) so the theme's identity is visible even without interactive elements:
+
+```typescript
+// Good — rose dark mode stays rose-tinted
+dark: { background: 'rose-950', card: 'rose-900', border: 'rose-800', ... }
+
+// Bad — looks like any dark default theme
+dark: { background: 'neutral-950', card: 'neutral-900', ... }
+```
 
 ---
 
@@ -323,7 +377,7 @@ Props: `themes`, `value`, `onChange`, `allowCustom`, `sections` (`'colors' | 'fo
 
 Sections:
 - `colors` — TailwindColor dot-grid for primary, neutral selector
-- `fonts` — sans/serif/mono dropdowns
+- `fonts` — body and heading dropdowns
 - `patterns` — pattern type button grid
 - `radius` — preset buttons + custom input
 
@@ -333,8 +387,17 @@ Sections:
 
 ## Fonts
 
-`FONTS` constant has 18 entries (3 system + 15 Google Fonts).
+`ThemeFonts` has two slots:
+- `body` — the UI/text font, applied to `:root`. Omit for system-ui.
+- `heading` — optional display font for h1–h6. Omit to inherit body font for headings.
+
+`FONTS` constant has 14 entries (2 system + 8 sans-serif Google Fonts + 4 serif Google Fonts). Mono fonts are not part of the theming system.
+
 `googleFontsUrl(families: string[])` takes an array of font-family strings from `FONTS` and returns a Google Fonts CDN URL with appropriate weight ranges.
+
+**CSS output:** `--font-body` and `--font-heading` vars are emitted in `:root`. Application rules (`:root { font-family: var(--font-body) }` and `h1–h6 { font-family: var(--font-heading) }`) are included automatically. In `@theme inline`, `--font-sans` is mapped to `var(--font-body)` so the Tailwind `font-sans` utility keeps working.
+
+**Stealing:** `--font-sans` from stolen themes maps to `body`; `--font-serif` maps to `heading`.
 
 ---
 
@@ -426,6 +489,18 @@ import { themeFromCSS } from 'tailtheme'
 // Works with @layer base { :root { } .dark { } } wrapper
 const stored = themeFromCSS(cssText, { name: 'catppuccin' })
 ```
+
+---
+
+## Integration Contract
+
+See **`CONSUMING.md`** for the full integration contract covering:
+- How admin panels (Next.js dashboard) should use `ThemePicker` + `serializeTheme`
+- How consumer apps (Astro, React storefront) should use `storedThemeToCSS`
+- The stable `StoredTheme` shape and the 19 token keys
+- Breakage policy (what changes are safe vs. coordinated migrations)
+
+The short version: `StoredTheme` is the only value that crosses the wire. Everything upstream of `serializeTheme()` is the library's concern; everything downstream of `storedThemeToCSS()` is the consumer's concern.
 
 ---
 

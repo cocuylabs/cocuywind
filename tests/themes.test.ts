@@ -4,16 +4,16 @@ import { oceanTheme } from '../src/themes/builtin/ocean.js'
 import { claudeTheme } from '../src/themes/tweakcn/claude.js'
 
 describe('theme catalog', () => {
-  it('exports 10 built-in themes', () => {
-    expect(builtinThemes).toHaveLength(10)
+  it('exports 27 built-in themes (10 curated + 17 basic)', () => {
+    expect(builtinThemes).toHaveLength(27)
   })
 
   it('exports 37 tweakcn themes', () => {
     expect(tweakcnThemes).toHaveLength(37)
   })
 
-  it('exports 47 total themes', () => {
-    expect(themes).toHaveLength(47)
+  it('exports 64 total themes', () => {
+    expect(themes).toHaveLength(64)
   })
 
   it('all themes have name, label, light, dark', () => {

@@ -37,9 +37,10 @@ interface ThemeTokens {
     ring: ColorToken;
 }
 interface ThemeFonts {
-    sans?: string;
-    serif?: string;
-    mono?: string;
+    /** Body / UI font — applied to :root. Defaults to system-ui sans-serif. */
+    body?: string;
+    /** Heading / display font — applied to h1–h6. Omit to use body font for headings too. */
+    heading?: string;
 }
 type PatternType = 'none' | 'dots' | 'grid' | 'cross' | 'diagonal-lines' | 'horizontal-lines' | 'vertical-lines' | 'zigzag' | 'checkerboard' | 'triangles' | 'hexagons' | 'noise';
 interface ThemePattern {
@@ -62,6 +63,10 @@ interface Theme {
     pattern?: ThemePattern;
     /** e.g. "0.5rem" */
     radius?: string;
+    /** Groups themes in the picker: 'Basic' | 'Curated' | 'TweakCN' */
+    category?: string;
+    /** Optional original/source label for display or attribution */
+    _sourceName?: string;
 }
 /** Resolved CSS values as flat string maps — never Tailwind token refs */
 type ResolvedTokens = Record<string, string>;
@@ -86,9 +91,12 @@ interface StoredTheme {
     /** If source === 'generated' via createTheme() */
     _generatorConfig?: {
         primary: TailwindColor;
-        neutral: TailwindColor;
+        neutral?: TailwindColor;
+        secondary?: TailwindColor;
         radius?: string;
     };
+    /** Optional original/source label for display or attribution */
+    _sourceName?: string;
 }
 
 /**
@@ -125,11 +133,20 @@ interface CreateThemeConfig {
     name: string;
     label: string;
     primary: TailwindColor;
-    /** Drives backgrounds, surfaces, muted */
-    neutral: TailwindColor;
+    /**
+     * Desaturated neutral family for backgrounds/surfaces/muted.
+     * Omit (or undefined) to keep the chromatic look: all surfaces use the primary hue.
+     */
+    neutral?: TailwindColor;
+    /**
+     * Secondary accent color family.
+     * Omit (or undefined) to auto-derive from primary (secondary = primary at -200/-800).
+     */
+    secondary?: TailwindColor;
     radius?: string;
     fonts?: ThemeFonts;
     pattern?: ThemePattern;
+    category?: string;
     overrides?: {
         light?: Partial<ThemeTokens>;
         dark?: Partial<ThemeTokens>;
@@ -139,7 +156,9 @@ interface CreateThemeConfig {
  * Easiest factory: pick color families, library picks shades intelligently.
  *
  * @example
+ * createTheme({ name: 'ocean', label: 'Ocean', primary: 'blue' })
  * createTheme({ name: 'ocean', label: 'Ocean', primary: 'blue', neutral: 'slate' })
+ * createTheme({ name: 'ocean', label: 'Ocean', primary: 'blue', secondary: 'teal' })
  */
 declare function createTheme(config: CreateThemeConfig): Theme;
 /**
@@ -235,7 +254,7 @@ declare function themeFromCSS(cssText: string, meta?: StealMeta): StoredTheme;
  * // User pastes it into DevTools console on the target site
  * // Then passes the copied JSON to themeFromCSSVars()
  */
-declare const browserSnippet = "(function() {\n  var cs = getComputedStyle(document.documentElement);\n  var css = document.documentElement.style;\n  var keys = [\n    'background','foreground',\n    'card','card-foreground',\n    'popover','popover-foreground',\n    'primary','primary-foreground',\n    'secondary','secondary-foreground',\n    'muted','muted-foreground',\n    'accent','accent-foreground',\n    'destructive','destructive-foreground',\n    'border','input','ring',\n    'radius','font-sans','font-serif','font-mono'\n  ];\n  var light = {}, dark = {};\n  keys.forEach(function(k) {\n    var v = (css.getPropertyValue('--' + k) || cs.getPropertyValue('--' + k)).trim();\n    if (v) light['--' + k] = v;\n  });\n  // Switch to dark mode temporarily to capture dark vars\n  var wasDark = document.documentElement.classList.contains('dark');\n  document.documentElement.classList.add('dark');\n  var cs2 = getComputedStyle(document.documentElement);\n  keys.forEach(function(k) {\n    var v = cs2.getPropertyValue('--' + k).trim();\n    if (v) dark['--' + k] = v;\n  });\n  if (!wasDark) document.documentElement.classList.remove('dark');\n  var out = JSON.stringify({ light: light, dark: dark }, null, 2);\n  if (navigator.clipboard) {\n    navigator.clipboard.writeText(out).then(function() {\n      console.log('%c tailtheme steal: copied to clipboard!', 'color: #4ade80; font-weight: bold;');\n    });\n  }\n  console.log(out);\n  return out;\n})();";
+declare const browserSnippet = "(function() {\n  var cs = getComputedStyle(document.documentElement);\n  var css = document.documentElement.style;\n  var keys = [\n    'background','foreground',\n    'card','card-foreground',\n    'popover','popover-foreground',\n    'primary','primary-foreground',\n    'secondary','secondary-foreground',\n    'muted','muted-foreground',\n    'accent','accent-foreground',\n    'destructive','destructive-foreground',\n    'border','input','ring',\n    'radius','font-sans','font-serif'\n  ];\n  var light = {}, dark = {};\n  keys.forEach(function(k) {\n    var v = (css.getPropertyValue('--' + k) || cs.getPropertyValue('--' + k)).trim();\n    if (v) light['--' + k] = v;\n  });\n  // Switch to dark mode temporarily to capture dark vars\n  var wasDark = document.documentElement.classList.contains('dark');\n  document.documentElement.classList.add('dark');\n  var cs2 = getComputedStyle(document.documentElement);\n  keys.forEach(function(k) {\n    var v = cs2.getPropertyValue('--' + k).trim();\n    if (v) dark['--' + k] = v;\n  });\n  if (!wasDark) document.documentElement.classList.remove('dark');\n  var out = JSON.stringify({ light: light, dark: dark }, null, 2);\n  if (navigator.clipboard) {\n    navigator.clipboard.writeText(out).then(function() {\n      console.log('%c tailtheme steal: copied to clipboard!', 'color: #4ade80; font-weight: bold;');\n    });\n  }\n  console.log(out);\n  return out;\n})();";
 /**
  * A bookmarklet URL version of `browserSnippet`.
  * Add this as a browser bookmark — clicking it on any page runs the extraction.
@@ -357,7 +376,6 @@ type FontFamily = string;
 declare const FONTS: {
     readonly SYSTEM_SANS: "system-ui, -apple-system, sans-serif";
     readonly SYSTEM_SERIF: "Georgia, 'Times New Roman', serif";
-    readonly SYSTEM_MONO: "ui-monospace, 'Courier New', monospace";
     readonly INTER: "'Inter', system-ui, sans-serif";
     readonly GEIST: "'Geist', system-ui, sans-serif";
     readonly PLUS_JAKARTA: "'Plus Jakarta Sans', system-ui, sans-serif";
@@ -370,9 +388,6 @@ declare const FONTS: {
     readonly LORA: "'Lora', Georgia, serif";
     readonly MERRIWEATHER: "'Merriweather', Georgia, serif";
     readonly DM_SERIF: "'DM Serif Display', Georgia, serif";
-    readonly JETBRAINS_MONO: "'JetBrains Mono', monospace";
-    readonly FIRA_CODE: "'Fira Code', monospace";
-    readonly IBM_PLEX_MONO: "'IBM Plex Mono', monospace";
 };
 type FontKey = keyof typeof FONTS;
 /**
@@ -398,6 +413,482 @@ interface PatternStyle {
  */
 declare function generatePattern(config: ThemePattern): PatternStyle;
 
+var amber$1 = "Ámbar Cálido";
+var bubblegum$1 = "Chicle";
+var caffeine$1 = "Cafeína";
+var candy$1 = "Caramelo";
+var candyland$1 = "Mundo de Dulces";
+var catppuccin$1 = "Catppuccin";
+var claude$1 = "Claude";
+var claymorphism$1 = "Claymorphism";
+var cyberpunk$1 = "Cyberpunk";
+var forest$1 = "Verde Bosque";
+var graphite$1 = "Grafito";
+var indigo$1 = "Índigo Profundo";
+var midnight$1 = "Medianoche";
+var nature$1 = "Naturaleza";
+var notebook$1 = "Libreta";
+var ocean$1 = "Azul Océano";
+var perpetuity$1 = "Perpetuidad";
+var rose$1 = "Rosa";
+var sunset$1 = "Naranja Atardecer";
+var supabase$1 = "Supabase";
+var tangerine$1 = "Mandarina";
+var teal$1 = "Verde Azulado";
+var twitter$1 = "Twitter / X";
+var themeLabels_es = {
+	amber: amber$1,
+	"amber-minimal": "Ámbar Minimalista",
+	"amethyst-haze": "Bruma de Amatista",
+	"bold-tech": "Tecnología Audaz",
+	bubblegum: bubblegum$1,
+	caffeine: caffeine$1,
+	candy: candy$1,
+	candyland: candyland$1,
+	catppuccin: catppuccin$1,
+	claude: claude$1,
+	claymorphism: claymorphism$1,
+	"clean-slate": "Página en Blanco",
+	"community-1-cmlwi5": "Vista Cobalto",
+	"community-2077-cmledj": "2077",
+	"community-3d-vintage-paper-cmm7uq": "Papel Vintage 3D",
+	"community-53-cmmp8a": "Cañón de Cobre",
+	"community-a-cmmm59": "Órbita de Luz",
+	"community-agora-events-cmlpmf": "Eventos Ágora",
+	"community-aldo-rebelo-admin-cmlwgg": "Aldo Rebelo Admin",
+	"community-alpine-cmlecl": "Alpino",
+	"community-altar-v1-cmmadl": "ALTAR",
+	"community-altar-v1-invert-cmmaeo": "ALTAR Invertido",
+	"community-amber-mono-2-0-cmlpw7": "Ámbar Mono",
+	"community-apex-cmlf55": "APEX",
+	"community-artefactory-cmm3xr": "Artefactory",
+	"community-aryze-colors-2026-v2-cmmkfw": "Colores Aryze",
+	"community-astrovista-cmlk70": "Astrovista",
+	"community-autoblog-cmlpf8": "Autoblog",
+	"community-bain-design-system-cmm5y6": "Sistema de Diseño Bain",
+	"community-beso-colors-cmltho": "Colores Beso",
+	"community-best-deisgne-ui-ux-shadcn-cmmsal": "Shadcn UI UX",
+	"community-better-light-theme-supabase-cmmdxi": "Supabase Light Mejorado",
+	"community-black-and-pink-cmliek": "Negro y Rosa",
+	"community-black-cmmls5": "Negro",
+	"community-blue-cmmgxu": "Azul",
+	"community-blue-orange-cmm5x6": "Azul y Naranja",
+	"community-blue-yellow-warn-ugly-af-in-light-mode-cmljx1": "Contraste Azul y Amarillo",
+	"community-bold-wikipedia-cmlmpb": "Wikipedia Bold",
+	"community-brownie-cmlr31": "Brownie",
+	"community-brownies-cmlkz0": "Brownies",
+	"community-burgundy-cmle93": "Borgoña",
+	"community-caffein-thheme-cmmhks": "Tema Cafeína",
+	"community-carbon-ember-cmlf2h": "Brasa de Carbón",
+	"community-caser-cmm6p0": "Caser",
+	"community-catppuccin-mocha-cmm3nh": "Catppuccin Mocha",
+	"community-celestial-cmm720": "Celestial",
+	"community-chalk": "Tiza",
+	"community-claude-blu-2-cmmead": "Claude Blue",
+	"community-claude-cmlm0b": "Claude",
+	"community-claude-cmlr30": "Claude Plus",
+	"community-claude-renk-paleti-v1-0-cmm9i1": "Paleta Claude",
+	"community-clinids-29-01-cmll4q": "Clinids",
+	"community-course-app-cmmnnr": "App de Cursos",
+	"community-cwh-learning-cmlpfa": "Cwh Learning",
+	"community-damon-cmlw7u": "Damon",
+	"community-dark-forge-cmlf2k": "Forja Oscura",
+	"community-de-sarann-villa-cmmni6": "Villa De Sarann",
+	"community-de-swiss-design-cmlure": "Diseño Suizo",
+	"community-deep-purple-cmlh1j": "Púrpura Profundo",
+	"community-designbyte-cmlpf5": "Designbyte",
+	"community-diby-cmlhru": "Diby",
+	"community-diby-orange-cmlhrv": "Diby Naranja",
+	"community-domia-cmlz4g": "DOMIA",
+	"community-efferd-cmmi9l": "Efferd",
+	"community-emerald-cmli3u": "Esmeralda",
+	"community-enterprise-mod-2-cmlva5": "Enterprise Mod",
+	"community-eslinks-cmmaoe": "Eslinks",
+	"community-essw-cmmphm": "Essw",
+	"community-examdedo-cmlpf1": "Examdedo",
+	"community-flat-pink-2-cmlieo": "Rosa Plano",
+	"community-gold-cmlf3x": "Oro",
+	"community-greattings-cmlfwc": "Saludos",
+	"community-green-with-yellow-theme-cmlewm": "Verde y Amarillo",
+	"community-greenbarbequeue-cmm9ae": "Parrilla Verde",
+	"community-hyper-red-cmliel": "Hiper Rojo",
+	"community-ibk-theme-cmmb5d": "Tema IBK",
+	"community-iconic-terminal-cmmhiu": "Terminal Icónica",
+	"community-imhicihu-cmmp28": "Imhicihu",
+	"community-india-cmlpfe": "India",
+	"community-infoseer-cmmcv8": "Infoseer",
+	"community-intropic-mui-react-cursor-retool-cmmt51": "Intropic MUI",
+	"community-itadori-yuji-cmmhf9": "Itadori Yuji",
+	"community-jamaica-cmlh1c": "Jamaica",
+	"community-japan-blues-cmmje1": "Azules de Japón",
+	"community-jknm-cmmrfz": "Jknm",
+	"community-js-ts-advent-of-code-cmlr31": "Advent of Code",
+	"community-kedokteran-cmmc4g": "Medicina",
+	"community-kupikod-cmleua": "Kupikod",
+	"community-lara-cmm277": "Lara",
+	"community-lastchat-cmmi2x": "Lastchat",
+	"community-lavanda-cmmis1": "Lavanda",
+	"community-leadgen-cmle6z": "Generación de Leads",
+	"community-light-green-cmlhfq": "Verde Claro",
+	"community-lime-green-dhamaka-cmm7ct": "Explosión Lima",
+	"community-limes-cmliem": "Limas",
+	"community-logisticone-cmm0zk": "Logisticone",
+	"community-lyte-cmml0p": "Lyte",
+	"community-m-cmlgp0": "Eco del Cañón",
+	"community-magic-2-cmmsz6": "Magia",
+	"community-magic-3-cmmt0a": "Magia Plus",
+	"community-manga-vibe-cmlr32": "Estilo Manga",
+	"community-meta-mask-geist-cmlf9r": "MetaMask Geist",
+	"community-minimal-neutral-cmlr2z": "Neutral Minimalista",
+	"community-moss-cmmi1g": "Musgo",
+	"community-mt-cmmdl8": "Circuito Nimbus",
+	"community-mx-brutalist-cmllfv": "MX Brutalista",
+	"community-my-aweasome-theme-cmlxzf": "Mi Increíble Tema",
+	"community-my-theme-01-cmmemx": "Mi Tema",
+	"community-my-theme-cmm24g": "Mi Tema Personal",
+	"community-nlan-cmli81": "NLAN",
+	"community-nubanck-cmlf40": "Nubank",
+	"community-nxtbet-quadra-inspired-cmmaea": "NXTBET Quadra",
+	"community-offworld-cmlpw4": "Fuera del Mundo",
+	"community-oikwee-cmmb8l": "Oikwee",
+	"community-old-school-cmlx21": "Estilo Retro",
+	"community-openprofile-cmlpf8": "Openprofile",
+	"community-orient-cmlzhg": "Oriente",
+	"community-orio-design-system-cmm1ri": "Orio Design System",
+	"community-palm-cmlotm": "Palmera",
+	"community-papaya-cmmgxh": "Papaya",
+	"community-party-rock-cmlqxf": "Party Rock",
+	"community-pasteelement2-cmlpfh": "Pasteelement",
+	"community-playable-cmli0k": "Jugable",
+	"community-polaris-cmmr3s": "Polaris",
+	"community-poppy-1-cmlmc0": "Amapola",
+	"community-porfolio-theme-cmler0": "Tema de Portafolio",
+	"community-professional-theme-cmluaj": "Tema Profesional",
+	"community-purple-popins-cmlvfb": "Púrpura Poppins",
+	"community-purple-rain-cmlh1l": "Lluvia Púrpura",
+	"community-purple-soft-popins-cmlwku": "Púrpura Suave",
+	"community-purples-cmlien": "Tonos Púrpura",
+	"community-qrafthive-cmlk6w": "Qrafthive",
+	"community-remedy-s-control-cmmszc": "Control de Remedy",
+	"community-resolveai-app-cmmchq": "App Resolveai",
+	"community-retro-2-cmm2e2": "Retro Moderno",
+	"community-retro-cmm2d5": "Retro",
+	"community-rewaff-cmmm3h": "Rewaff",
+	"community-roboto-modern-cmlwxa": "Roboto Moderno",
+	"community-rose-pine-cmlwpk": "Rose Pine",
+	"community-s3karo-cmlpf0": "S3karo",
+	"community-sage-green-cmlf70": "Verde Salvia",
+	"community-sakura-cmmghp": "Sakura",
+	"community-sandstone-cmmi1p": "Arenisca",
+	"community-service-hub-theme-cmmmrn": "Centro de Servicio",
+	"community-sesi-theme-2-cmmmkb": "Tema SESI",
+	"community-shopify-red-cmmaba": "Shopify Rojo",
+	"community-sky-cmmjha": "Cielo",
+	"community-something-cmmmy7": "Algo",
+	"community-spacelinear-cmm4ya": "Espacio Lineal",
+	"community-stella-cmm2mf": "Stella",
+	"community-student-spacelab-network-1-cmmkfn": "Red Spacelab",
+	"community-styrene-cmlybu": "Estireno",
+	"community-styrenedark-cmly9d": "Estireno Oscuro",
+	"community-sukuna-cmmhf8": "Sukuna",
+	"community-sulav-theme-cmmf66": "Tema Sulav",
+	"community-t2-cmm85y": "Deriva de Salvia",
+	"community-teal-hue-cmm599": "Tono Verde Azulado",
+	"community-terminal-cmll24": "Terminal",
+	"community-terminal-cmlmsn": "Terminal",
+	"community-terminal-dark-russian-cmmljk": "Terminal Ruso Oscuro",
+	"community-terminal-muted-cmlvaz": "Terminal Atenuado",
+	"community-tersk-cmmlwi": "Tersk",
+	"community-test-cmlpfc": "Prueba",
+	"community-theme-cmlpl5-cmlpl5": "Tema Personal",
+	"community-tiesen-cmliib": "Tiesen",
+	"community-twitter-cmlznl": "Twitter",
+	"community-uv-day-cmmfg9": "Día UV",
+	"community-v2-cmlofg": "Estudio Marfil",
+	"community-vermillion-cmmtjp": "Bermellón",
+	"community-vescrow-1-2-cmlhpn": "Vescrow",
+	"community-violate-eye-cmm3eb": "Ojo Violeta",
+	"community-vivid-sky-cmmjjm": "Cielo Vívido",
+	"community-vrai-delice-cmm3sr": "Vrai Delice",
+	"community-vtron-cmlpfk": "VTRON",
+	"community-whatsapp-cmmbmn": "WhatsApp",
+	"community-woodforge-9-cmmhug": "Forja de Madera",
+	"community-zen-inspired-theme-cmlm0c": "Inspiración Zen",
+	"cosmic-night": "Noche Cósmica",
+	cyberpunk: cyberpunk$1,
+	"default": "Predeterminado",
+	"doom-64": "Doom 64",
+	"elegant-luxury": "Lujo Elegante",
+	forest: forest$1,
+	graphite: graphite$1,
+	indigo: indigo$1,
+	"kodama-grove": "Bosque Kodama",
+	midnight: midnight$1,
+	"midnight-bloom": "Flor de Medianoche",
+	"mocha-mousse": "Mousse de Moka",
+	"modern-minimal": "Moderno Minimalista",
+	nature: nature$1,
+	"neo-brutalism": "Neobrutalismo",
+	"northern-lights": "Aurora Boreal",
+	notebook: notebook$1,
+	ocean: ocean$1,
+	"ocean-breeze": "Brisa Marina",
+	"pastel-dreams": "Sueños Pastel",
+	perpetuity: perpetuity$1,
+	"quantum-rose": "Rosa Cuántico",
+	"retro-arcade": "Arcade Retro",
+	rose: rose$1,
+	"solar-dusk": "Ocaso Solar",
+	"starry-night": "Noche Estrellada",
+	sunset: sunset$1,
+	"sunset-horizon": "Horizonte al Atardecer",
+	supabase: supabase$1,
+	"t3-chat": "T3 Chat",
+	tangerine: tangerine$1,
+	teal: teal$1,
+	twitter: twitter$1,
+	"vintage-paper": "Papel Vintage",
+	"violet-bloom": "Flor Violeta"
+};
+
+var amber = "Âmbar Quente";
+var bubblegum = "Chiclete";
+var caffeine = "Cafeína";
+var candy = "Doce";
+var candyland = "Reino dos Doces";
+var catppuccin = "Catppuccin";
+var claude = "Claude";
+var claymorphism = "Claymorphism";
+var cyberpunk = "Cyberpunk";
+var forest = "Verde Floresta";
+var graphite = "Grafite";
+var indigo = "Índigo Profundo";
+var midnight = "Meia-noite";
+var nature = "Natureza";
+var notebook = "Caderno";
+var ocean = "Azul Oceano";
+var perpetuity = "Perpetuidade";
+var rose = "Rosa";
+var sunset = "Laranja Pôr do Sol";
+var supabase = "Supabase";
+var tangerine = "Tangerina";
+var teal = "Ciano";
+var twitter = "Twitter / X";
+var themeLabels_pt = {
+	amber: amber,
+	"amber-minimal": "Âmbar Minimalista",
+	"amethyst-haze": "Névoa de Ametista",
+	"bold-tech": "Tecnologia Arrojada",
+	bubblegum: bubblegum,
+	caffeine: caffeine,
+	candy: candy,
+	candyland: candyland,
+	catppuccin: catppuccin,
+	claude: claude,
+	claymorphism: claymorphism,
+	"clean-slate": "Página Limpa",
+	"community-1-cmlwi5": "Vista Cobalto",
+	"community-2077-cmledj": "2077",
+	"community-3d-vintage-paper-cmm7uq": "Papel Vintage 3D",
+	"community-53-cmmp8a": "Cânion de Cobre",
+	"community-a-cmmm59": "Órbita de Luz",
+	"community-agora-events-cmlpmf": "Eventos Ágora",
+	"community-aldo-rebelo-admin-cmlwgg": "Aldo Rebelo Admin",
+	"community-alpine-cmlecl": "Alpino",
+	"community-altar-v1-cmmadl": "ALTAR",
+	"community-altar-v1-invert-cmmaeo": "ALTAR Invertido",
+	"community-amber-mono-2-0-cmlpw7": "Âmbar Mono",
+	"community-apex-cmlf55": "APEX",
+	"community-artefactory-cmm3xr": "Artefactory",
+	"community-aryze-colors-2026-v2-cmmkfw": "Cores Aryze",
+	"community-astrovista-cmlk70": "Astrovista",
+	"community-autoblog-cmlpf8": "Autoblog",
+	"community-bain-design-system-cmm5y6": "Sistema de Design Bain",
+	"community-beso-colors-cmltho": "Cores Beso",
+	"community-best-deisgne-ui-ux-shadcn-cmmsal": "Shadcn UI UX",
+	"community-better-light-theme-supabase-cmmdxi": "Supabase Light Melhorado",
+	"community-black-and-pink-cmliek": "Preto e Rosa",
+	"community-black-cmmls5": "Preto",
+	"community-blue-cmmgxu": "Azul",
+	"community-blue-orange-cmm5x6": "Azul e Laranja",
+	"community-blue-yellow-warn-ugly-af-in-light-mode-cmljx1": "Contraste Azul e Amarelo",
+	"community-bold-wikipedia-cmlmpb": "Wikipedia Bold",
+	"community-brownie-cmlr31": "Brownie",
+	"community-brownies-cmlkz0": "Brownies",
+	"community-burgundy-cmle93": "Borgonha",
+	"community-caffein-thheme-cmmhks": "Tema Cafeína",
+	"community-carbon-ember-cmlf2h": "Brasa de Carvão",
+	"community-caser-cmm6p0": "Caser",
+	"community-catppuccin-mocha-cmm3nh": "Catppuccin Mocha",
+	"community-celestial-cmm720": "Celestial",
+	"community-chalk": "Giz",
+	"community-claude-blu-2-cmmead": "Claude Blue",
+	"community-claude-cmlm0b": "Claude",
+	"community-claude-cmlr30": "Claude Plus",
+	"community-claude-renk-paleti-v1-0-cmm9i1": "Paleta Claude",
+	"community-clinids-29-01-cmll4q": "Clinids",
+	"community-course-app-cmmnnr": "App de Cursos",
+	"community-cwh-learning-cmlpfa": "Cwh Learning",
+	"community-damon-cmlw7u": "Damon",
+	"community-dark-forge-cmlf2k": "Forja Sombria",
+	"community-de-sarann-villa-cmmni6": "Villa De Sarann",
+	"community-de-swiss-design-cmlure": "Design Suíço",
+	"community-deep-purple-cmlh1j": "Roxo Profundo",
+	"community-designbyte-cmlpf5": "Designbyte",
+	"community-diby-cmlhru": "Diby",
+	"community-diby-orange-cmlhrv": "Diby Laranja",
+	"community-domia-cmlz4g": "DOMIA",
+	"community-efferd-cmmi9l": "Efferd",
+	"community-emerald-cmli3u": "Esmeralda",
+	"community-enterprise-mod-2-cmlva5": "Enterprise Mod",
+	"community-eslinks-cmmaoe": "Eslinks",
+	"community-essw-cmmphm": "Essw",
+	"community-examdedo-cmlpf1": "Examdedo",
+	"community-flat-pink-2-cmlieo": "Rosa Flat",
+	"community-gold-cmlf3x": "Ouro",
+	"community-greattings-cmlfwc": "Saudações",
+	"community-green-with-yellow-theme-cmlewm": "Verde e Amarelo",
+	"community-greenbarbequeue-cmm9ae": "Churrasco Verde",
+	"community-hyper-red-cmliel": "Hiper Vermelho",
+	"community-ibk-theme-cmmb5d": "Tema IBK",
+	"community-iconic-terminal-cmmhiu": "Terminal Icônico",
+	"community-imhicihu-cmmp28": "Imhicihu",
+	"community-india-cmlpfe": "Índia",
+	"community-infoseer-cmmcv8": "Infoseer",
+	"community-intropic-mui-react-cursor-retool-cmmt51": "Intropic MUI",
+	"community-itadori-yuji-cmmhf9": "Itadori Yuji",
+	"community-jamaica-cmlh1c": "Jamaica",
+	"community-japan-blues-cmmje1": "Azuis do Japão",
+	"community-jknm-cmmrfz": "Jknm",
+	"community-js-ts-advent-of-code-cmlr31": "Advent of Code",
+	"community-kedokteran-cmmc4g": "Medicina",
+	"community-kupikod-cmleua": "Kupikod",
+	"community-lara-cmm277": "Lara",
+	"community-lastchat-cmmi2x": "Lastchat",
+	"community-lavanda-cmmis1": "Lavanda",
+	"community-leadgen-cmle6z": "Geração de Leads",
+	"community-light-green-cmlhfq": "Verde Claro",
+	"community-lime-green-dhamaka-cmm7ct": "Explosão Lima",
+	"community-limes-cmliem": "Limas",
+	"community-logisticone-cmm0zk": "Logisticone",
+	"community-lyte-cmml0p": "Lyte",
+	"community-m-cmlgp0": "Eco do Cânion",
+	"community-magic-2-cmmsz6": "Magia",
+	"community-magic-3-cmmt0a": "Magia Plus",
+	"community-manga-vibe-cmlr32": "Vibe Manga",
+	"community-meta-mask-geist-cmlf9r": "MetaMask Geist",
+	"community-minimal-neutral-cmlr2z": "Neutro Minimalista",
+	"community-moss-cmmi1g": "Musgo",
+	"community-mt-cmmdl8": "Circuito Nimbus",
+	"community-mx-brutalist-cmllfv": "MX Brutalista",
+	"community-my-aweasome-theme-cmlxzf": "Meu Tema Incrível",
+	"community-my-theme-01-cmmemx": "Meu Tema",
+	"community-my-theme-cmm24g": "Meu Tema Pessoal",
+	"community-nlan-cmli81": "NLAN",
+	"community-nubanck-cmlf40": "Nubank",
+	"community-nxtbet-quadra-inspired-cmmaea": "NXTBET Quadra",
+	"community-offworld-cmlpw4": "Fora do Mundo",
+	"community-oikwee-cmmb8l": "Oikwee",
+	"community-old-school-cmlx21": "Old School",
+	"community-openprofile-cmlpf8": "Openprofile",
+	"community-orient-cmlzhg": "Oriente",
+	"community-orio-design-system-cmm1ri": "Orio Design System",
+	"community-palm-cmlotm": "Palmeira",
+	"community-papaya-cmmgxh": "Mamão",
+	"community-party-rock-cmlqxf": "Party Rock",
+	"community-pasteelement2-cmlpfh": "Pasteelement",
+	"community-playable-cmli0k": "Jogável",
+	"community-polaris-cmmr3s": "Polaris",
+	"community-poppy-1-cmlmc0": "Papoula",
+	"community-porfolio-theme-cmler0": "Tema de Portfólio",
+	"community-professional-theme-cmluaj": "Tema Profissional",
+	"community-purple-popins-cmlvfb": "Roxo Poppins",
+	"community-purple-rain-cmlh1l": "Chuva Roxa",
+	"community-purple-soft-popins-cmlwku": "Roxo Suave",
+	"community-purples-cmlien": "Tons de Roxo",
+	"community-qrafthive-cmlk6w": "Qrafthive",
+	"community-remedy-s-control-cmmszc": "Controle da Remedy",
+	"community-resolveai-app-cmmchq": "App Resolveai",
+	"community-retro-2-cmm2e2": "Retro Moderno",
+	"community-retro-cmm2d5": "Retro",
+	"community-rewaff-cmmm3h": "Rewaff",
+	"community-roboto-modern-cmlwxa": "Roboto Moderno",
+	"community-rose-pine-cmlwpk": "Rose Pine",
+	"community-s3karo-cmlpf0": "S3karo",
+	"community-sage-green-cmlf70": "Verde Sálvia",
+	"community-sakura-cmmghp": "Sakura",
+	"community-sandstone-cmmi1p": "Arenito",
+	"community-service-hub-theme-cmmmrn": "Central de Serviço",
+	"community-sesi-theme-2-cmmmkb": "Tema SESI",
+	"community-shopify-red-cmmaba": "Shopify Vermelho",
+	"community-sky-cmmjha": "Céu",
+	"community-something-cmmmy7": "Algo",
+	"community-spacelinear-cmm4ya": "Espaço Linear",
+	"community-stella-cmm2mf": "Stella",
+	"community-student-spacelab-network-1-cmmkfn": "Rede Spacelab",
+	"community-styrene-cmlybu": "Estireno",
+	"community-styrenedark-cmly9d": "Estireno Escuro",
+	"community-sukuna-cmmhf8": "Sukuna",
+	"community-sulav-theme-cmmf66": "Tema Sulav",
+	"community-t2-cmm85y": "Deriva de Sálvia",
+	"community-teal-hue-cmm599": "Tom de Ciano",
+	"community-terminal-cmll24": "Terminal",
+	"community-terminal-cmlmsn": "Terminal",
+	"community-terminal-dark-russian-cmmljk": "Terminal Russo Escuro",
+	"community-terminal-muted-cmlvaz": "Terminal Suave",
+	"community-tersk-cmmlwi": "Tersk",
+	"community-test-cmlpfc": "Teste",
+	"community-theme-cmlpl5-cmlpl5": "Tema Pessoal",
+	"community-tiesen-cmliib": "Tiesen",
+	"community-twitter-cmlznl": "Twitter",
+	"community-uv-day-cmmfg9": "Dia UV",
+	"community-v2-cmlofg": "Estúdio Marfim",
+	"community-vermillion-cmmtjp": "Vermelhão",
+	"community-vescrow-1-2-cmlhpn": "Vescrow",
+	"community-violate-eye-cmm3eb": "Olho Violeta",
+	"community-vivid-sky-cmmjjm": "Céu Vívido",
+	"community-vrai-delice-cmm3sr": "Vrai Delice",
+	"community-vtron-cmlpfk": "VTRON",
+	"community-whatsapp-cmmbmn": "WhatsApp",
+	"community-woodforge-9-cmmhug": "Forja de Madeira",
+	"community-zen-inspired-theme-cmlm0c": "Inspiração Zen",
+	"cosmic-night": "Noite Cósmica",
+	cyberpunk: cyberpunk,
+	"default": "Padrão",
+	"doom-64": "Doom 64",
+	"elegant-luxury": "Luxo Elegante",
+	forest: forest,
+	graphite: graphite,
+	indigo: indigo,
+	"kodama-grove": "Bosque Kodama",
+	midnight: midnight,
+	"midnight-bloom": "Flor da Meia-noite",
+	"mocha-mousse": "Mousse de Mocha",
+	"modern-minimal": "Moderno Minimalista",
+	nature: nature,
+	"neo-brutalism": "Neobrutalismo",
+	"northern-lights": "Aurora Boreal",
+	notebook: notebook,
+	ocean: ocean,
+	"ocean-breeze": "Brisa do Mar",
+	"pastel-dreams": "Sonhos Pastel",
+	perpetuity: perpetuity,
+	"quantum-rose": "Rosa Quântica",
+	"retro-arcade": "Arcade Retro",
+	rose: rose,
+	"solar-dusk": "Crepúsculo Solar",
+	"starry-night": "Noite Estrelada",
+	sunset: sunset,
+	"sunset-horizon": "Horizonte Pôr do Sol",
+	supabase: supabase,
+	"t3-chat": "T3 Chat",
+	tangerine: tangerine,
+	teal: teal,
+	twitter: twitter,
+	"vintage-paper": "Papel Vintage",
+	"violet-bloom": "Flor Violeta"
+};
+
 declare const defaultTheme: Theme;
 
 declare const oceanTheme: Theme;
@@ -417,6 +908,8 @@ declare const indigoTheme: Theme;
 declare const tealTheme: Theme;
 
 declare const candyTheme: Theme;
+
+declare const tailwindBasicThemes: Theme[];
 
 declare const builtinThemes: Theme[];
 
@@ -496,7 +989,9 @@ declare const claudeTheme: Theme;
 
 declare const tweakcnThemes: Theme[];
 
-/** All 47 themes — 10 built-in + 37 tweakcn */
+declare const communityThemes: Theme[];
+
+/** All themes — 10 curated built-in + 17 Tailwind basic + 37 tweakcn */
 declare const themes: Theme[];
 
-export { type ColorToken, type CreateThemeConfig, FONTS, type FontFamily, type FontKey, type PatternStyle, type PatternType, type RawColor, type ResolvedTokens, type StealMeta, type StoredTheme, TAILWIND_COLORS, type TailwindColor, type TailwindShade, type TailwindToken, type Theme, type ThemeFonts, type ThemePattern, type ThemeTokens, type TweakCNRegistryEntry, type TweakCNThemeItem, amberMinimalTheme, amberTheme, amethystHazeTheme, boldTechTheme, bookmarkletUrl, browserSnippet, bubblegumTheme, builtinThemes, caffeineTheme, candyTheme, candylandTheme, catppuccinTheme, claudeTheme, claymorphismTheme, cleanSlateTheme, cosmicNightTheme, createTheme, cyberpunkTheme, defaultTheme, defineTheme, deserializeTheme, doom64Theme, elegantLuxuryTheme, extendTheme, fetchAllTweakCNThemes, fetchTweakCNRegistry, fetchTweakCNTheme, forestTheme, generateCSS, generatePattern, generateThemeVariables, googleFontsUrl, graphiteTheme, indigoTheme, kodamaGroveTheme, midnightBloomTheme, midnightTheme, mochaMousseTheme, modernMinimalTheme, natureTheme, neoBrutalismTheme, northernLightsTheme, notebookTheme, oceanBreezeTheme, oceanTheme, pastelDreamsTheme, perpetuityTheme, quantumRoseTheme, raw, resolveColor, resolveTokens, retroArcadeTheme, roseTheme, serializeTheme, solarDuskTheme, starryNightTheme, storedThemeToCSS, sunsetHorizonTheme, sunsetTheme, supabaseTheme, t3ChatTheme, tangerineTheme, tealTheme, themeFromCSS, themeFromCSSVars, themeFromSnippetOutput, themeFromTweakCNItem, themes, tweakcnBookmarkletUrl, tweakcnSnippet, tweakcnThemes, twitterTheme, vintagePaperTheme, violetBloomTheme };
+export { type ColorToken, type CreateThemeConfig, FONTS, type FontFamily, type FontKey, type PatternStyle, type PatternType, type RawColor, type ResolvedTokens, type StealMeta, type StoredTheme, TAILWIND_COLORS, type TailwindColor, type TailwindShade, type TailwindToken, type Theme, type ThemeFonts, type ThemePattern, type ThemeTokens, type TweakCNRegistryEntry, type TweakCNThemeItem, amberMinimalTheme, amberTheme, amethystHazeTheme, boldTechTheme, bookmarkletUrl, browserSnippet, bubblegumTheme, builtinThemes, caffeineTheme, candyTheme, candylandTheme, catppuccinTheme, claudeTheme, claymorphismTheme, cleanSlateTheme, communityThemes, cosmicNightTheme, createTheme, cyberpunkTheme, defaultTheme, defineTheme, deserializeTheme, doom64Theme, elegantLuxuryTheme, extendTheme, fetchAllTweakCNThemes, fetchTweakCNRegistry, fetchTweakCNTheme, forestTheme, generateCSS, generatePattern, generateThemeVariables, googleFontsUrl, graphiteTheme, indigoTheme, kodamaGroveTheme, midnightBloomTheme, midnightTheme, mochaMousseTheme, modernMinimalTheme, natureTheme, neoBrutalismTheme, northernLightsTheme, notebookTheme, oceanBreezeTheme, oceanTheme, pastelDreamsTheme, perpetuityTheme, quantumRoseTheme, raw, resolveColor, resolveTokens, retroArcadeTheme, roseTheme, serializeTheme, solarDuskTheme, starryNightTheme, storedThemeToCSS, sunsetHorizonTheme, sunsetTheme, supabaseTheme, t3ChatTheme, tailwindBasicThemes, tangerineTheme, tealTheme, themeFromCSS, themeFromCSSVars, themeFromSnippetOutput, themeFromTweakCNItem, themeLabels_es as themeLabelsEs, themeLabels_pt as themeLabelsPt, themes, tweakcnBookmarkletUrl, tweakcnSnippet, tweakcnThemes, twitterTheme, vintagePaperTheme, violetBloomTheme };

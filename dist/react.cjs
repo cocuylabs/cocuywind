@@ -397,9 +397,8 @@ function ThemeProvider({
       root.style.setProperty(prop, value2);
     }
     root.style.setProperty("--radius", theme.radius ?? "0.5rem");
-    if (theme.fonts?.sans) root.style.setProperty("--font-sans", theme.fonts.sans);
-    if (theme.fonts?.serif) root.style.setProperty("--font-serif", theme.fonts.serif);
-    if (theme.fonts?.mono) root.style.setProperty("--font-mono", theme.fonts.mono);
+    if (theme.fonts?.body) root.style.setProperty("--font-body", theme.fonts.body);
+    if (theme.fonts?.heading) root.style.setProperty("--font-heading", theme.fonts.heading);
     if (resolvedMode === "dark") {
       root.classList.add("dark");
     } else {
@@ -467,65 +466,69 @@ var DARK_PRIMARY_SHADE = 400;
 function token(color, shade) {
   return `${color}-${shade}`;
 }
-function buildLightTokens(primary, neutral, overrides) {
+function buildLightTokens(primary, neutral, secondary, overrides) {
+  const surface = neutral ?? primary;
   const base = {
-    background: token(neutral, 50),
-    foreground: token(neutral, 950),
-    card: token(neutral, 100),
-    cardForeground: token(neutral, 950),
-    popover: token(neutral, 50),
-    popoverForeground: token(neutral, 950),
+    background: token(surface, 50),
+    foreground: token(surface, 950),
+    card: token(surface, 100),
+    cardForeground: token(surface, 950),
+    popover: token(surface, 50),
+    popoverForeground: token(surface, 950),
     primary: token(primary, LIGHT_PRIMARY_SHADE),
     primaryForeground: "white",
-    secondary: token(neutral, 200),
-    secondaryForeground: token(neutral, 800),
-    muted: token(neutral, 100),
-    mutedForeground: token(neutral, 500),
-    accent: token(neutral, 200),
-    accentForeground: token(neutral, 800),
+    secondary: token(secondary ?? primary, 200),
+    secondaryForeground: token(surface, 800),
+    muted: token(surface, 100),
+    mutedForeground: token(surface, 500),
+    accent: token(secondary ?? primary, 200),
+    accentForeground: token(surface, 800),
     destructive: "red-600",
     destructiveForeground: "white",
-    border: token(neutral, 200),
-    input: token(neutral, 200),
+    border: token(surface, 200),
+    input: token(surface, 200),
     ring: token(primary, LIGHT_PRIMARY_SHADE)
   };
   return overrides ? { ...base, ...overrides } : base;
 }
-function buildDarkTokens(primary, neutral, overrides) {
+function buildDarkTokens(primary, neutral, secondary, overrides) {
+  const surface = neutral ?? primary;
   const base = {
-    background: token(neutral, 950),
-    foreground: token(neutral, 50),
-    card: token(neutral, 900),
-    cardForeground: token(neutral, 50),
-    popover: token(neutral, 950),
-    popoverForeground: token(neutral, 50),
+    background: token(surface, 950),
+    foreground: token(surface, 50),
+    card: token(surface, 900),
+    cardForeground: token(surface, 50),
+    popover: token(surface, 950),
+    popoverForeground: token(surface, 50),
     primary: token(primary, DARK_PRIMARY_SHADE),
-    primaryForeground: token(neutral, 950),
-    secondary: token(neutral, 800),
-    secondaryForeground: token(neutral, 200),
-    muted: token(neutral, 800),
-    mutedForeground: token(neutral, 400),
-    accent: token(neutral, 800),
-    accentForeground: token(neutral, 200),
+    primaryForeground: token(primary, 950),
+    // secondary at -800 (visibly lighter than card/bg) — used for price badges etc.
+    secondary: token(secondary ?? primary, 800),
+    secondaryForeground: token(surface, 200),
+    muted: token(surface, 900),
+    mutedForeground: token(surface, 400),
+    accent: token(secondary ?? primary, 800),
+    accentForeground: token(surface, 200),
     destructive: "red-400",
-    destructiveForeground: token(neutral, 950),
-    border: token(neutral, 800),
-    input: token(neutral, 800),
+    destructiveForeground: token(primary, 950),
+    border: token(surface, 800),
+    input: token(surface, 800),
     ring: token(primary, DARK_PRIMARY_SHADE)
   };
   return overrides ? { ...base, ...overrides } : base;
 }
 function createTheme(config) {
-  const { name, label, primary, neutral, radius, fonts, pattern, overrides } = config;
+  const { name, label, primary, neutral, secondary, radius, fonts, pattern, category, overrides } = config;
   return {
     name,
     label,
-    light: buildLightTokens(primary, neutral, overrides?.light),
-    dark: buildDarkTokens(primary, neutral, overrides?.dark),
+    light: buildLightTokens(primary, neutral, secondary, overrides?.light),
+    dark: buildDarkTokens(primary, neutral, secondary, overrides?.dark),
     fonts,
     pattern,
     radius: radius ?? "0.5rem",
-    _generatorConfig: { primary, neutral, radius }
+    category,
+    _generatorConfig: { primary, neutral, secondary, radius }
   };
 }
 
@@ -534,7 +537,6 @@ var FONTS = {
   // ─── System fonts ─────────────────────────────────────────────────────────
   SYSTEM_SANS: "system-ui, -apple-system, sans-serif",
   SYSTEM_SERIF: "Georgia, 'Times New Roman', serif",
-  SYSTEM_MONO: "ui-monospace, 'Courier New', monospace",
   // ─── Sans-serif Google Fonts ───────────────────────────────────────────────
   INTER: "'Inter', system-ui, sans-serif",
   GEIST: "'Geist', system-ui, sans-serif",
@@ -548,11 +550,7 @@ var FONTS = {
   PLAYFAIR: "'Playfair Display', Georgia, serif",
   LORA: "'Lora', Georgia, serif",
   MERRIWEATHER: "'Merriweather', Georgia, serif",
-  DM_SERIF: "'DM Serif Display', Georgia, serif",
-  // ─── Monospace Google Fonts ────────────────────────────────────────────────
-  JETBRAINS_MONO: "'JetBrains Mono', monospace",
-  FIRA_CODE: "'Fira Code', monospace",
-  IBM_PLEX_MONO: "'IBM Plex Mono', monospace"
+  DM_SERIF: "'DM Serif Display', Georgia, serif"
 };
 
 // src/react/ThemePicker.tsx
@@ -606,152 +604,140 @@ var FONT_OPTIONS = Object.entries(FONTS).map(([key, value]) => ({
   label: key.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()),
   value
 }));
-function getSwatchColors(theme) {
-  const bg = resolveColor(theme.light.background);
-  const pri = resolveColor(theme.light.primary);
-  const sec = resolveColor(theme.light.secondary);
-  return [bg, pri, sec];
+function getSwatchColors(theme, mode = "light") {
+  const t = mode === "dark" ? theme.dark : theme.light;
+  return [resolveColor(t.background), resolveColor(t.primary), resolveColor(t.secondary)];
 }
-function ThemeSwatch({ theme, selected, onClick }) {
-  const [bg, pri, sec] = getSwatchColors(theme);
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
-    "button",
-    {
-      onClick,
-      title: theme.label,
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "3px",
-        padding: "6px 10px",
-        borderRadius: "8px",
-        border: selected ? "2px solid currentColor" : "2px solid transparent",
-        background: "transparent",
-        cursor: "pointer",
-        outline: "none"
-      },
-      children: [
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 12, height: 12, borderRadius: "50%", background: bg, border: "1px solid rgba(0,0,0,0.1)", display: "inline-block" } }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 12, height: 12, borderRadius: "50%", background: pri, display: "inline-block" } }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 12, height: 12, borderRadius: "50%", background: sec, display: "inline-block" } }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { marginLeft: 4, fontSize: 12 }, children: theme.label })
-      ]
-    }
-  );
+function ThemeSwatch({ theme, selected, onClick, previewMode = "light", labelOverride }) {
+  const [bg, pri, sec] = getSwatchColors(theme, previewMode);
+  const label = labelOverride ?? theme.label;
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("button", { onClick, title: label, style: {
+    display: "flex",
+    alignItems: "center",
+    gap: 3,
+    padding: "6px 10px",
+    borderRadius: 8,
+    border: selected ? "2px solid currentColor" : "2px solid transparent",
+    background: "transparent",
+    cursor: "pointer",
+    outline: "none",
+    color: "var(--foreground)"
+  }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 12, height: 12, borderRadius: "50%", background: bg, border: "1px solid var(--border)", display: "inline-block" } }),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 12, height: 12, borderRadius: "50%", background: pri, display: "inline-block" } }),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 12, height: 12, borderRadius: "50%", background: sec, display: "inline-block" } }),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { marginLeft: 4, fontSize: 12 }, children: label })
+  ] });
 }
-function ThemePicker({
-  themes,
-  value,
-  onChange,
-  allowCustom = false,
-  sections = ["colors", "fonts", "patterns", "radius"],
-  className
-}) {
+function ThemePicker({ themes, value, onChange, allowCustom = false, sections = ["colors", "fonts", "patterns", "radius"], className, locale = "en", labels }) {
   const [tab, setTab] = (0, import_react3.useState)("presets");
   const [customPrimary, setCustomPrimary] = (0, import_react3.useState)("blue");
-  const [customNeutral, setCustomNeutral] = (0, import_react3.useState)("slate");
+  const [customSecondary, setCustomSecondary] = (0, import_react3.useState)(null);
+  const [customNeutral, setCustomNeutral] = (0, import_react3.useState)(null);
   const [customRadius, setCustomRadius] = (0, import_react3.useState)("0.5rem");
   const [customFonts, setCustomFonts] = (0, import_react3.useState)({});
   const [customPattern, setCustomPattern] = (0, import_react3.useState)({ type: "none" });
-  const builtinThemes = themes.filter(
-    (t) => !t.name.includes("-") || ["ocean", "forest", "sunset", "midnight", "candy"].some((n) => t.name === n)
-  );
-  const handleCustomApply = () => {
-    const theme = createTheme({
-      name: `custom-${customPrimary}-${customNeutral}`,
-      label: `Custom (${customPrimary})`,
-      primary: customPrimary,
-      neutral: customNeutral,
-      radius: customRadius,
-      fonts: Object.keys(customFonts).length > 0 ? customFonts : void 0,
-      pattern: customPattern.type !== "none" ? customPattern : void 0
-    });
-    onChange(theme);
-  };
-  const containerStyle = {
-    fontFamily: "system-ui, sans-serif",
-    fontSize: 14,
-    maxWidth: 480
-  };
-  const tabBarStyle = {
-    display: "flex",
-    gap: 4,
-    marginBottom: 12,
-    borderBottom: "1px solid rgba(0,0,0,0.1)",
-    paddingBottom: 8
-  };
-  const tabBtnStyle = (active) => ({
+  const buildCustomTheme = (primary, secondary, neutral, radius, fonts, pattern) => createTheme({
+    name: `custom-${primary}${neutral ? `-${neutral}` : ""}${secondary ? `-${secondary}` : ""}`,
+    label: `Custom (${primary})`,
+    primary,
+    neutral: neutral ?? void 0,
+    secondary: secondary ?? void 0,
+    radius,
+    fonts: Object.keys(fonts).length > 0 ? fonts : void 0,
+    pattern: pattern.type !== "none" ? pattern : void 0
+  });
+  (0, import_react3.useEffect)(() => {
+    if (tab === "custom") {
+      onChange(buildCustomTheme(customPrimary, customSecondary, customNeutral, customRadius, customFonts, customPattern));
+    }
+  }, [tab, customPrimary, customSecondary, customNeutral, customRadius, customFonts, customPattern]);
+  const btn = (active) => ({
     padding: "4px 12px",
     border: "none",
-    background: active ? "rgba(0,0,0,0.08)" : "transparent",
+    background: active ? "var(--accent)" : "transparent",
+    color: active ? "var(--accent-foreground)" : "var(--foreground)",
     borderRadius: 6,
     cursor: "pointer",
     fontWeight: active ? 600 : 400
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className, style: containerStyle, children: [
-    allowCustom && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: tabBarStyle, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { style: tabBtnStyle(tab === "presets"), onClick: () => setTab("presets"), children: "Presets" }),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { style: tabBtnStyle(tab === "custom"), onClick: () => setTab("custom"), children: "Custom" })
+  const chip = (active) => ({
+    padding: "4px 10px",
+    borderRadius: 6,
+    cursor: "pointer",
+    fontSize: 12,
+    color: "var(--foreground)",
+    border: active ? "2px solid var(--foreground)" : "1px solid var(--border)",
+    background: active ? "var(--accent)" : "transparent"
+  });
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className, style: { fontFamily: "system-ui, sans-serif", fontSize: 14, color: "var(--foreground)" }, children: [
+    allowCustom && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { display: "flex", gap: 4, marginBottom: 12, borderBottom: "1px solid var(--border)", paddingBottom: 8 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { style: btn(tab === "presets"), onClick: () => setTab("presets"), children: "Presets" }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { style: btn(tab === "custom"), onClick: () => setTab("custom"), children: "Custom" })
     ] }),
-    tab === "presets" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: 2 }, children: themes.map((t) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+    tab === "presets" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: 2 }, children: themes.map((t) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
       ThemeSwatch,
       {
         theme: t,
         selected: t.name === value.name,
-        onClick: () => onChange(t)
+        onClick: () => onChange(t),
+        labelOverride: labels?.[locale]?.[t.name]
       },
       t.name
-    )) }) }),
+    )) }),
     tab === "custom" && allowCustom && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { display: "flex", flexDirection: "column", gap: 16 }, children: [
       sections.includes("colors") && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("section", { children: [
         /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "0 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Primary Color" }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: TAILWIND_COLORS2.map((color) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-          "button",
-          {
-            onClick: () => setCustomPrimary(color),
-            title: color,
-            style: {
-              width: 28,
-              height: 28,
-              borderRadius: "50%",
-              border: customPrimary === color ? "3px solid black" : "2px solid transparent",
-              background: resolveColor(`${color}-500`),
-              cursor: "pointer",
-              outline: "none"
-            }
-          },
-          color
-        )) }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: TAILWIND_COLORS2.map((color) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomPrimary(color), title: color, style: {
+          width: 28,
+          height: 28,
+          borderRadius: "50%",
+          cursor: "pointer",
+          outline: "none",
+          background: resolveColor(`${color}-500`),
+          border: customPrimary === color ? "3px solid var(--foreground)" : "2px solid transparent"
+        } }, color)) }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "12px 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Secondary Color" }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomSecondary(null), title: "Auto (same as primary)", style: {
+            width: 28,
+            height: 28,
+            borderRadius: "50%",
+            cursor: "pointer",
+            outline: "none",
+            background: `conic-gradient(${TAILWIND_COLORS2.slice(5, 10).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(", ")})`,
+            border: customSecondary === null ? "3px solid var(--foreground)" : "2px solid transparent"
+          } }),
+          TAILWIND_COLORS2.map((color) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomSecondary(color), title: color, style: {
+            width: 28,
+            height: 28,
+            borderRadius: "50%",
+            cursor: "pointer",
+            outline: "none",
+            background: resolveColor(`${color}-500`),
+            border: customSecondary === color ? "3px solid var(--foreground)" : "2px solid transparent"
+          } }, color))
+        ] }),
+        customSecondary === null && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { style: { margin: "6px 0 0", fontSize: 11, opacity: 0.5 }, children: "Auto \u2014 derived from primary" }),
         /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "12px 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Neutral Base" }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: NEUTRAL_COLORS.map((color) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-          "button",
-          {
-            onClick: () => setCustomNeutral(color),
-            style: {
-              padding: "4px 10px",
-              borderRadius: 6,
-              border: customNeutral === color ? "2px solid black" : "1px solid rgba(0,0,0,0.15)",
-              background: resolveColor(`${color}-100`),
-              cursor: "pointer",
-              fontSize: 12
-            },
-            children: color
-          },
-          color
-        )) })
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomNeutral(null), style: chip(customNeutral === null), children: "none" }),
+          NEUTRAL_COLORS.map((color) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomNeutral(color), style: chip(customNeutral === color), children: color }, color))
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { style: { margin: "6px 0 0", fontSize: 11, opacity: 0.5 }, children: customNeutral === null ? "None \u2014 backgrounds use the primary color family" : `${customNeutral} \u2014 overrides backgrounds and surfaces` })
       ] }),
       sections.includes("fonts") && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("section", { children: [
         /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "0 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Fonts" }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: 8 }, children: ["sans", "serif", "mono"].map((fontType) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 40, fontSize: 12, opacity: 0.7 }, children: fontType }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: 8 }, children: ["body", "heading"].map((fontType) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 52, fontSize: 12, opacity: 0.7 }, children: fontType }),
           /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
             "select",
             {
               value: customFonts[fontType] ?? "",
               onChange: (e) => setCustomFonts((f) => ({ ...f, [fontType]: e.target.value || void 0 })),
-              style: { flex: 1, padding: "4px 8px", borderRadius: 4, border: "1px solid rgba(0,0,0,0.15)", fontSize: 12 },
+              style: { flex: 1, padding: "4px 8px", borderRadius: 4, border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", fontSize: 12 },
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("option", { value: "", children: "System default" }),
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("option", { value: "", children: fontType === "heading" ? "Same as body" : "System default" }),
                 FONT_OPTIONS.map((f) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("option", { value: f.value, children: f.label }, f.value))
               ]
             }
@@ -760,59 +746,12 @@ function ThemePicker({
       ] }),
       sections.includes("patterns") && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("section", { children: [
         /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "0 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Pattern" }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: PATTERN_TYPES.map((pt) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-          "button",
-          {
-            onClick: () => setCustomPattern({ type: pt }),
-            style: {
-              padding: "4px 10px",
-              borderRadius: 6,
-              border: customPattern.type === pt ? "2px solid black" : "1px solid rgba(0,0,0,0.15)",
-              background: "transparent",
-              cursor: "pointer",
-              fontSize: 11
-            },
-            children: pt
-          },
-          pt
-        )) })
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: PATTERN_TYPES.map((pt) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomPattern({ type: pt }), style: chip(customPattern.type === pt), children: pt }, pt)) })
       ] }),
       sections.includes("radius") && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("section", { children: [
         /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "0 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Border Radius" }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", gap: 6 }, children: RADIUS_PRESETS.map((r) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-          "button",
-          {
-            onClick: () => setCustomRadius(r.value),
-            style: {
-              padding: "4px 10px",
-              borderRadius: r.value === "9999px" ? 9999 : parseInt(r.value) * 8,
-              border: customRadius === r.value ? "2px solid black" : "1px solid rgba(0,0,0,0.15)",
-              background: "transparent",
-              cursor: "pointer",
-              fontSize: 12
-            },
-            children: r.label
-          },
-          r.value
-        )) })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-        "button",
-        {
-          onClick: handleCustomApply,
-          style: {
-            padding: "8px 16px",
-            borderRadius: 8,
-            border: "none",
-            background: "black",
-            color: "white",
-            cursor: "pointer",
-            fontWeight: 600,
-            fontSize: 14
-          },
-          children: "Apply Custom Theme"
-        }
-      )
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", gap: 6 }, children: RADIUS_PRESETS.map((r) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomRadius(r.value), style: chip(customRadius === r.value), children: r.label }, r.value)) })
+      ] })
     ] })
   ] });
 }

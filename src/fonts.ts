@@ -8,7 +8,6 @@ export const FONTS = {
   // ─── System fonts ─────────────────────────────────────────────────────────
   SYSTEM_SANS:  "system-ui, -apple-system, sans-serif",
   SYSTEM_SERIF: "Georgia, 'Times New Roman', serif",
-  SYSTEM_MONO:  "ui-monospace, 'Courier New', monospace",
 
   // ─── Sans-serif Google Fonts ───────────────────────────────────────────────
   INTER:          "'Inter', system-ui, sans-serif",
@@ -25,11 +24,6 @@ export const FONTS = {
   LORA:           "'Lora', Georgia, serif",
   MERRIWEATHER:   "'Merriweather', Georgia, serif",
   DM_SERIF:       "'DM Serif Display', Georgia, serif",
-
-  // ─── Monospace Google Fonts ────────────────────────────────────────────────
-  JETBRAINS_MONO: "'JetBrains Mono', monospace",
-  FIRA_CODE:      "'Fira Code', monospace",
-  IBM_PLEX_MONO:  "'IBM Plex Mono', monospace",
 } as const
 
 export type FontKey = keyof typeof FONTS
@@ -48,9 +42,6 @@ const GOOGLE_FONT_NAMES: Partial<Record<FontKey, string>> = {
   LORA:           'Lora:wght@400;500;600;700',
   MERRIWEATHER:   'Merriweather:wght@300;400;700',
   DM_SERIF:       'DM+Serif+Display:wght@400',
-  JETBRAINS_MONO: 'JetBrains+Mono:wght@400;500;700',
-  FIRA_CODE:      'Fira+Code:wght@400;500;700',
-  IBM_PLEX_MONO:  'IBM+Plex+Mono:wght@400;500;700',
 }
 
 /**

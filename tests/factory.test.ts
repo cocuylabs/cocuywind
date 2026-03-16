@@ -25,12 +25,22 @@ describe('createTheme', () => {
     expect(theme.dark.primary).toBe('blue-400')
   })
 
-  it('uses neutral-50 for light background', () => {
+  it('uses primary-50 for light background when no neutral', () => {
+    const theme = createTheme({ name: 't', label: 'T', primary: 'blue' })
+    expect(theme.light.background).toBe('blue-50')
+  })
+
+  it('uses neutral-50 for light background when neutral is provided', () => {
     const theme = createTheme({ name: 't', label: 'T', primary: 'blue', neutral: 'slate' })
     expect(theme.light.background).toBe('slate-50')
   })
 
-  it('uses neutral-950 for dark background', () => {
+  it('uses primary-950 for dark background when no neutral', () => {
+    const theme = createTheme({ name: 't', label: 'T', primary: 'blue' })
+    expect(theme.dark.background).toBe('blue-950')
+  })
+
+  it('uses neutral-950 for dark background when neutral is provided', () => {
     const theme = createTheme({ name: 't', label: 'T', primary: 'blue', neutral: 'slate' })
     expect(theme.dark.background).toBe('slate-950')
   })

@@ -113,9 +113,8 @@ export function ThemeProvider({
     }
     // Apply radius and fonts
     root.style.setProperty('--radius', theme.radius ?? '0.5rem')
-    if (theme.fonts?.sans)  root.style.setProperty('--font-sans', theme.fonts.sans)
-    if (theme.fonts?.serif) root.style.setProperty('--font-serif', theme.fonts.serif)
-    if (theme.fonts?.mono)  root.style.setProperty('--font-mono', theme.fonts.mono)
+    if (theme.fonts?.body)    root.style.setProperty('--font-body', theme.fonts.body)
+    if (theme.fonts?.heading) root.style.setProperty('--font-heading', theme.fonts.heading)
 
     // Toggle .dark class
     if (resolvedMode === 'dark') {

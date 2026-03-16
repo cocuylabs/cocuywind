@@ -130,9 +130,9 @@ describe('themeFromCSSVars', () => {
     expect(stored.styles.light.primary).toBe('oklch(0.5 0.2 200)')
   })
 
-  it('extracts font-sans', () => {
+  it('extracts font-sans as body', () => {
     const stored = themeFromCSSVars({ ...LIGHT_VARS, '--font-sans': "'Inter', system-ui, sans-serif" })
-    expect(stored.fonts.sans).toBe("'Inter', system-ui, sans-serif")
+    expect(stored.fonts.body).toBe("'Inter', system-ui, sans-serif")
   })
 
   it('respects meta name and label', () => {
@@ -170,9 +170,9 @@ describe('themeFromCSS', () => {
     expect(stored.radius).toBe('0.5rem')
   })
 
-  it('extracts font-sans', () => {
+  it('extracts font-sans as body', () => {
     const stored = themeFromCSS(SAMPLE_CSS)
-    expect(stored.fonts.sans).toBe("'Inter', system-ui, sans-serif")
+    expect(stored.fonts.body).toBe("'Inter', system-ui, sans-serif")
   })
 
   it('handles [data-theme="dark"] selector', () => {

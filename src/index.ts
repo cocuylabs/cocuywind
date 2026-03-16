@@ -62,8 +62,12 @@ export type { FontFamily, FontKey } from './fonts.js'
 export { generatePattern } from './patterns.js'
 export type { PatternStyle } from './patterns.js'
 
+// ─── i18n ─────────────────────────────────────────────────────────────────────
+export { default as themeLabelsEs } from './i18n/theme-labels.es.json'
+export { default as themeLabelsPt } from './i18n/theme-labels.pt.json'
+
 // ─── Themes ───────────────────────────────────────────────────────────────────
-export { themes, builtinThemes, tweakcnThemes } from './themes/index.js'
+export { themes, builtinThemes, tweakcnThemes, communityThemes, tailwindBasicThemes } from './themes/index.js'
 
 // Built-in themes
 export {

@@ -50,9 +50,10 @@ export interface ThemeTokens {
 }
 
 export interface ThemeFonts {
-  sans?: string
-  serif?: string
-  mono?: string
+  /** Body / UI font — applied to :root. Defaults to system-ui sans-serif. */
+  body?: string
+  /** Heading / display font — applied to h1–h6. Omit to use body font for headings too. */
+  heading?: string
 }
 
 export type PatternType =
@@ -90,6 +91,10 @@ export interface Theme {
   pattern?: ThemePattern
   /** e.g. "0.5rem" */
   radius?: string
+  /** Groups themes in the picker: 'Basic' | 'Curated' | 'TweakCN' */
+  category?: string
+  /** Optional original/source label for display or attribution */
+  _sourceName?: string
 }
 
 // ─── Storage Types ────────────────────────────────────────────────────────────
@@ -123,7 +128,10 @@ export interface StoredTheme {
   /** If source === 'generated' via createTheme() */
   _generatorConfig?: {
     primary: TailwindColor
-    neutral: TailwindColor
+    neutral?: TailwindColor
+    secondary?: TailwindColor
     radius?: string
   }
+  /** Optional original/source label for display or attribution */
+  _sourceName?: string
 }

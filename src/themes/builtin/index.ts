@@ -8,6 +8,7 @@ export { amberTheme } from './amber.js'
 export { indigoTheme } from './indigo.js'
 export { tealTheme } from './teal.js'
 export { candyTheme } from './candy.js'
+export * from './tailwind-basics.js'
 
 import { defaultTheme } from './default.js'
 import { oceanTheme } from './ocean.js'
@@ -19,6 +20,7 @@ import { amberTheme } from './amber.js'
 import { indigoTheme } from './indigo.js'
 import { tealTheme } from './teal.js'
 import { candyTheme } from './candy.js'
+import { tailwindBasicThemes } from './tailwind-basics.js'
 
 export const builtinThemes = [
   defaultTheme,
@@ -31,4 +33,5 @@ export const builtinThemes = [
   indigoTheme,
   tealTheme,
   candyTheme,
+  ...tailwindBasicThemes,
 ]

@@ -5,11 +5,10 @@ describe('FONTS', () => {
   it('exports system fonts', () => {
     expect(FONTS.SYSTEM_SANS).toContain('system-ui')
     expect(FONTS.SYSTEM_SERIF).toContain('Georgia')
-    expect(FONTS.SYSTEM_MONO).toContain('monospace')
   })
 
-  it('exports at least 15 font constants', () => {
-    expect(Object.keys(FONTS).length).toBeGreaterThanOrEqual(15)
+  it('exports at least 12 font constants', () => {
+    expect(Object.keys(FONTS).length).toBeGreaterThanOrEqual(12)
   })
 
   it('INTER includes Inter font name', () => {

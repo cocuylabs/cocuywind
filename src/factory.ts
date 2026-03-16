@@ -19,64 +19,75 @@ function token(color: TailwindColor, shade: ShadeNum): ColorToken {
 }
 
 /**
- * Build ThemeTokens for light mode from primary + neutral color families.
+ * Build ThemeTokens for light mode.
+ * - neutral=undefined → chromatic look: surfaces use primary hue
+ * - neutral provided  → traditional look: surfaces use desaturated neutral family
+ * - secondary provided → overrides secondary/accent tokens at -200
  */
 function buildLightTokens(
   primary: TailwindColor,
-  neutral: TailwindColor,
+  neutral: TailwindColor | undefined,
+  secondary: TailwindColor | undefined,
   overrides?: Partial<ThemeTokens>,
 ): ThemeTokens {
+  const surface = neutral ?? primary
   const base: ThemeTokens = {
-    background:          token(neutral, 50),
-    foreground:          token(neutral, 950),
-    card:                token(neutral, 100),
-    cardForeground:      token(neutral, 950),
-    popover:             token(neutral, 50),
-    popoverForeground:   token(neutral, 950),
+    background:          token(surface, 50),
+    foreground:          token(surface, 950),
+    card:                token(surface, 100),
+    cardForeground:      token(surface, 950),
+    popover:             token(surface, 50),
+    popoverForeground:   token(surface, 950),
     primary:             token(primary, LIGHT_PRIMARY_SHADE),
     primaryForeground:   'white',
-    secondary:           token(neutral, 200),
-    secondaryForeground: token(neutral, 800),
-    muted:               token(neutral, 100),
-    mutedForeground:     token(neutral, 500),
-    accent:              token(neutral, 200),
-    accentForeground:    token(neutral, 800),
+    secondary:           token(secondary ?? primary, 200),
+    secondaryForeground: token(surface, 800),
+    muted:               token(surface, 100),
+    mutedForeground:     token(surface, 500),
+    accent:              token(secondary ?? primary, 200),
+    accentForeground:    token(surface, 800),
     destructive:         'red-600' as ColorToken,
     destructiveForeground: 'white',
-    border:              token(neutral, 200),
-    input:               token(neutral, 200),
+    border:              token(surface, 200),
+    input:               token(surface, 200),
     ring:                token(primary, LIGHT_PRIMARY_SHADE),
   }
   return overrides ? { ...base, ...overrides } : base
 }
 
 /**
- * Build ThemeTokens for dark mode from primary + neutral color families.
+ * Build ThemeTokens for dark mode.
+ * - neutral=undefined → chromatic look: surfaces use primary hue
+ * - neutral provided  → traditional look: surfaces use desaturated neutral family
+ * - secondary provided → overrides secondary/accent tokens at -800
  */
 function buildDarkTokens(
   primary: TailwindColor,
-  neutral: TailwindColor,
+  neutral: TailwindColor | undefined,
+  secondary: TailwindColor | undefined,
   overrides?: Partial<ThemeTokens>,
 ): ThemeTokens {
+  const surface = neutral ?? primary
   const base: ThemeTokens = {
-    background:          token(neutral, 950),
-    foreground:          token(neutral, 50),
-    card:                token(neutral, 900),
-    cardForeground:      token(neutral, 50),
-    popover:             token(neutral, 950),
-    popoverForeground:   token(neutral, 50),
+    background:          token(surface, 950),
+    foreground:          token(surface, 50),
+    card:                token(surface, 900),
+    cardForeground:      token(surface, 50),
+    popover:             token(surface, 950),
+    popoverForeground:   token(surface, 50),
     primary:             token(primary, DARK_PRIMARY_SHADE),
-    primaryForeground:   token(neutral, 950),
-    secondary:           token(neutral, 800),
-    secondaryForeground: token(neutral, 200),
-    muted:               token(neutral, 800),
-    mutedForeground:     token(neutral, 400),
-    accent:              token(neutral, 800),
-    accentForeground:    token(neutral, 200),
+    primaryForeground:   token(primary, 950),
+    // secondary at -800 (visibly lighter than card/bg) — used for price badges etc.
+    secondary:           token(secondary ?? primary, 800),
+    secondaryForeground: token(surface, 200),
+    muted:               token(surface, 900),
+    mutedForeground:     token(surface, 400),
+    accent:              token(secondary ?? primary, 800),
+    accentForeground:    token(surface, 200),
     destructive:         'red-400' as ColorToken,
-    destructiveForeground: token(neutral, 950),
-    border:              token(neutral, 800),
-    input:               token(neutral, 800),
+    destructiveForeground: token(primary, 950),
+    border:              token(surface, 800),
+    input:               token(surface, 800),
     ring:                token(primary, DARK_PRIMARY_SHADE),
   }
   return overrides ? { ...base, ...overrides } : base
@@ -86,11 +97,20 @@ export interface CreateThemeConfig {
   name: string
   label: string
   primary: TailwindColor
-  /** Drives backgrounds, surfaces, muted */
-  neutral: TailwindColor
+  /**
+   * Desaturated neutral family for backgrounds/surfaces/muted.
+   * Omit (or undefined) to keep the chromatic look: all surfaces use the primary hue.
+   */
+  neutral?: TailwindColor
+  /**
+   * Secondary accent color family.
+   * Omit (or undefined) to auto-derive from primary (secondary = primary at -200/-800).
+   */
+  secondary?: TailwindColor
   radius?: string
   fonts?: ThemeFonts
   pattern?: ThemePattern
+  category?: string
   overrides?: {
     light?: Partial<ThemeTokens>
     dark?: Partial<ThemeTokens>
@@ -101,20 +121,23 @@ export interface CreateThemeConfig {
  * Easiest factory: pick color families, library picks shades intelligently.
  *
  * @example
+ * createTheme({ name: 'ocean', label: 'Ocean', primary: 'blue' })
  * createTheme({ name: 'ocean', label: 'Ocean', primary: 'blue', neutral: 'slate' })
+ * createTheme({ name: 'ocean', label: 'Ocean', primary: 'blue', secondary: 'teal' })
  */
 export function createTheme(config: CreateThemeConfig): Theme {
-  const { name, label, primary, neutral, radius, fonts, pattern, overrides } = config
+  const { name, label, primary, neutral, secondary, radius, fonts, pattern, category, overrides } = config
   return {
     name,
     label,
-    light: buildLightTokens(primary, neutral, overrides?.light),
-    dark:  buildDarkTokens(primary, neutral, overrides?.dark),
+    light: buildLightTokens(primary, neutral, secondary, overrides?.light),
+    dark:  buildDarkTokens(primary, neutral, secondary, overrides?.dark),
     fonts,
     pattern,
     radius: radius ?? '0.5rem',
-    _generatorConfig: { primary, neutral, radius },
-  } as Theme & { _generatorConfig: { primary: TailwindColor; neutral: TailwindColor; radius?: string } }
+    category,
+    _generatorConfig: { primary, neutral, secondary, radius },
+  } as Theme & { _generatorConfig: { primary: TailwindColor; neutral?: TailwindColor; secondary?: TailwindColor; radius?: string } }
 }
 
 /**

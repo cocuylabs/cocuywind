@@ -34,9 +34,10 @@ interface ThemeTokens {
     ring: ColorToken;
 }
 interface ThemeFonts {
-    sans?: string;
-    serif?: string;
-    mono?: string;
+    /** Body / UI font — applied to :root. Defaults to system-ui sans-serif. */
+    body?: string;
+    /** Heading / display font — applied to h1–h6. Omit to use body font for headings too. */
+    heading?: string;
 }
 type PatternType = 'none' | 'dots' | 'grid' | 'cross' | 'diagonal-lines' | 'horizontal-lines' | 'vertical-lines' | 'zigzag' | 'checkerboard' | 'triangles' | 'hexagons' | 'noise';
 interface ThemePattern {
@@ -59,6 +60,10 @@ interface Theme {
     pattern?: ThemePattern;
     /** e.g. "0.5rem" */
     radius?: string;
+    /** Groups themes in the picker: 'Basic' | 'Curated' | 'TweakCN' */
+    category?: string;
+    /** Optional original/source label for display or attribution */
+    _sourceName?: string;
 }
 
 type ColorMode = 'light' | 'dark' | 'system';
@@ -103,25 +108,15 @@ declare function useTheme(): ThemeContextValue;
 
 type ThemePickerSection = 'colors' | 'fonts' | 'patterns' | 'radius';
 interface ThemePickerProps {
-    /** Available preset themes to show as swatches */
     themes: Theme[];
-    /** Currently selected theme */
     value: Theme;
-    /** Called when theme selection changes */
     onChange: (theme: Theme) => void;
-    /** Show custom theme builder */
     allowCustom?: boolean;
-    /** Which sections to show in the custom builder */
     sections?: ThemePickerSection[];
     className?: string;
+    locale?: 'en' | 'es' | 'pt';
+    labels?: Record<string, Record<string, string>>;
 }
-/**
- * ThemePicker — preset swatches + optional custom builder.
- *
- * Renders:
- * 1. Preset swatches grouped by Built-in / TweakCN
- * 2. Custom builder (if allowCustom) with color, font, pattern, radius sections
- */
-declare function ThemePicker({ themes, value, onChange, allowCustom, sections, className, }: ThemePickerProps): react_jsx_runtime.JSX.Element;
+declare function ThemePicker({ themes, value, onChange, allowCustom, sections, className, locale, labels }: ThemePickerProps): react_jsx_runtime.JSX.Element;
 
 export { type ColorMode, ThemeContext, type ThemeContextValue, ThemePicker, type ThemePickerProps, type ThemePickerSection, ThemeProvider, type ThemeProviderProps, useTheme };

@@ -85,9 +85,8 @@ export function themeFromCSSVars(
   const radius = normalized['radius'] ?? '0.5rem'
 
   const fonts: ThemeFonts = {}
-  if (normalized['font-sans'])  fonts.sans  = normalized['font-sans']
-  if (normalized['font-serif']) fonts.serif = normalized['font-serif']
-  if (normalized['font-mono'])  fonts.mono  = normalized['font-mono']
+  if (normalized['font-sans'])  fonts.body    = normalized['font-sans']
+  if (normalized['font-serif']) fonts.heading = normalized['font-serif']
 
   return {
     name:    meta?.name  ?? 'stolen',
@@ -151,16 +150,11 @@ export function themeFromCSS(
     '0.5rem'
 
   const fonts: ThemeFonts = {}
-  const sansCandidates  = [light['font-sans'],  extractSingleVar(unwrapped, 'font-sans')]
-  const serifCandidates = [light['font-serif'], extractSingleVar(unwrapped, 'font-serif')]
-  const monoCandidates  = [light['font-mono'],  extractSingleVar(unwrapped, 'font-mono')]
-  const firstDefined    = <T>(arr: (T | undefined)[]): T | undefined => arr.find(v => v !== undefined)
-  const sanVal  = firstDefined(sansCandidates)
-  const serVal  = firstDefined(serifCandidates)
-  const monoVal = firstDefined(monoCandidates)
-  if (sanVal)  fonts.sans  = sanVal
-  if (serVal)  fonts.serif = serVal
-  if (monoVal) fonts.mono  = monoVal
+  const firstDefined = <T>(arr: (T | undefined)[]): T | undefined => arr.find(v => v !== undefined)
+  const bodyVal    = firstDefined([light['font-sans'],  extractSingleVar(unwrapped, 'font-sans')])
+  const headingVal = firstDefined([light['font-serif'], extractSingleVar(unwrapped, 'font-serif')])
+  if (bodyVal)    fonts.body    = bodyVal
+  if (headingVal) fonts.heading = headingVal
 
   // Build resolved token maps
   const lightResolved: ResolvedTokens = {}
@@ -211,7 +205,7 @@ export const browserSnippet = /* js */`(function() {
     'accent','accent-foreground',
     'destructive','destructive-foreground',
     'border','input','ring',
-    'radius','font-sans','font-serif','font-mono'
+    'radius','font-sans','font-serif'
   ];
   var light = {}, dark = {};
   keys.forEach(function(k) {

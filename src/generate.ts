@@ -57,9 +57,8 @@ export function generateCSS(theme: Theme): string {
     lines.push(`  ${cssVar}: ${value};`)
   }
   lines.push(`  --radius: ${radius};`)
-  if (fonts.sans)  lines.push(`  --font-sans: ${fonts.sans};`)
-  if (fonts.serif) lines.push(`  --font-serif: ${fonts.serif};`)
-  if (fonts.mono)  lines.push(`  --font-mono: ${fonts.mono};`)
+  if (fonts.body)    lines.push(`  --font-body: ${fonts.body};`)
+  if (fonts.heading) lines.push(`  --font-heading: ${fonts.heading};`)
 
   // Pattern CSS variables
   if (theme.pattern && theme.pattern.type !== 'none') {
@@ -71,6 +70,10 @@ export function generateCSS(theme: Theme): string {
     }
   }
   lines.push('}', '')
+
+  // ─── Font application rules ───────────────────────────────────────────────
+  if (fonts.body)    lines.push(`:root { font-family: var(--font-body); }`, '')
+  if (fonts.heading) lines.push(`h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }`, '')
 
   // ─── .dark (dark mode overrides) ─────────────────────────────────────────
   lines.push('.dark {')
@@ -91,9 +94,8 @@ export function generateCSS(theme: Theme): string {
   lines.push(`  --radius-md: var(--radius);`)
   lines.push(`  --radius-lg: calc(var(--radius) + 4px);`)
   lines.push(`  --radius-xl: calc(var(--radius) + 8px);`)
-  if (fonts.sans)  lines.push(`  --font-sans: var(--font-sans);`)
-  if (fonts.serif) lines.push(`  --font-serif: var(--font-serif);`)
-  if (fonts.mono)  lines.push(`  --font-mono: var(--font-mono);`)
+  if (fonts.body)    lines.push(`  --font-sans: var(--font-body);`)
+  if (fonts.heading) lines.push(`  --font-heading: var(--font-heading);`)
   lines.push('}')
 
   return lines.join('\n')
@@ -114,9 +116,8 @@ export function storedThemeToCSS(stored: StoredTheme): string {
     lines.push(`  --${kebab(key)}: ${value};`)
   }
   lines.push(`  --radius: ${radius};`)
-  if (fonts?.sans)  lines.push(`  --font-sans: ${fonts.sans};`)
-  if (fonts?.serif) lines.push(`  --font-serif: ${fonts.serif};`)
-  if (fonts?.mono)  lines.push(`  --font-mono: ${fonts.mono};`)
+  if (fonts?.body)    lines.push(`  --font-body: ${fonts.body};`)
+  if (fonts?.heading) lines.push(`  --font-heading: ${fonts.heading};`)
 
   if (pattern && pattern.type !== 'none') {
     const patternStyle = generatePattern(pattern)
@@ -127,6 +128,10 @@ export function storedThemeToCSS(stored: StoredTheme): string {
     }
   }
   lines.push('}', '')
+
+  // ─── Font application rules ───────────────────────────────────────────────
+  if (fonts?.body)    lines.push(`:root { font-family: var(--font-body); }`, '')
+  if (fonts?.heading) lines.push(`h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }`, '')
 
   // ─── .dark ───────────────────────────────────────────────────────────────
   lines.push('.dark {')
@@ -146,9 +151,8 @@ export function storedThemeToCSS(stored: StoredTheme): string {
   lines.push(`  --radius-md: var(--radius);`)
   lines.push(`  --radius-lg: calc(var(--radius) + 4px);`)
   lines.push(`  --radius-xl: calc(var(--radius) + 8px);`)
-  if (fonts?.sans)  lines.push(`  --font-sans: var(--font-sans);`)
-  if (fonts?.serif) lines.push(`  --font-serif: var(--font-serif);`)
-  if (fonts?.mono)  lines.push(`  --font-mono: var(--font-mono);`)
+  if (fonts?.body)    lines.push(`  --font-sans: var(--font-body);`)
+  if (fonts?.heading) lines.push(`  --font-heading: var(--font-heading);`)
   lines.push('}')
 
   return lines.join('\n')

@@ -40,13 +40,16 @@ describe('generateCSS', () => {
     expect(css).toContain('--radius: 0.5rem')
   })
 
-  it('includes font vars when fonts are set', () => {
+  it('includes font vars and application rules when fonts are set', () => {
     const themeWithFonts = {
       ...oceanTheme,
-      fonts: { sans: "'Inter', system-ui, sans-serif" },
+      fonts: { body: "'Inter', system-ui, sans-serif", heading: "'Playfair Display', Georgia, serif" },
     }
     const css = generateCSS(themeWithFonts)
-    expect(css).toContain("--font-sans: 'Inter', system-ui, sans-serif")
+    expect(css).toContain("--font-body: 'Inter', system-ui, sans-serif")
+    expect(css).toContain("--font-heading: 'Playfair Display', Georgia, serif")
+    expect(css).toContain(':root { font-family: var(--font-body); }')
+    expect(css).toContain('h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }')
   })
 
   it('maps CSS vars to Tailwind @theme vars', () => {

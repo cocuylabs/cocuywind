@@ -94,12 +94,10 @@ export function themeFromTweakCNItem(
   const radius = (combined['--radius'] ?? combined['radius'] ?? '0.5rem').trim()
 
   const fonts: ThemeFonts = {}
-  const sanVal  = combined['--font-sans']  ?? combined['font-sans']
-  const serVal  = combined['--font-serif'] ?? combined['font-serif']
-  const monoVal = combined['--font-mono']  ?? combined['font-mono']
-  if (sanVal)  fonts.sans  = sanVal.trim()
-  if (serVal)  fonts.serif = serVal.trim()
-  if (monoVal) fonts.mono  = monoVal.trim()
+  const bodyVal    = combined['--font-sans']  ?? combined['font-sans']
+  const headingVal = combined['--font-serif'] ?? combined['font-serif']
+  if (bodyVal)    fonts.body    = bodyVal.trim()
+  if (headingVal) fonts.heading = headingVal.trim()
 
   return {
     name:    meta?.name  ?? item.name,

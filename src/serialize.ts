@@ -26,11 +26,13 @@ export function serializeTheme(theme: Theme): StoredTheme {
     _source?: StoredTheme['_source']
     _presetName?: string
     _generatorConfig?: StoredTheme['_generatorConfig']
+    _sourceName?: string
   }
 
   if (t._source) stored._source = t._source
   if (t._presetName) stored._presetName = t._presetName
   if (t._generatorConfig) stored._generatorConfig = t._generatorConfig
+  if (t._sourceName) stored._sourceName = t._sourceName
 
   return stored
 }
@@ -63,6 +65,10 @@ export function deserializeTheme(stored: StoredTheme): Theme {
     fonts: fonts as ThemeFonts,
     pattern: pattern as ThemePattern,
     radius,
+  }
+
+  if (stored._sourceName) {
+    theme._sourceName = stored._sourceName
   }
 
   return theme

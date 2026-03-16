@@ -114,9 +114,9 @@ describe('themeFromTweakCNItem', () => {
     expect(stored.radius).toBe('0.75rem')
   })
 
-  it('extracts font-sans from theme vars', () => {
+  it('extracts font-sans as body from theme vars', () => {
     const stored = themeFromTweakCNItem(CATPPUCCIN_ITEM)
-    expect(stored.fonts.sans).toBe("'Inter', system-ui, sans-serif")
+    expect(stored.fonts.body).toBe("'Inter', system-ui, sans-serif")
   })
 
   it('sets _source to custom', () => {
