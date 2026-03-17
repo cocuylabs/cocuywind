@@ -22,6 +22,8 @@ var src_exports = {};
 __export(src_exports, {
   FONTS: () => FONTS,
   TAILWIND_COLORS: () => TAILWIND_COLORS,
+  VIVIDNESS_PRESETS: () => VIVIDNESS_PRESETS,
+  adjustVividness: () => adjustVividness,
   amberMinimalTheme: () => amberMinimalTheme,
   amberTheme: () => amberTheme,
   amethystHazeTheme: () => amethystHazeTheme,
@@ -35,6 +37,7 @@ __export(src_exports, {
   candylandTheme: () => candylandTheme,
   catppuccinTheme: () => catppuccinTheme,
   claudeTheme: () => claudeTheme,
+  claudeThemes: () => claudeThemes,
   claymorphismTheme: () => claymorphismTheme,
   cleanSlateTheme: () => cleanSlateTheme,
   communityThemes: () => communityThemes,
@@ -91,6 +94,7 @@ __export(src_exports, {
   themeFromCSSVars: () => themeFromCSSVars,
   themeFromSnippetOutput: () => themeFromSnippetOutput,
   themeFromTweakCNItem: () => themeFromTweakCNItem,
+  themeLabelsEn: () => theme_labels_en_default,
   themeLabelsEs: () => theme_labels_es_default,
   themeLabelsPt: () => theme_labels_pt_default,
   themes: () => themes,
@@ -98,6 +102,7 @@ __export(src_exports, {
   tweakcnSnippet: () => tweakcnSnippet,
   tweakcnThemes: () => tweakcnThemes,
   twitterTheme: () => twitterTheme,
+  validateStoredTheme: () => validateStoredTheme,
   vintagePaperTheme: () => vintagePaperTheme,
   violetBloomTheme: () => violetBloomTheme
 });
@@ -385,16 +390,16 @@ function resolveColor(token2) {
 
 // src/patterns.ts
 var SIZE_MAP = {
-  sm: { dots: 12, grid: 16, lines: 16, cross: 12, zigzag: 14, checker: 12, tri: 12, hex: 24 },
-  md: { dots: 20, grid: 24, lines: 24, cross: 20, zigzag: 20, checker: 20, tri: 20, hex: 36 },
-  lg: { dots: 32, grid: 40, lines: 40, cross: 32, zigzag: 30, checker: 32, tri: 32, hex: 56 }
+  sm: { dots: 12, grid: 16, lines: 16, cross: 16, zigzag: 14, checker: 12, tri: 12, hex: 24 },
+  md: { dots: 20, grid: 24, lines: 24, cross: 24, zigzag: 20, checker: 20, tri: 20, hex: 36 },
+  lg: { dots: 32, grid: 40, lines: 40, cross: 40, zigzag: 30, checker: 32, tri: 32, hex: 56 }
 };
 function getSize(s, key) {
   return SIZE_MAP[s ?? "md"][key];
 }
 function generatePattern(config) {
   const size = config.size ?? "md";
-  const opacity = config.opacity ?? 0.15;
+  const opacity = config.opacity ?? 0.12;
   const color = config.color ? resolveColor(config.color) : "currentColor";
   const colorWithOpacity = wrapWithOpacity(color, opacity);
   switch (config.type) {
@@ -403,7 +408,7 @@ function generatePattern(config) {
     case "dots": {
       const s = getSize(size, "dots");
       return {
-        backgroundImage: `radial-gradient(${colorWithOpacity} 1px, transparent 1px)`,
+        backgroundImage: `radial-gradient(${colorWithOpacity} 1.5px, transparent 1.5px)`,
         backgroundSize: `${s}px ${s}px`
       };
     }
@@ -420,14 +425,14 @@ function generatePattern(config) {
     case "cross": {
       const s = getSize(size, "cross");
       const half = s / 2;
+      const arm = Math.max(1, Math.round(s * 0.08));
       return {
         backgroundImage: [
-          `linear-gradient(${colorWithOpacity} 1px, transparent 1px)`,
-          `linear-gradient(to right, ${colorWithOpacity} 1px, transparent 1px)`
+          `linear-gradient(${colorWithOpacity} ${arm}px, transparent ${arm}px)`,
+          `linear-gradient(to right, ${colorWithOpacity} ${arm}px, transparent ${arm}px)`
         ].join(", "),
         backgroundSize: `${s}px ${s}px`,
-        backgroundColor: "transparent"
-        // Cross pattern uses offset positioning — applied via CSS var usage
+        backgroundPosition: `${half - arm / 2}px ${half - arm / 2}px, ${half - arm / 2}px ${half - arm / 2}px`
       };
     }
     case "diagonal-lines": {
@@ -459,7 +464,7 @@ function generatePattern(config) {
           `linear-gradient(135deg, ${colorWithOpacity} 25%, transparent 25%) -${half}px 0`,
           `linear-gradient(225deg, ${colorWithOpacity} 25%, transparent 25%) -${half}px 0`,
           `linear-gradient(315deg, ${colorWithOpacity} 25%, transparent 25%)`,
-          `linear-gradient(45deg, ${colorWithOpacity} 25%, transparent 25%)`
+          `linear-gradient(45deg,  ${colorWithOpacity} 25%, transparent 25%)`
         ].join(", "),
         backgroundSize: `${s}px ${half}px`
       };
@@ -467,12 +472,8 @@ function generatePattern(config) {
     case "checkerboard": {
       const s = getSize(size, "checker");
       return {
-        backgroundImage: [
-          `linear-gradient(45deg, ${colorWithOpacity} 25%, transparent 25%, transparent 75%, ${colorWithOpacity} 75%, ${colorWithOpacity})`,
-          `linear-gradient(45deg, ${colorWithOpacity} 25%, transparent 25%, transparent 75%, ${colorWithOpacity} 75%, ${colorWithOpacity})`
-        ].join(", "),
-        backgroundSize: `${s}px ${s}px`,
-        backgroundColor: "transparent"
+        backgroundImage: `conic-gradient(${colorWithOpacity} 90deg, transparent 90deg 180deg, ${colorWithOpacity} 180deg 270deg, transparent 270deg)`,
+        backgroundSize: `${s}px ${s}px`
       };
     }
     case "triangles": {
@@ -482,7 +483,7 @@ function generatePattern(config) {
         backgroundImage: [
           `linear-gradient(120deg, ${colorWithOpacity} 33.33%, transparent 33.33%)`,
           `linear-gradient(240deg, ${colorWithOpacity} 33.33%, transparent 33.33%)`,
-          `linear-gradient(0deg, ${colorWithOpacity} 33.33%, transparent 33.33%)`
+          `linear-gradient(0deg,   ${colorWithOpacity} 33.33%, transparent 33.33%)`
         ].join(", "),
         backgroundSize: `${s}px ${half}px`
       };
@@ -493,7 +494,7 @@ function generatePattern(config) {
       return {
         backgroundImage: [
           `linear-gradient(120deg, ${colorWithOpacity} 25%, transparent 25% 75%, ${colorWithOpacity} 75%)`,
-          `linear-gradient(60deg, ${colorWithOpacity} 25%, transparent 25% 75%, ${colorWithOpacity} 75%)`,
+          `linear-gradient(60deg,  ${colorWithOpacity} 25%, transparent 25% 75%, ${colorWithOpacity} 75%)`,
           `linear-gradient(${colorWithOpacity} 10%, transparent 10% 90%, ${colorWithOpacity} 90%)`
         ].join(", "),
         backgroundSize: `${s}px ${h}px`
@@ -512,10 +513,6 @@ function generatePattern(config) {
   }
 }
 function wrapWithOpacity(color, opacity) {
-  if (color === "currentColor") {
-    const pct2 = Math.round(opacity * 100);
-    return `color-mix(in oklch, currentColor ${pct2}%, transparent)`;
-  }
   const pct = Math.round(opacity * 100);
   return `color-mix(in oklch, ${color} ${pct}%, transparent)`;
 }
@@ -567,10 +564,14 @@ function generateCSS(theme) {
     const patternStyle = generatePattern(theme.pattern);
     lines.push(`  --pattern-image: ${patternStyle.backgroundImage};`);
     lines.push(`  --pattern-size: ${patternStyle.backgroundSize};`);
-    if (patternStyle.backgroundColor) {
-      lines.push(`  --pattern-color: ${patternStyle.backgroundColor};`);
+    if (patternStyle.backgroundPosition) {
+      lines.push(`  --pattern-position: ${patternStyle.backgroundPosition};`);
     }
+  } else {
+    lines.push(`  --pattern-image: none;`);
+    lines.push(`  --pattern-size: auto;`);
   }
+  lines.push(`  --bg-image: ${theme.backgroundImage ?? "none"};`);
   lines.push("}", "");
   if (fonts.body) lines.push(`:root { font-family: var(--font-body); }`, "");
   if (fonts.heading) lines.push(`h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }`, "");
@@ -609,10 +610,14 @@ function storedThemeToCSS(stored) {
     const patternStyle = generatePattern(pattern);
     lines.push(`  --pattern-image: ${patternStyle.backgroundImage};`);
     lines.push(`  --pattern-size: ${patternStyle.backgroundSize};`);
-    if (patternStyle.backgroundColor) {
-      lines.push(`  --pattern-color: ${patternStyle.backgroundColor};`);
+    if (patternStyle.backgroundPosition) {
+      lines.push(`  --pattern-position: ${patternStyle.backgroundPosition};`);
     }
+  } else {
+    lines.push(`  --pattern-image: none;`);
+    lines.push(`  --pattern-size: auto;`);
   }
+  lines.push(`  --bg-image: ${stored.backgroundImage ?? "none"};`);
   lines.push("}", "");
   if (fonts?.body) lines.push(`:root { font-family: var(--font-body); }`, "");
   if (fonts?.heading) lines.push(`h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }`, "");
@@ -645,6 +650,43 @@ function resolveTokens(tokens) {
     result[key] = resolveColor(tokens[key]);
   }
   return result;
+}
+
+// src/vividness.ts
+var VIVIDNESS_PRESETS = {
+  playful: 1.3,
+  vivid: 1.15,
+  default: 1,
+  professional: 0.75,
+  elegant: 0.5
+};
+var MAX_CHROMA = 0.4;
+function parseOklch(value) {
+  const match = value.trim().match(/^oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*\)$/);
+  if (!match) return null;
+  return { l: parseFloat(match[1]), c: parseFloat(match[2]), h: parseFloat(match[3]) };
+}
+function scaleChroma(cssValue, factor) {
+  const parsed = parseOklch(cssValue);
+  if (!parsed) return cssValue;
+  const newC = Math.min(MAX_CHROMA, Math.max(0, parsed.c * factor));
+  return `oklch(${parsed.l} ${parseFloat(newC.toFixed(4))} ${parsed.h})`;
+}
+function adjustVividness(theme, factor) {
+  if (factor === 1) return theme;
+  function scaleTokens(tokens) {
+    const result = {};
+    for (const key of Object.keys(tokens)) {
+      const resolved = resolveColor(tokens[key]);
+      result[key] = raw(scaleChroma(resolved, factor));
+    }
+    return result;
+  }
+  return {
+    ...theme,
+    light: scaleTokens(theme.light),
+    dark: scaleTokens(theme.dark)
+  };
 }
 
 // src/factory.ts
@@ -705,8 +747,10 @@ function buildDarkTokens(primary, neutral, secondary, overrides) {
   return overrides ? { ...base, ...overrides } : base;
 }
 function createTheme(config) {
-  const { name, label, primary, neutral, secondary, radius, fonts, pattern, category, overrides } = config;
-  return {
+  const { name, label, primary, neutral, secondary, radius, fonts, pattern, category, overrides, vividness } = config;
+  const vividnessFactor = typeof vividness === "string" ? VIVIDNESS_PRESETS[vividness] : typeof vividness === "number" ? vividness : void 0;
+  const vividnessPresetName = typeof vividness === "string" ? vividness : void 0;
+  const base = {
     name,
     label,
     light: buildLightTokens(primary, neutral, secondary, overrides?.light),
@@ -715,8 +759,19 @@ function createTheme(config) {
     pattern,
     radius: radius ?? "0.5rem",
     category,
-    _generatorConfig: { primary, neutral, secondary, radius }
+    _generatorConfig: {
+      primary,
+      neutral,
+      secondary,
+      radius,
+      vividness: vividnessFactor,
+      vividnessPreset: vividnessPresetName
+    }
   };
+  if (vividnessFactor !== void 0 && vividnessFactor !== 1) {
+    return adjustVividness(base, vividnessFactor);
+  }
+  return base;
 }
 function extendTheme(base, overrides) {
   const { light: lightOverrides, dark: darkOverrides, ...rest } = overrides;
@@ -732,6 +787,55 @@ function defineTheme(theme) {
 }
 
 // src/serialize.ts
+var REQUIRED_TOKENS = [
+  "background",
+  "foreground",
+  "card",
+  "cardForeground",
+  "popover",
+  "popoverForeground",
+  "primary",
+  "primaryForeground",
+  "secondary",
+  "secondaryForeground",
+  "muted",
+  "mutedForeground",
+  "accent",
+  "accentForeground",
+  "destructive",
+  "destructiveForeground",
+  "border",
+  "input",
+  "ring"
+];
+function validateStoredTheme(stored) {
+  const errors = [];
+  if (!stored || typeof stored !== "object") {
+    return { valid: false, errors: ["Value is not an object"] };
+  }
+  const s = stored;
+  if (typeof s.name !== "string" || !s.name) errors.push('Missing or invalid "name"');
+  if (typeof s.label !== "string" || !s.label) errors.push('Missing or invalid "label"');
+  if (typeof s.radius !== "string" || !s.radius) errors.push('Missing or invalid "radius"');
+  if (!s.styles || typeof s.styles !== "object") {
+    errors.push('Missing "styles"');
+  } else {
+    const styles = s.styles;
+    for (const mode of ["light", "dark"]) {
+      if (!styles[mode] || typeof styles[mode] !== "object") {
+        errors.push(`Missing "styles.${mode}"`);
+      } else {
+        const tokens = styles[mode];
+        for (const key of REQUIRED_TOKENS) {
+          if (typeof tokens[key] !== "string" || !tokens[key].trim()) {
+            errors.push(`Missing or empty "styles.${mode}.${key}"`);
+          }
+        }
+      }
+    }
+  }
+  return { valid: errors.length === 0, errors };
+}
 function serializeTheme(theme) {
   const stored = {
     name: theme.name,
@@ -745,9 +849,11 @@ function serializeTheme(theme) {
     radius: theme.radius ?? "0.5rem"
   };
   const t = theme;
+  if (theme.backgroundImage) stored.backgroundImage = theme.backgroundImage;
   if (t._source) stored._source = t._source;
   if (t._presetName) stored._presetName = t._presetName;
   if (t._generatorConfig) stored._generatorConfig = t._generatorConfig;
+  if (t._overlayConfig) stored._overlayConfig = t._overlayConfig;
   if (t._sourceName) stored._sourceName = t._sourceName;
   return stored;
 }
@@ -771,9 +877,11 @@ function deserializeTheme(stored) {
     pattern,
     radius
   };
-  if (stored._sourceName) {
-    theme._sourceName = stored._sourceName;
-  }
+  if (stored.backgroundImage) theme.backgroundImage = stored.backgroundImage;
+  if (stored._sourceName) theme._sourceName = stored._sourceName;
+  if (stored._presetName) theme._presetName = stored._presetName;
+  if (stored._overlayConfig) theme._overlayConfig = stored._overlayConfig;
+  if (stored._generatorConfig) theme._generatorConfig = stored._generatorConfig;
   return theme;
 }
 
@@ -1089,6 +1197,7 @@ var FONTS = {
   // ─── System fonts ─────────────────────────────────────────────────────────
   SYSTEM_SANS: "system-ui, -apple-system, sans-serif",
   SYSTEM_SERIF: "Georgia, 'Times New Roman', serif",
+  SYSTEM_MONO: "ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace",
   // ─── Sans-serif Google Fonts ───────────────────────────────────────────────
   INTER: "'Inter', system-ui, sans-serif",
   GEIST: "'Geist', system-ui, sans-serif",
@@ -1102,7 +1211,12 @@ var FONTS = {
   PLAYFAIR: "'Playfair Display', Georgia, serif",
   LORA: "'Lora', Georgia, serif",
   MERRIWEATHER: "'Merriweather', Georgia, serif",
-  DM_SERIF: "'DM Serif Display', Georgia, serif"
+  DM_SERIF: "'DM Serif Display', Georgia, serif",
+  // ─── Monospace Google Fonts ────────────────────────────────────────────────
+  JETBRAINS_MONO: "'JetBrains Mono', ui-monospace, monospace",
+  FIRA_CODE: "'Fira Code', ui-monospace, monospace",
+  SOURCE_CODE_PRO: "'Source Code Pro', ui-monospace, monospace",
+  IBM_PLEX_MONO: "'IBM Plex Mono', ui-monospace, monospace"
 };
 var GOOGLE_FONT_NAMES = {
   INTER: "Inter:wght@400;500;600;700",
@@ -1116,7 +1230,11 @@ var GOOGLE_FONT_NAMES = {
   PLAYFAIR: "Playfair+Display:wght@400;600;700",
   LORA: "Lora:wght@400;500;600;700",
   MERRIWEATHER: "Merriweather:wght@300;400;700",
-  DM_SERIF: "DM+Serif+Display:wght@400"
+  DM_SERIF: "DM+Serif+Display:wght@400",
+  JETBRAINS_MONO: "JetBrains+Mono:wght@400;500;700",
+  FIRA_CODE: "Fira+Code:wght@400;500;700",
+  SOURCE_CODE_PRO: "Source+Code+Pro:wght@400;500;700",
+  IBM_PLEX_MONO: "IBM+Plex+Mono:wght@400;500;700"
 };
 function googleFontsUrl(families) {
   const fontKeys = Object.keys(GOOGLE_FONT_NAMES);
@@ -1136,6 +1254,222 @@ function googleFontsUrl(families) {
   if (params.length === 0) return "";
   return `https://fonts.googleapis.com/css2?${params.join("&")}&display=swap`;
 }
+
+// src/i18n/theme-labels.en.json
+var theme_labels_en_default = {
+  amber: "Warm Amber",
+  "amber-minimal": "Amber Minimal",
+  "amethyst-haze": "Amethyst Haze",
+  "bold-tech": "Bold Tech",
+  bubblegum: "Bubblegum",
+  caffeine: "Caffeine",
+  candy: "Candy",
+  candyland: "Candyland",
+  catppuccin: "Catppuccin",
+  claude: "Claude",
+  claymorphism: "Claymorphism",
+  "clean-slate": "Clean Slate",
+  "community-1-cmlwi5": "Cobalt Vista",
+  "community-2077-cmledj": "2077",
+  "community-3d-vintage-paper-cmm7uq": "3D Vintage Paper",
+  "community-53-cmmp8a": "Copper Canyon",
+  "community-a-cmmm59": "Lumen Orbit",
+  "community-agora-events-cmlpmf": "Agora Events",
+  "community-aldo-rebelo-admin-cmlwgg": "Aldo Rebelo Admin",
+  "community-alpine-cmlecl": "Alpine",
+  "community-altar-v1-cmmadl": "Altar",
+  "community-altar-v1-invert-cmmaeo": "Altar Invert",
+  "community-amber-mono-2-0-cmlpw7": "Amber Mono",
+  "community-apex-cmlf55": "Apex",
+  "community-artefactory-cmm3xr": "Artefactory",
+  "community-aryze-colors-2026-v2-cmmkfw": "Aryze Colors",
+  "community-astrovista-cmlk70": "Astrovista",
+  "community-autoblog-cmlpf8": "Autoblog",
+  "community-bain-design-system-cmm5y6": "Bain Design System",
+  "community-beso-colors-cmltho": "Beso Colors",
+  "community-best-deisgne-ui-ux-shadcn-cmmsal": "Shadcn UI UX",
+  "community-better-light-theme-supabase-cmmdxi": "Better Light Supabase",
+  "community-black-and-pink-cmliek": "Black And Pink",
+  "community-black-cmmls5": "Black",
+  "community-blue-cmmgxu": "Blue",
+  "community-blue-orange-cmm5x6": "Blue Orange",
+  "community-blue-yellow-warn-ugly-af-in-light-mode-cmljx1": "Blue Yellow Contrast",
+  "community-bold-wikipedia-cmlmpb": "Bold Wikipedia",
+  "community-brownie-cmlr31": "Brownie",
+  "community-brownies-cmlkz0": "Brownies",
+  "community-burgundy-cmle93": "Burgundy",
+  "community-caffein-thheme-cmmhks": "Caffeine Theme",
+  "community-carbon-ember-cmlf2h": "Carbon Ember",
+  "community-caser-cmm6p0": "Caser",
+  "community-catppuccin-mocha-cmm3nh": "Catppuccin Mocha",
+  "community-celestial-cmm720": "Celestial",
+  "community-chalk": "Chalk",
+  "community-claude-blu-2-cmmead": "Claude Blue",
+  "community-claude-cmlm0b": "Claude",
+  "community-claude-cmlr30": "Claude Plus",
+  "community-claude-renk-paleti-v1-0-cmm9i1": "Claude Palette",
+  "community-clinids-29-01-cmll4q": "Clinids",
+  "community-course-app-cmmnnr": "Course App",
+  "community-cwh-learning-cmlpfa": "Cwh Learning",
+  "community-damon-cmlw7u": "Damon",
+  "community-dark-forge-cmlf2k": "Dark Forge",
+  "community-de-sarann-villa-cmmni6": "De Sarann Villa",
+  "community-de-swiss-design-cmlure": "Swiss Design",
+  "community-deep-purple-cmlh1j": "Deep Purple",
+  "community-designbyte-cmlpf5": "Designbyte",
+  "community-diby-cmlhru": "Diby",
+  "community-diby-orange-cmlhrv": "Diby Orange",
+  "community-domia-cmlz4g": "Domia",
+  "community-efferd-cmmi9l": "Efferd",
+  "community-emerald-cmli3u": "Emerald",
+  "community-enterprise-mod-2-cmlva5": "Enterprise Mod",
+  "community-eslinks-cmmaoe": "Eslinks",
+  "community-essw-cmmphm": "Essw",
+  "community-examdedo-cmlpf1": "Examdedo",
+  "community-flat-pink-2-cmlieo": "Flat Pink",
+  "community-gold-cmlf3x": "Gold",
+  "community-greattings-cmlfwc": "Greetings",
+  "community-green-with-yellow-theme-cmlewm": "Green Yellow",
+  "community-greenbarbequeue-cmm9ae": "Green Barbeque",
+  "community-hyper-red-cmliel": "Hyper Red",
+  "community-ibk-theme-cmmb5d": "IBK Theme",
+  "community-iconic-terminal-cmmhiu": "Iconic Terminal",
+  "community-imhicihu-cmmp28": "Imhicihu",
+  "community-india-cmlpfe": "India",
+  "community-infoseer-cmmcv8": "Infoseer",
+  "community-intropic-mui-react-cursor-retool-cmmt51": "Intropic MUI",
+  "community-itadori-yuji-cmmhf9": "Itadori Yuji",
+  "community-jamaica-cmlh1c": "Jamaica",
+  "community-japan-blues-cmmje1": "Japan Blues",
+  "community-jknm-cmmrfz": "Jknm",
+  "community-js-ts-advent-of-code-cmlr31": "Advent Of Code",
+  "community-kedokteran-cmmc4g": "Medicine",
+  "community-kupikod-cmleua": "Kupikod",
+  "community-lara-cmm277": "Lara",
+  "community-lastchat-cmmi2x": "Lastchat",
+  "community-lavanda-cmmis1": "Lavender",
+  "community-leadgen-cmle6z": "Leadgen",
+  "community-light-green-cmlhfq": "Light Green",
+  "community-lime-green-dhamaka-cmm7ct": "Lime Explosion",
+  "community-limes-cmliem": "Limes",
+  "community-logisticone-cmm0zk": "Logisticone",
+  "community-lyte-cmml0p": "Lyte",
+  "community-m-cmlgp0": "Echo Canyon",
+  "community-magic-2-cmmsz6": "Magic",
+  "community-magic-3-cmmt0a": "Magic Plus",
+  "community-manga-vibe-cmlr32": "Manga Vibe",
+  "community-meta-mask-geist-cmlf9r": "MetaMask Geist",
+  "community-minimal-neutral-cmlr2z": "Minimal Neutral",
+  "community-moss-cmmi1g": "Moss",
+  "community-mt-cmmdl8": "Nimbus Circuit",
+  "community-mx-brutalist-cmllfv": "MX Brutalist",
+  "community-my-aweasome-theme-cmlxzf": "My Awesome Theme",
+  "community-my-theme-01-cmmemx": "My Theme",
+  "community-my-theme-cmm24g": "My Private Theme",
+  "community-nlan-cmli81": "Nlan",
+  "community-nubanck-cmlf40": "Nubank",
+  "community-nxtbet-quadra-inspired-cmmaea": "NXTBET Quadra",
+  "community-offworld-cmlpw4": "Offworld",
+  "community-oikwee-cmmb8l": "Oikwee",
+  "community-old-school-cmlx21": "Old School",
+  "community-openprofile-cmlpf8": "Openprofile",
+  "community-orient-cmlzhg": "Orient",
+  "community-orio-design-system-cmm1ri": "Orio Design System",
+  "community-palm-cmlotm": "Palm",
+  "community-papaya-cmmgxh": "Papaya",
+  "community-party-rock-cmlqxf": "Party Rock",
+  "community-pasteelement2-cmlpfh": "Paste Element",
+  "community-playable-cmli0k": "Playable",
+  "community-polaris-cmmr3s": "Polaris",
+  "community-poppy-1-cmlmc0": "Poppy",
+  "community-porfolio-theme-cmler0": "Portfolio Theme",
+  "community-professional-theme-cmluaj": "Professional Theme",
+  "community-purple-popins-cmlvfb": "Purple Poppins",
+  "community-purple-rain-cmlh1l": "Purple Rain",
+  "community-purple-soft-popins-cmlwku": "Purple Soft Poppins",
+  "community-purples-cmlien": "Purples",
+  "community-qrafthive-cmlk6w": "Qrafthive",
+  "community-remedy-s-control-cmmszc": "Remedy Control",
+  "community-resolveai-app-cmmchq": "Resolveai App",
+  "community-retro-2-cmm2e2": "Modern Retro",
+  "community-retro-cmm2d5": "Retro",
+  "community-rewaff-cmmm3h": "Rewaff",
+  "community-roboto-modern-cmlwxa": "Roboto Modern",
+  "community-rose-pine-cmlwpk": "Rose Pine",
+  "community-s3karo-cmlpf0": "S3karo",
+  "community-sage-green-cmlf70": "Sage Green",
+  "community-sakura-cmmghp": "Sakura",
+  "community-sandstone-cmmi1p": "Sandstone",
+  "community-service-hub-theme-cmmmrn": "Service Hub Theme",
+  "community-sesi-theme-2-cmmmkb": "Sesi Theme",
+  "community-shopify-red-cmmaba": "Shopify Red",
+  "community-sky-cmmjha": "Sky",
+  "community-something": "Something",
+  "community-spacelinear-cmm4ya": "Space Linear",
+  "community-stella-cmm2mf": "Stella",
+  "community-student-spacelab-network-1-cmmkfn": "Spacelab Network",
+  "community-styrene-cmlybu": "Styrene",
+  "community-styrenedark-cmly9d": "Styrene Dark",
+  "community-sukuna-cmmhf8": "Sukuna",
+  "community-sulav-theme-cmmf66": "Sulav Theme",
+  "community-t2-cmm85y": "Sage Drift",
+  "community-teal-hue-cmm599": "Teal Hue",
+  "community-terminal-cmll24": "Terminal",
+  "community-terminal-cmlmsn": "Terminal",
+  "community-terminal-dark-russian-cmmljk": "Terminal Dark Russian",
+  "community-terminal-muted-cmlvaz": "Terminal Muted",
+  "community-tersk-cmmlwi": "Tersk",
+  "community-test-cmlpfc": "Test",
+  "community-theme-cmlpl5-cmlpl5": "Private Theme",
+  "community-tiesen-cmliib": "Tiesen",
+  "community-twitter-cmlznl": "Twitter",
+  "community-uv-day-cmmfg9": "UV Day",
+  "community-v2-cmlofg": "Ivory Studio",
+  "community-vermillion-cmmtjp": "Vermillion",
+  "community-vescrow-1-2-cmlhpn": "Vescrow",
+  "community-violate-eye-cmm3eb": "Violet Eye",
+  "community-vivid-sky-cmmjjm": "Vivid Sky",
+  "community-vrai-delice-cmm3sr": "Vrai Delice",
+  "community-vtron-cmlpfk": "VTRON",
+  "community-whatsapp-cmmbmn": "WhatsApp",
+  "community-woodforge-9-cmmhug": "Woodforge",
+  "community-zen-inspired-theme-cmlm0c": "Zen Inspired",
+  "cosmic-night": "Cosmic Night",
+  cyberpunk: "Cyberpunk",
+  default: "Default",
+  "doom-64": "Doom 64",
+  "elegant-luxury": "Elegant Luxury",
+  forest: "Forest Green",
+  graphite: "Graphite",
+  indigo: "Deep Indigo",
+  "kodama-grove": "Kodama Grove",
+  midnight: "Midnight",
+  "midnight-bloom": "Midnight Bloom",
+  "mocha-mousse": "Mocha Mousse",
+  "modern-minimal": "Modern Minimal",
+  nature: "Nature",
+  "neo-brutalism": "Neo Brutalism",
+  "northern-lights": "Northern Lights",
+  notebook: "Notebook",
+  ocean: "Ocean Blue",
+  "ocean-breeze": "Ocean Breeze",
+  "pastel-dreams": "Pastel Dreams",
+  perpetuity: "Perpetuity",
+  "quantum-rose": "Quantum Rose",
+  "retro-arcade": "Retro Arcade",
+  rose: "Rose Pink",
+  "solar-dusk": "Solar Dusk",
+  "starry-night": "Starry Night",
+  sunset: "Sunset Orange",
+  "sunset-horizon": "Sunset Horizon",
+  supabase: "Supabase",
+  "t3-chat": "T3 Chat",
+  tangerine: "Tangerine",
+  teal: "Teal",
+  twitter: "Twitter / X",
+  "vintage-paper": "Vintage Paper",
+  "violet-bloom": "Violet Bloom"
+};
 
 // src/i18n/theme-labels.es.json
 var theme_labels_es_default = {
@@ -2096,6 +2430,123 @@ var tailwindBasicThemes = [
   twFuchsiaTheme,
   twPinkTheme,
   twRoseTheme
+];
+
+// src/themes/builtin/claude-themes.ts
+var matchaTheme = createTheme({
+  name: "matcha",
+  label: "Matcha",
+  primary: "green",
+  neutral: "stone",
+  vividness: "elegant",
+  radius: "0.375rem",
+  category: "Claude"
+});
+var terracottaTheme = createTheme({
+  name: "terracotta",
+  label: "Terracotta",
+  primary: "orange",
+  neutral: "stone",
+  secondary: "rose",
+  vividness: "professional",
+  radius: "0.5rem",
+  category: "Claude"
+});
+var glacierTheme = createTheme({
+  name: "glacier",
+  label: "Glacier",
+  primary: "sky",
+  neutral: "slate",
+  vividness: "professional",
+  radius: "0.25rem",
+  category: "Claude"
+});
+var duskTheme = createTheme({
+  name: "dusk",
+  label: "Dusk",
+  primary: "violet",
+  neutral: "slate",
+  radius: "0.5rem",
+  category: "Claude"
+});
+var sakuraTheme = createTheme({
+  name: "sakura",
+  label: "Sakura",
+  primary: "pink",
+  secondary: "rose",
+  vividness: "elegant",
+  radius: "0.75rem",
+  category: "Claude"
+});
+var obsidianTheme = createTheme({
+  name: "obsidian",
+  label: "Obsidian",
+  primary: "zinc",
+  neutral: "zinc",
+  vividness: "elegant",
+  radius: "0.25rem",
+  category: "Claude"
+});
+var carnivalTheme = createTheme({
+  name: "carnival",
+  label: "Carnival",
+  primary: "fuchsia",
+  secondary: "amber",
+  vividness: "playful",
+  radius: "1rem",
+  category: "Claude"
+});
+var redwoodTheme = createTheme({
+  name: "redwood",
+  label: "Redwood",
+  primary: "red",
+  neutral: "stone",
+  vividness: "elegant",
+  radius: "0.5rem",
+  category: "Claude"
+});
+var lagoonTheme = createTheme({
+  name: "lagoon",
+  label: "Lagoon",
+  primary: "teal",
+  secondary: "sky",
+  neutral: "slate",
+  vividness: "vivid",
+  radius: "0.5rem",
+  category: "Claude"
+});
+var harvestTheme = createTheme({
+  name: "harvest",
+  label: "Harvest",
+  primary: "amber",
+  secondary: "lime",
+  neutral: "stone",
+  vividness: "vivid",
+  radius: "0.625rem",
+  category: "Claude"
+});
+var tomatoTheme = createTheme({
+  name: "tomato",
+  label: "Tomato",
+  primary: "red",
+  secondary: "green",
+  neutral: "stone",
+  vividness: "vivid",
+  radius: "0.5rem",
+  category: "Claude"
+});
+var claudeThemes = [
+  matchaTheme,
+  tomatoTheme,
+  terracottaTheme,
+  glacierTheme,
+  duskTheme,
+  sakuraTheme,
+  obsidianTheme,
+  carnivalTheme,
+  redwoodTheme,
+  lagoonTheme,
+  harvestTheme
 ];
 
 // src/themes/builtin/index.ts
@@ -13212,11 +13663,13 @@ var communityThemes = [
 ];
 
 // src/themes/index.ts
-var themes = [...builtinThemes, ...tweakcnThemes];
+var themes = [...builtinThemes, ...claudeThemes, ...tweakcnThemes];
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   FONTS,
   TAILWIND_COLORS,
+  VIVIDNESS_PRESETS,
+  adjustVividness,
   amberMinimalTheme,
   amberTheme,
   amethystHazeTheme,
@@ -13230,6 +13683,7 @@ var themes = [...builtinThemes, ...tweakcnThemes];
   candylandTheme,
   catppuccinTheme,
   claudeTheme,
+  claudeThemes,
   claymorphismTheme,
   cleanSlateTheme,
   communityThemes,
@@ -13286,6 +13740,7 @@ var themes = [...builtinThemes, ...tweakcnThemes];
   themeFromCSSVars,
   themeFromSnippetOutput,
   themeFromTweakCNItem,
+  themeLabelsEn,
   themeLabelsEs,
   themeLabelsPt,
   themes,
@@ -13293,6 +13748,7 @@ var themes = [...builtinThemes, ...tweakcnThemes];
   tweakcnSnippet,
   tweakcnThemes,
   twitterTheme,
+  validateStoredTheme,
   vintagePaperTheme,
   violetBloomTheme
 });

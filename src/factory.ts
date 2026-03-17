@@ -6,6 +6,8 @@ import type {
   TailwindColor,
   ColorToken,
 } from './types.js'
+import { adjustVividness, VIVIDNESS_PRESETS } from './vividness.js'
+import type { VividnessPreset } from './vividness.js'
 
 /** Light-mode shade selection for primary colors */
 const LIGHT_PRIMARY_SHADE = 600
@@ -115,6 +117,12 @@ export interface CreateThemeConfig {
     light?: Partial<ThemeTokens>
     dark?: Partial<ThemeTokens>
   }
+  /**
+   * Chroma (saturation) multiplier applied after shade generation.
+   * Accepts a numeric factor or a named preset.
+   * 1.0 / 'default' = unchanged. 0.5 / 'elegant' = very muted. 1.3 / 'playful' = vivid.
+   */
+  vividness?: number | VividnessPreset
 }
 
 /**
@@ -126,8 +134,17 @@ export interface CreateThemeConfig {
  * createTheme({ name: 'ocean', label: 'Ocean', primary: 'blue', secondary: 'teal' })
  */
 export function createTheme(config: CreateThemeConfig): Theme {
-  const { name, label, primary, neutral, secondary, radius, fonts, pattern, category, overrides } = config
-  return {
+  const { name, label, primary, neutral, secondary, radius, fonts, pattern, category, overrides, vividness } = config
+
+  const vividnessFactor: number | undefined =
+    typeof vividness === 'string' ? VIVIDNESS_PRESETS[vividness]
+    : typeof vividness === 'number' ? vividness
+    : undefined
+
+  const vividnessPresetName: string | undefined =
+    typeof vividness === 'string' ? vividness : undefined
+
+  const base = {
     name,
     label,
     light: buildLightTokens(primary, neutral, secondary, overrides?.light),
@@ -136,8 +153,17 @@ export function createTheme(config: CreateThemeConfig): Theme {
     pattern,
     radius: radius ?? '0.5rem',
     category,
-    _generatorConfig: { primary, neutral, secondary, radius },
-  } as Theme & { _generatorConfig: { primary: TailwindColor; neutral?: TailwindColor; secondary?: TailwindColor; radius?: string } }
+    _generatorConfig: {
+      primary, neutral, secondary, radius,
+      vividness: vividnessFactor,
+      vividnessPreset: vividnessPresetName,
+    },
+  } as Theme & { _generatorConfig: NonNullable<Theme extends { _generatorConfig?: infer C } ? C : never> }
+
+  if (vividnessFactor !== undefined && vividnessFactor !== 1.0) {
+    return adjustVividness(base, vividnessFactor)
+  }
+  return base
 }
 
 /**

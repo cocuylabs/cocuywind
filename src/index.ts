@@ -30,8 +30,13 @@ export {
 export { createTheme, extendTheme, defineTheme } from './factory.js'
 export type { CreateThemeConfig } from './factory.js'
 
+// ─── Vividness ────────────────────────────────────────────────────────────────
+export { adjustVividness, VIVIDNESS_PRESETS } from './vividness.js'
+export type { VividnessPreset } from './vividness.js'
+
 // ─── Serialization ────────────────────────────────────────────────────────────
-export { serializeTheme, deserializeTheme } from './serialize.js'
+export { serializeTheme, deserializeTheme, validateStoredTheme } from './serialize.js'
+export type { ThemeValidationResult } from './serialize.js'
 
 // ─── Theme Stealing ───────────────────────────────────────────────────────────
 export {
@@ -63,11 +68,12 @@ export { generatePattern } from './patterns.js'
 export type { PatternStyle } from './patterns.js'
 
 // ─── i18n ─────────────────────────────────────────────────────────────────────
+export { default as themeLabelsEn } from './i18n/theme-labels.en.json'
 export { default as themeLabelsEs } from './i18n/theme-labels.es.json'
 export { default as themeLabelsPt } from './i18n/theme-labels.pt.json'
 
 // ─── Themes ───────────────────────────────────────────────────────────────────
-export { themes, builtinThemes, tweakcnThemes, communityThemes, tailwindBasicThemes } from './themes/index.js'
+export { themes, builtinThemes, tweakcnThemes, communityThemes, tailwindBasicThemes, claudeThemes } from './themes/index.js'
 
 // Built-in themes
 export {

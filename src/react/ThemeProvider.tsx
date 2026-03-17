@@ -8,6 +8,8 @@ import React, {
 } from 'react'
 import type { Theme } from '../types.js'
 import { generateThemeVariables } from '../generate.js'
+import { googleFontsUrl } from '../fonts.js'
+import { generatePattern } from '../patterns.js'
 
 export type ColorMode = 'light' | 'dark' | 'system'
 
@@ -38,8 +40,6 @@ export interface ThemeProviderProps {
   defaultMode?: ColorMode
   /** localStorage key for persistence. Set to null to disable. */
   persistKey?: string | null
-  /** CSS selector to apply theme to. Defaults to ':root' / 'html' */
-  target?: string
 }
 
 const DEFAULT_PERSIST_KEY = 'tailtheme'
@@ -57,7 +57,6 @@ export function ThemeProvider({
   defaultTheme,
   defaultMode = 'system',
   persistKey = DEFAULT_PERSIST_KEY,
-  target,
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(() => {
     // Try to restore from localStorage
@@ -111,10 +110,59 @@ export function ThemeProvider({
     for (const [prop, value] of Object.entries(vars)) {
       root.style.setProperty(prop, value)
     }
-    // Apply radius and fonts
+    // Apply radius
     root.style.setProperty('--radius', theme.radius ?? '0.5rem')
+
+    // Apply font vars (clear when theme has no fonts)
     if (theme.fonts?.body)    root.style.setProperty('--font-body', theme.fonts.body)
+    else                      root.style.removeProperty('--font-body')
     if (theme.fonts?.heading) root.style.setProperty('--font-heading', theme.fonts.heading)
+    else                      root.style.removeProperty('--font-heading')
+
+    // Inject font application rules
+    const styleId = 'tailtheme-font-rules'
+    let styleEl = document.getElementById(styleId) as HTMLStyleElement | null
+    if (!styleEl) {
+      styleEl = document.createElement('style')
+      styleEl.id = styleId
+      document.head.appendChild(styleEl)
+    }
+    const bodyRule    = theme.fonts?.body    ? `body,  :root { font-family: var(--font-body); }` : ''
+    const headingRule = theme.fonts?.heading ? `h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }` : ''
+    styleEl.textContent = [bodyRule, headingRule].filter(Boolean).join('\n')
+
+    // Load Google Fonts
+    const linkId = 'tailtheme-gfonts'
+    const families = [theme.fonts?.body, theme.fonts?.heading].filter((f): f is string => !!f)
+    const gfontsUrl = families.length > 0 ? googleFontsUrl(families) : ''
+    let linkEl = document.getElementById(linkId) as HTMLLinkElement | null
+    if (gfontsUrl) {
+      if (!linkEl) {
+        linkEl = document.createElement('link')
+        linkEl.id = linkId
+        linkEl.rel = 'stylesheet'
+        document.head.appendChild(linkEl)
+      }
+      if (linkEl.href !== gfontsUrl) linkEl.href = gfontsUrl
+    } else if (linkEl) {
+      linkEl.remove()
+    }
+
+    // Apply background image CSS variable
+    root.style.setProperty('--bg-image', theme.backgroundImage ?? 'none')
+
+    // Apply pattern CSS variables
+    if (theme.pattern && theme.pattern.type !== 'none') {
+      const ps = generatePattern(theme.pattern)
+      root.style.setProperty('--pattern-image', ps.backgroundImage)
+      root.style.setProperty('--pattern-size', ps.backgroundSize)
+      if (ps.backgroundPosition) root.style.setProperty('--pattern-position', ps.backgroundPosition)
+      else root.style.removeProperty('--pattern-position')
+    } else {
+      root.style.setProperty('--pattern-image', 'none')
+      root.style.setProperty('--pattern-size', 'auto')
+      root.style.removeProperty('--pattern-position')
+    }
 
     // Toggle .dark class
     if (resolvedMode === 'dark') {

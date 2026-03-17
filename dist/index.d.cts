@@ -61,6 +61,12 @@ interface Theme {
     dark: ThemeTokens;
     fonts?: ThemeFonts;
     pattern?: ThemePattern;
+    /**
+     * CSS background-image value for a custom background, e.g. `"url('https://...')"`.
+     * tailtheme does not manage upload — the consumer supplies a URL or data URL after upload.
+     * Renders below any pattern overlay.
+     */
+    backgroundImage?: string;
     /** e.g. "0.5rem" */
     radius?: string;
     /** Groups themes in the picker: 'Basic' | 'Curated' | 'TweakCN' */
@@ -84,6 +90,11 @@ interface StoredTheme {
     };
     fonts: ThemeFonts;
     pattern: ThemePattern;
+    /**
+     * CSS background-image value for a custom background, e.g. `"url('https://...')"`.
+     * Stored as-is and emitted into `--bg-image`. Consumer is responsible for upload/storage.
+     */
+    backgroundImage?: string;
     radius: string;
     _source?: 'preset' | 'generated' | 'custom';
     /** If source === 'preset', e.g. "ocean" */
@@ -94,6 +105,22 @@ interface StoredTheme {
         neutral?: TailwindColor;
         secondary?: TailwindColor;
         radius?: string;
+        /** Numeric chroma multiplier that was applied (1.0 = unchanged) */
+        vividness?: number;
+        /** Named preset if one was used — for UI state restoration */
+        vividnessPreset?: string;
+    };
+    /**
+     * If source === 'preset' + custom color overlays were applied.
+     * Stores the base preset name and which color groups were overridden,
+     * enabling the admin panel to reconstruct edit state when loading a saved theme.
+     * undefined on each color field means "not overridden — use preset value".
+     */
+    _overlayConfig?: {
+        basePreset: string;
+        primary?: TailwindColor;
+        secondary?: TailwindColor;
+        neutral?: TailwindColor | 'none';
     };
     /** Optional original/source label for display or attribution */
     _sourceName?: string;
@@ -129,6 +156,25 @@ declare function storedThemeToCSS(stored: StoredTheme): string;
 /** Resolve all tokens in a ThemeTokens to their CSS values */
 declare function resolveTokens(tokens: ThemeTokens): ResolvedTokens;
 
+type VividnessPreset = 'playful' | 'vivid' | 'default' | 'professional' | 'elegant';
+declare const VIVIDNESS_PRESETS: Record<VividnessPreset, number>;
+/**
+ * Scale the chroma (saturation) of every color token in a theme.
+ *
+ * Works on any Theme — factory-generated, TweakCN, or stolen.
+ * All tokens are resolved to CSS oklch strings before scaling,
+ * so the returned theme has no TailwindToken refs.
+ *
+ * @param factor  Multiplier on the chroma (C) component of every OKLCH color.
+ *                1.0 = unchanged, 0.5 = half-saturated, 1.3 = more vivid.
+ *                Clamped to [0, 0.4] to stay in gamut.
+ *
+ * @example
+ * adjustVividness(oceanTheme, VIVIDNESS_PRESETS.elegant)   // muted
+ * adjustVividness(oceanTheme, VIVIDNESS_PRESETS.playful)   // boosted
+ */
+declare function adjustVividness(theme: Theme, factor: number): Theme;
+
 interface CreateThemeConfig {
     name: string;
     label: string;
@@ -151,6 +197,12 @@ interface CreateThemeConfig {
         light?: Partial<ThemeTokens>;
         dark?: Partial<ThemeTokens>;
     };
+    /**
+     * Chroma (saturation) multiplier applied after shade generation.
+     * Accepts a numeric factor or a named preset.
+     * 1.0 / 'default' = unchanged. 0.5 / 'elegant' = very muted. 1.3 / 'playful' = vivid.
+     */
+    vividness?: number | VividnessPreset;
 }
 /**
  * Easiest factory: pick color families, library picks shades intelligently.
@@ -180,6 +232,15 @@ declare function extendTheme(base: Theme, overrides: Partial<Omit<Theme, 'light'
  */
 declare function defineTheme(theme: Theme): Theme;
 
+interface ThemeValidationResult {
+    valid: boolean;
+    errors: string[];
+}
+/**
+ * Validates a value as a well-formed StoredTheme.
+ * Useful before passing untrusted data to storedThemeToCSS or deserializeTheme.
+ */
+declare function validateStoredTheme(stored: unknown): ThemeValidationResult;
 /**
  * Theme object → StoredTheme (for saving to DB).
  * Resolves all ColorToken references to CSS values.
@@ -376,6 +437,7 @@ type FontFamily = string;
 declare const FONTS: {
     readonly SYSTEM_SANS: "system-ui, -apple-system, sans-serif";
     readonly SYSTEM_SERIF: "Georgia, 'Times New Roman', serif";
+    readonly SYSTEM_MONO: "ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace";
     readonly INTER: "'Inter', system-ui, sans-serif";
     readonly GEIST: "'Geist', system-ui, sans-serif";
     readonly PLUS_JAKARTA: "'Plus Jakarta Sans', system-ui, sans-serif";
@@ -388,6 +450,10 @@ declare const FONTS: {
     readonly LORA: "'Lora', Georgia, serif";
     readonly MERRIWEATHER: "'Merriweather', Georgia, serif";
     readonly DM_SERIF: "'DM Serif Display', Georgia, serif";
+    readonly JETBRAINS_MONO: "'JetBrains Mono', ui-monospace, monospace";
+    readonly FIRA_CODE: "'Fira Code', ui-monospace, monospace";
+    readonly SOURCE_CODE_PRO: "'Source Code Pro', ui-monospace, monospace";
+    readonly IBM_PLEX_MONO: "'IBM Plex Mono', ui-monospace, monospace";
 };
 type FontKey = keyof typeof FONTS;
 /**
@@ -404,6 +470,7 @@ interface PatternStyle {
     backgroundImage: string;
     backgroundSize: string;
     backgroundColor?: string;
+    backgroundPosition?: string;
 }
 /**
  * Generates CSS background pattern properties.
@@ -412,6 +479,244 @@ interface PatternStyle {
  * Inspired by pattern.css (MIT License).
  */
 declare function generatePattern(config: ThemePattern): PatternStyle;
+
+var amber$2 = "Warm Amber";
+var bubblegum$2 = "Bubblegum";
+var caffeine$2 = "Caffeine";
+var candy$2 = "Candy";
+var candyland$2 = "Candyland";
+var catppuccin$2 = "Catppuccin";
+var claude$2 = "Claude";
+var claymorphism$2 = "Claymorphism";
+var cyberpunk$2 = "Cyberpunk";
+var forest$2 = "Forest Green";
+var graphite$2 = "Graphite";
+var indigo$2 = "Deep Indigo";
+var midnight$2 = "Midnight";
+var nature$2 = "Nature";
+var notebook$2 = "Notebook";
+var ocean$2 = "Ocean Blue";
+var perpetuity$2 = "Perpetuity";
+var rose$2 = "Rose Pink";
+var sunset$2 = "Sunset Orange";
+var supabase$2 = "Supabase";
+var tangerine$2 = "Tangerine";
+var teal$2 = "Teal";
+var twitter$2 = "Twitter / X";
+var themeLabels_en = {
+	amber: amber$2,
+	"amber-minimal": "Amber Minimal",
+	"amethyst-haze": "Amethyst Haze",
+	"bold-tech": "Bold Tech",
+	bubblegum: bubblegum$2,
+	caffeine: caffeine$2,
+	candy: candy$2,
+	candyland: candyland$2,
+	catppuccin: catppuccin$2,
+	claude: claude$2,
+	claymorphism: claymorphism$2,
+	"clean-slate": "Clean Slate",
+	"community-1-cmlwi5": "Cobalt Vista",
+	"community-2077-cmledj": "2077",
+	"community-3d-vintage-paper-cmm7uq": "3D Vintage Paper",
+	"community-53-cmmp8a": "Copper Canyon",
+	"community-a-cmmm59": "Lumen Orbit",
+	"community-agora-events-cmlpmf": "Agora Events",
+	"community-aldo-rebelo-admin-cmlwgg": "Aldo Rebelo Admin",
+	"community-alpine-cmlecl": "Alpine",
+	"community-altar-v1-cmmadl": "Altar",
+	"community-altar-v1-invert-cmmaeo": "Altar Invert",
+	"community-amber-mono-2-0-cmlpw7": "Amber Mono",
+	"community-apex-cmlf55": "Apex",
+	"community-artefactory-cmm3xr": "Artefactory",
+	"community-aryze-colors-2026-v2-cmmkfw": "Aryze Colors",
+	"community-astrovista-cmlk70": "Astrovista",
+	"community-autoblog-cmlpf8": "Autoblog",
+	"community-bain-design-system-cmm5y6": "Bain Design System",
+	"community-beso-colors-cmltho": "Beso Colors",
+	"community-best-deisgne-ui-ux-shadcn-cmmsal": "Shadcn UI UX",
+	"community-better-light-theme-supabase-cmmdxi": "Better Light Supabase",
+	"community-black-and-pink-cmliek": "Black And Pink",
+	"community-black-cmmls5": "Black",
+	"community-blue-cmmgxu": "Blue",
+	"community-blue-orange-cmm5x6": "Blue Orange",
+	"community-blue-yellow-warn-ugly-af-in-light-mode-cmljx1": "Blue Yellow Contrast",
+	"community-bold-wikipedia-cmlmpb": "Bold Wikipedia",
+	"community-brownie-cmlr31": "Brownie",
+	"community-brownies-cmlkz0": "Brownies",
+	"community-burgundy-cmle93": "Burgundy",
+	"community-caffein-thheme-cmmhks": "Caffeine Theme",
+	"community-carbon-ember-cmlf2h": "Carbon Ember",
+	"community-caser-cmm6p0": "Caser",
+	"community-catppuccin-mocha-cmm3nh": "Catppuccin Mocha",
+	"community-celestial-cmm720": "Celestial",
+	"community-chalk": "Chalk",
+	"community-claude-blu-2-cmmead": "Claude Blue",
+	"community-claude-cmlm0b": "Claude",
+	"community-claude-cmlr30": "Claude Plus",
+	"community-claude-renk-paleti-v1-0-cmm9i1": "Claude Palette",
+	"community-clinids-29-01-cmll4q": "Clinids",
+	"community-course-app-cmmnnr": "Course App",
+	"community-cwh-learning-cmlpfa": "Cwh Learning",
+	"community-damon-cmlw7u": "Damon",
+	"community-dark-forge-cmlf2k": "Dark Forge",
+	"community-de-sarann-villa-cmmni6": "De Sarann Villa",
+	"community-de-swiss-design-cmlure": "Swiss Design",
+	"community-deep-purple-cmlh1j": "Deep Purple",
+	"community-designbyte-cmlpf5": "Designbyte",
+	"community-diby-cmlhru": "Diby",
+	"community-diby-orange-cmlhrv": "Diby Orange",
+	"community-domia-cmlz4g": "Domia",
+	"community-efferd-cmmi9l": "Efferd",
+	"community-emerald-cmli3u": "Emerald",
+	"community-enterprise-mod-2-cmlva5": "Enterprise Mod",
+	"community-eslinks-cmmaoe": "Eslinks",
+	"community-essw-cmmphm": "Essw",
+	"community-examdedo-cmlpf1": "Examdedo",
+	"community-flat-pink-2-cmlieo": "Flat Pink",
+	"community-gold-cmlf3x": "Gold",
+	"community-greattings-cmlfwc": "Greetings",
+	"community-green-with-yellow-theme-cmlewm": "Green Yellow",
+	"community-greenbarbequeue-cmm9ae": "Green Barbeque",
+	"community-hyper-red-cmliel": "Hyper Red",
+	"community-ibk-theme-cmmb5d": "IBK Theme",
+	"community-iconic-terminal-cmmhiu": "Iconic Terminal",
+	"community-imhicihu-cmmp28": "Imhicihu",
+	"community-india-cmlpfe": "India",
+	"community-infoseer-cmmcv8": "Infoseer",
+	"community-intropic-mui-react-cursor-retool-cmmt51": "Intropic MUI",
+	"community-itadori-yuji-cmmhf9": "Itadori Yuji",
+	"community-jamaica-cmlh1c": "Jamaica",
+	"community-japan-blues-cmmje1": "Japan Blues",
+	"community-jknm-cmmrfz": "Jknm",
+	"community-js-ts-advent-of-code-cmlr31": "Advent Of Code",
+	"community-kedokteran-cmmc4g": "Medicine",
+	"community-kupikod-cmleua": "Kupikod",
+	"community-lara-cmm277": "Lara",
+	"community-lastchat-cmmi2x": "Lastchat",
+	"community-lavanda-cmmis1": "Lavender",
+	"community-leadgen-cmle6z": "Leadgen",
+	"community-light-green-cmlhfq": "Light Green",
+	"community-lime-green-dhamaka-cmm7ct": "Lime Explosion",
+	"community-limes-cmliem": "Limes",
+	"community-logisticone-cmm0zk": "Logisticone",
+	"community-lyte-cmml0p": "Lyte",
+	"community-m-cmlgp0": "Echo Canyon",
+	"community-magic-2-cmmsz6": "Magic",
+	"community-magic-3-cmmt0a": "Magic Plus",
+	"community-manga-vibe-cmlr32": "Manga Vibe",
+	"community-meta-mask-geist-cmlf9r": "MetaMask Geist",
+	"community-minimal-neutral-cmlr2z": "Minimal Neutral",
+	"community-moss-cmmi1g": "Moss",
+	"community-mt-cmmdl8": "Nimbus Circuit",
+	"community-mx-brutalist-cmllfv": "MX Brutalist",
+	"community-my-aweasome-theme-cmlxzf": "My Awesome Theme",
+	"community-my-theme-01-cmmemx": "My Theme",
+	"community-my-theme-cmm24g": "My Private Theme",
+	"community-nlan-cmli81": "Nlan",
+	"community-nubanck-cmlf40": "Nubank",
+	"community-nxtbet-quadra-inspired-cmmaea": "NXTBET Quadra",
+	"community-offworld-cmlpw4": "Offworld",
+	"community-oikwee-cmmb8l": "Oikwee",
+	"community-old-school-cmlx21": "Old School",
+	"community-openprofile-cmlpf8": "Openprofile",
+	"community-orient-cmlzhg": "Orient",
+	"community-orio-design-system-cmm1ri": "Orio Design System",
+	"community-palm-cmlotm": "Palm",
+	"community-papaya-cmmgxh": "Papaya",
+	"community-party-rock-cmlqxf": "Party Rock",
+	"community-pasteelement2-cmlpfh": "Paste Element",
+	"community-playable-cmli0k": "Playable",
+	"community-polaris-cmmr3s": "Polaris",
+	"community-poppy-1-cmlmc0": "Poppy",
+	"community-porfolio-theme-cmler0": "Portfolio Theme",
+	"community-professional-theme-cmluaj": "Professional Theme",
+	"community-purple-popins-cmlvfb": "Purple Poppins",
+	"community-purple-rain-cmlh1l": "Purple Rain",
+	"community-purple-soft-popins-cmlwku": "Purple Soft Poppins",
+	"community-purples-cmlien": "Purples",
+	"community-qrafthive-cmlk6w": "Qrafthive",
+	"community-remedy-s-control-cmmszc": "Remedy Control",
+	"community-resolveai-app-cmmchq": "Resolveai App",
+	"community-retro-2-cmm2e2": "Modern Retro",
+	"community-retro-cmm2d5": "Retro",
+	"community-rewaff-cmmm3h": "Rewaff",
+	"community-roboto-modern-cmlwxa": "Roboto Modern",
+	"community-rose-pine-cmlwpk": "Rose Pine",
+	"community-s3karo-cmlpf0": "S3karo",
+	"community-sage-green-cmlf70": "Sage Green",
+	"community-sakura-cmmghp": "Sakura",
+	"community-sandstone-cmmi1p": "Sandstone",
+	"community-service-hub-theme-cmmmrn": "Service Hub Theme",
+	"community-sesi-theme-2-cmmmkb": "Sesi Theme",
+	"community-shopify-red-cmmaba": "Shopify Red",
+	"community-sky-cmmjha": "Sky",
+	"community-something": "Something",
+	"community-spacelinear-cmm4ya": "Space Linear",
+	"community-stella-cmm2mf": "Stella",
+	"community-student-spacelab-network-1-cmmkfn": "Spacelab Network",
+	"community-styrene-cmlybu": "Styrene",
+	"community-styrenedark-cmly9d": "Styrene Dark",
+	"community-sukuna-cmmhf8": "Sukuna",
+	"community-sulav-theme-cmmf66": "Sulav Theme",
+	"community-t2-cmm85y": "Sage Drift",
+	"community-teal-hue-cmm599": "Teal Hue",
+	"community-terminal-cmll24": "Terminal",
+	"community-terminal-cmlmsn": "Terminal",
+	"community-terminal-dark-russian-cmmljk": "Terminal Dark Russian",
+	"community-terminal-muted-cmlvaz": "Terminal Muted",
+	"community-tersk-cmmlwi": "Tersk",
+	"community-test-cmlpfc": "Test",
+	"community-theme-cmlpl5-cmlpl5": "Private Theme",
+	"community-tiesen-cmliib": "Tiesen",
+	"community-twitter-cmlznl": "Twitter",
+	"community-uv-day-cmmfg9": "UV Day",
+	"community-v2-cmlofg": "Ivory Studio",
+	"community-vermillion-cmmtjp": "Vermillion",
+	"community-vescrow-1-2-cmlhpn": "Vescrow",
+	"community-violate-eye-cmm3eb": "Violet Eye",
+	"community-vivid-sky-cmmjjm": "Vivid Sky",
+	"community-vrai-delice-cmm3sr": "Vrai Delice",
+	"community-vtron-cmlpfk": "VTRON",
+	"community-whatsapp-cmmbmn": "WhatsApp",
+	"community-woodforge-9-cmmhug": "Woodforge",
+	"community-zen-inspired-theme-cmlm0c": "Zen Inspired",
+	"cosmic-night": "Cosmic Night",
+	cyberpunk: cyberpunk$2,
+	"default": "Default",
+	"doom-64": "Doom 64",
+	"elegant-luxury": "Elegant Luxury",
+	forest: forest$2,
+	graphite: graphite$2,
+	indigo: indigo$2,
+	"kodama-grove": "Kodama Grove",
+	midnight: midnight$2,
+	"midnight-bloom": "Midnight Bloom",
+	"mocha-mousse": "Mocha Mousse",
+	"modern-minimal": "Modern Minimal",
+	nature: nature$2,
+	"neo-brutalism": "Neo Brutalism",
+	"northern-lights": "Northern Lights",
+	notebook: notebook$2,
+	ocean: ocean$2,
+	"ocean-breeze": "Ocean Breeze",
+	"pastel-dreams": "Pastel Dreams",
+	perpetuity: perpetuity$2,
+	"quantum-rose": "Quantum Rose",
+	"retro-arcade": "Retro Arcade",
+	rose: rose$2,
+	"solar-dusk": "Solar Dusk",
+	"starry-night": "Starry Night",
+	sunset: sunset$2,
+	"sunset-horizon": "Sunset Horizon",
+	supabase: supabase$2,
+	"t3-chat": "T3 Chat",
+	tangerine: tangerine$2,
+	teal: teal$2,
+	twitter: twitter$2,
+	"vintage-paper": "Vintage Paper",
+	"violet-bloom": "Violet Bloom"
+};
 
 var amber$1 = "Ámbar Cálido";
 var bubblegum$1 = "Chicle";
@@ -911,6 +1216,8 @@ declare const candyTheme: Theme;
 
 declare const tailwindBasicThemes: Theme[];
 
+declare const claudeThemes: Theme[];
+
 declare const builtinThemes: Theme[];
 
 declare const modernMinimalTheme: Theme;
@@ -991,7 +1298,7 @@ declare const tweakcnThemes: Theme[];
 
 declare const communityThemes: Theme[];
 
-/** All themes — 10 curated built-in + 17 Tailwind basic + 37 tweakcn */
+/** All themes — 10 curated built-in + 17 Tailwind basic + 10 Claude + 37 tweakcn */
 declare const themes: Theme[];
 
-export { type ColorToken, type CreateThemeConfig, FONTS, type FontFamily, type FontKey, type PatternStyle, type PatternType, type RawColor, type ResolvedTokens, type StealMeta, type StoredTheme, TAILWIND_COLORS, type TailwindColor, type TailwindShade, type TailwindToken, type Theme, type ThemeFonts, type ThemePattern, type ThemeTokens, type TweakCNRegistryEntry, type TweakCNThemeItem, amberMinimalTheme, amberTheme, amethystHazeTheme, boldTechTheme, bookmarkletUrl, browserSnippet, bubblegumTheme, builtinThemes, caffeineTheme, candyTheme, candylandTheme, catppuccinTheme, claudeTheme, claymorphismTheme, cleanSlateTheme, communityThemes, cosmicNightTheme, createTheme, cyberpunkTheme, defaultTheme, defineTheme, deserializeTheme, doom64Theme, elegantLuxuryTheme, extendTheme, fetchAllTweakCNThemes, fetchTweakCNRegistry, fetchTweakCNTheme, forestTheme, generateCSS, generatePattern, generateThemeVariables, googleFontsUrl, graphiteTheme, indigoTheme, kodamaGroveTheme, midnightBloomTheme, midnightTheme, mochaMousseTheme, modernMinimalTheme, natureTheme, neoBrutalismTheme, northernLightsTheme, notebookTheme, oceanBreezeTheme, oceanTheme, pastelDreamsTheme, perpetuityTheme, quantumRoseTheme, raw, resolveColor, resolveTokens, retroArcadeTheme, roseTheme, serializeTheme, solarDuskTheme, starryNightTheme, storedThemeToCSS, sunsetHorizonTheme, sunsetTheme, supabaseTheme, t3ChatTheme, tailwindBasicThemes, tangerineTheme, tealTheme, themeFromCSS, themeFromCSSVars, themeFromSnippetOutput, themeFromTweakCNItem, themeLabels_es as themeLabelsEs, themeLabels_pt as themeLabelsPt, themes, tweakcnBookmarkletUrl, tweakcnSnippet, tweakcnThemes, twitterTheme, vintagePaperTheme, violetBloomTheme };
+export { type ColorToken, type CreateThemeConfig, FONTS, type FontFamily, type FontKey, type PatternStyle, type PatternType, type RawColor, type ResolvedTokens, type StealMeta, type StoredTheme, TAILWIND_COLORS, type TailwindColor, type TailwindShade, type TailwindToken, type Theme, type ThemeFonts, type ThemePattern, type ThemeTokens, type ThemeValidationResult, type TweakCNRegistryEntry, type TweakCNThemeItem, VIVIDNESS_PRESETS, type VividnessPreset, adjustVividness, amberMinimalTheme, amberTheme, amethystHazeTheme, boldTechTheme, bookmarkletUrl, browserSnippet, bubblegumTheme, builtinThemes, caffeineTheme, candyTheme, candylandTheme, catppuccinTheme, claudeTheme, claudeThemes, claymorphismTheme, cleanSlateTheme, communityThemes, cosmicNightTheme, createTheme, cyberpunkTheme, defaultTheme, defineTheme, deserializeTheme, doom64Theme, elegantLuxuryTheme, extendTheme, fetchAllTweakCNThemes, fetchTweakCNRegistry, fetchTweakCNTheme, forestTheme, generateCSS, generatePattern, generateThemeVariables, googleFontsUrl, graphiteTheme, indigoTheme, kodamaGroveTheme, midnightBloomTheme, midnightTheme, mochaMousseTheme, modernMinimalTheme, natureTheme, neoBrutalismTheme, northernLightsTheme, notebookTheme, oceanBreezeTheme, oceanTheme, pastelDreamsTheme, perpetuityTheme, quantumRoseTheme, raw, resolveColor, resolveTokens, retroArcadeTheme, roseTheme, serializeTheme, solarDuskTheme, starryNightTheme, storedThemeToCSS, sunsetHorizonTheme, sunsetTheme, supabaseTheme, t3ChatTheme, tailwindBasicThemes, tangerineTheme, tealTheme, themeFromCSS, themeFromCSSVars, themeFromSnippetOutput, themeFromTweakCNItem, themeLabels_en as themeLabelsEn, themeLabels_es as themeLabelsEs, themeLabels_pt as themeLabelsPt, themes, tweakcnBookmarkletUrl, tweakcnSnippet, tweakcnThemes, twitterTheme, validateStoredTheme, vintagePaperTheme, violetBloomTheme };

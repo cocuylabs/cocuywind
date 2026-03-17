@@ -89,6 +89,12 @@ export interface Theme {
   dark: ThemeTokens
   fonts?: ThemeFonts
   pattern?: ThemePattern
+  /**
+   * CSS background-image value for a custom background, e.g. `"url('https://...')"`.
+   * tailtheme does not manage upload — the consumer supplies a URL or data URL after upload.
+   * Renders below any pattern overlay.
+   */
+  backgroundImage?: string
   /** e.g. "0.5rem" */
   radius?: string
   /** Groups themes in the picker: 'Basic' | 'Curated' | 'TweakCN' */
@@ -119,6 +125,11 @@ export interface StoredTheme {
   }
   fonts: ThemeFonts
   pattern: ThemePattern
+  /**
+   * CSS background-image value for a custom background, e.g. `"url('https://...')"`.
+   * Stored as-is and emitted into `--bg-image`. Consumer is responsible for upload/storage.
+   */
+  backgroundImage?: string
   radius: string
 
   // --- Optional source metadata ---
@@ -131,6 +142,22 @@ export interface StoredTheme {
     neutral?: TailwindColor
     secondary?: TailwindColor
     radius?: string
+    /** Numeric chroma multiplier that was applied (1.0 = unchanged) */
+    vividness?: number
+    /** Named preset if one was used — for UI state restoration */
+    vividnessPreset?: string
+  }
+  /**
+   * If source === 'preset' + custom color overlays were applied.
+   * Stores the base preset name and which color groups were overridden,
+   * enabling the admin panel to reconstruct edit state when loading a saved theme.
+   * undefined on each color field means "not overridden — use preset value".
+   */
+  _overlayConfig?: {
+    basePreset: string
+    primary?:   TailwindColor
+    secondary?: TailwindColor
+    neutral?:   TailwindColor | 'none'
   }
   /** Optional original/source label for display or attribution */
   _sourceName?: string

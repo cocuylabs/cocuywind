@@ -5,12 +5,13 @@ export interface PatternStyle {
   backgroundImage: string
   backgroundSize: string
   backgroundColor?: string
+  backgroundPosition?: string
 }
 
 const SIZE_MAP = {
-  sm: { dots: 12, grid: 16, lines: 16, cross: 12, zigzag: 14, checker: 12, tri: 12, hex: 24 },
-  md: { dots: 20, grid: 24, lines: 24, cross: 20, zigzag: 20, checker: 20, tri: 20, hex: 36 },
-  lg: { dots: 32, grid: 40, lines: 40, cross: 32, zigzag: 30, checker: 32, tri: 32, hex: 56 },
+  sm: { dots: 12, grid: 16, lines: 16, cross: 16, zigzag: 14, checker: 12, tri: 12, hex: 24 },
+  md: { dots: 20, grid: 24, lines: 24, cross: 24, zigzag: 20, checker: 20, tri: 20, hex: 36 },
+  lg: { dots: 32, grid: 40, lines: 40, cross: 40, zigzag: 30, checker: 32, tri: 32, hex: 56 },
 }
 
 function getSize(s: 'sm' | 'md' | 'lg' | undefined, key: keyof typeof SIZE_MAP.md): number {
@@ -25,10 +26,9 @@ function getSize(s: 'sm' | 'md' | 'lg' | undefined, key: keyof typeof SIZE_MAP.m
  */
 export function generatePattern(config: ThemePattern): PatternStyle {
   const size = config.size ?? 'md'
-  const opacity = config.opacity ?? 0.15
+  const opacity = config.opacity ?? 0.12
   const color = config.color ? resolveColor(config.color) : 'currentColor'
 
-  // Wrap color with opacity using oklch if it's an oklch value, otherwise use color-mix
   const colorWithOpacity = wrapWithOpacity(color, opacity)
 
   switch (config.type) {
@@ -38,7 +38,7 @@ export function generatePattern(config: ThemePattern): PatternStyle {
     case 'dots': {
       const s = getSize(size, 'dots')
       return {
-        backgroundImage: `radial-gradient(${colorWithOpacity} 1px, transparent 1px)`,
+        backgroundImage: `radial-gradient(${colorWithOpacity} 1.5px, transparent 1.5px)`,
         backgroundSize:  `${s}px ${s}px`,
       }
     }
@@ -55,16 +55,17 @@ export function generatePattern(config: ThemePattern): PatternStyle {
     }
 
     case 'cross': {
+      // "+" marks centered in each grid cell
       const s = getSize(size, 'cross')
       const half = s / 2
+      const arm = Math.max(1, Math.round(s * 0.08))
       return {
         backgroundImage: [
-          `linear-gradient(${colorWithOpacity} 1px, transparent 1px)`,
-          `linear-gradient(to right, ${colorWithOpacity} 1px, transparent 1px)`,
+          `linear-gradient(${colorWithOpacity} ${arm}px, transparent ${arm}px)`,
+          `linear-gradient(to right, ${colorWithOpacity} ${arm}px, transparent ${arm}px)`,
         ].join(', '),
-        backgroundSize:  `${s}px ${s}px`,
-        backgroundColor: 'transparent',
-        // Cross pattern uses offset positioning — applied via CSS var usage
+        backgroundSize:    `${s}px ${s}px`,
+        backgroundPosition: `${half - arm / 2}px ${half - arm / 2}px, ${half - arm / 2}px ${half - arm / 2}px`,
       }
     }
 
@@ -100,21 +101,18 @@ export function generatePattern(config: ThemePattern): PatternStyle {
           `linear-gradient(135deg, ${colorWithOpacity} 25%, transparent 25%) -${half}px 0`,
           `linear-gradient(225deg, ${colorWithOpacity} 25%, transparent 25%) -${half}px 0`,
           `linear-gradient(315deg, ${colorWithOpacity} 25%, transparent 25%)`,
-          `linear-gradient(45deg, ${colorWithOpacity} 25%, transparent 25%)`,
+          `linear-gradient(45deg,  ${colorWithOpacity} 25%, transparent 25%)`,
         ].join(', '),
         backgroundSize: `${s}px ${half}px`,
       }
     }
 
     case 'checkerboard': {
+      // conic-gradient creates a perfect checkerboard without needing backgroundPosition tricks
       const s = getSize(size, 'checker')
       return {
-        backgroundImage: [
-          `linear-gradient(45deg, ${colorWithOpacity} 25%, transparent 25%, transparent 75%, ${colorWithOpacity} 75%, ${colorWithOpacity})`,
-          `linear-gradient(45deg, ${colorWithOpacity} 25%, transparent 25%, transparent 75%, ${colorWithOpacity} 75%, ${colorWithOpacity})`,
-        ].join(', '),
-        backgroundSize: `${s}px ${s}px`,
-        backgroundColor: 'transparent',
+        backgroundImage: `conic-gradient(${colorWithOpacity} 90deg, transparent 90deg 180deg, ${colorWithOpacity} 180deg 270deg, transparent 270deg)`,
+        backgroundSize:  `${s}px ${s}px`,
       }
     }
 
@@ -125,7 +123,7 @@ export function generatePattern(config: ThemePattern): PatternStyle {
         backgroundImage: [
           `linear-gradient(120deg, ${colorWithOpacity} 33.33%, transparent 33.33%)`,
           `linear-gradient(240deg, ${colorWithOpacity} 33.33%, transparent 33.33%)`,
-          `linear-gradient(0deg, ${colorWithOpacity} 33.33%, transparent 33.33%)`,
+          `linear-gradient(0deg,   ${colorWithOpacity} 33.33%, transparent 33.33%)`,
         ].join(', '),
         backgroundSize: `${s}px ${half}px`,
       }
@@ -137,7 +135,7 @@ export function generatePattern(config: ThemePattern): PatternStyle {
       return {
         backgroundImage: [
           `linear-gradient(120deg, ${colorWithOpacity} 25%, transparent 25% 75%, ${colorWithOpacity} 75%)`,
-          `linear-gradient(60deg, ${colorWithOpacity} 25%, transparent 25% 75%, ${colorWithOpacity} 75%)`,
+          `linear-gradient(60deg,  ${colorWithOpacity} 25%, transparent 25% 75%, ${colorWithOpacity} 75%)`,
           `linear-gradient(${colorWithOpacity} 10%, transparent 10% 90%, ${colorWithOpacity} 90%)`,
         ].join(', '),
         backgroundSize: `${s}px ${h}px`,
@@ -160,16 +158,9 @@ export function generatePattern(config: ThemePattern): PatternStyle {
 }
 
 /**
- * Wraps a CSS color value with opacity.
- * Uses color-mix() for maximum browser compatibility.
+ * Wraps a CSS color value with opacity using color-mix().
  */
 function wrapWithOpacity(color: string, opacity: number): string {
-  if (color === 'currentColor') {
-    // Use color-mix with transparent for currentColor
-    const pct = Math.round(opacity * 100)
-    return `color-mix(in oklch, currentColor ${pct}%, transparent)`
-  }
-  // For specific colors, use color-mix
   const pct = Math.round(opacity * 100)
   return `color-mix(in oklch, ${color} ${pct}%, transparent)`
 }

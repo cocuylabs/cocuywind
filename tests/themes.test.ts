@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { themes, builtinThemes, tweakcnThemes } from '../src/themes/index.js'
+import { themes, builtinThemes, tweakcnThemes, claudeThemes } from '../src/themes/index.js'
 import { oceanTheme } from '../src/themes/builtin/ocean.js'
 import { claudeTheme } from '../src/themes/tweakcn/claude.js'
 
@@ -12,8 +12,12 @@ describe('theme catalog', () => {
     expect(tweakcnThemes).toHaveLength(37)
   })
 
-  it('exports 64 total themes', () => {
-    expect(themes).toHaveLength(64)
+  it('exports 11 claude themes', () => {
+    expect(claudeThemes).toHaveLength(11)
+  })
+
+  it('exports 75 total themes (27 builtin + 11 claude + 37 tweakcn)', () => {
+    expect(themes).toHaveLength(75)
   })
 
   it('all themes have name, label, light, dark', () => {

@@ -58,6 +58,12 @@ interface Theme {
     dark: ThemeTokens;
     fonts?: ThemeFonts;
     pattern?: ThemePattern;
+    /**
+     * CSS background-image value for a custom background, e.g. `"url('https://...')"`.
+     * tailtheme does not manage upload — the consumer supplies a URL or data URL after upload.
+     * Renders below any pattern overlay.
+     */
+    backgroundImage?: string;
     /** e.g. "0.5rem" */
     radius?: string;
     /** Groups themes in the picker: 'Basic' | 'Curated' | 'TweakCN' */
@@ -92,10 +98,8 @@ interface ThemeProviderProps {
     defaultMode?: ColorMode;
     /** localStorage key for persistence. Set to null to disable. */
     persistKey?: string | null;
-    /** CSS selector to apply theme to. Defaults to ':root' / 'html' */
-    target?: string;
 }
-declare function ThemeProvider({ children, themes, defaultTheme, defaultMode, persistKey, target, }: ThemeProviderProps): react_jsx_runtime.JSX.Element;
+declare function ThemeProvider({ children, themes, defaultTheme, defaultMode, persistKey, }: ThemeProviderProps): react_jsx_runtime.JSX.Element;
 
 /**
  * Access the current theme context.
@@ -106,7 +110,7 @@ declare function ThemeProvider({ children, themes, defaultTheme, defaultMode, pe
  */
 declare function useTheme(): ThemeContextValue;
 
-type ThemePickerSection = 'colors' | 'fonts' | 'patterns' | 'radius';
+type ThemePickerSection = 'fonts' | 'patterns' | 'radius' | 'background';
 interface ThemePickerProps {
     themes: Theme[];
     value: Theme;
@@ -116,7 +120,9 @@ interface ThemePickerProps {
     className?: string;
     locale?: 'en' | 'es' | 'pt';
     labels?: Record<string, Record<string, string>>;
+    /** Max height for the palette swatches area only — sections remain visible below */
+    paletteMaxHeight?: string | number;
 }
-declare function ThemePicker({ themes, value, onChange, allowCustom, sections, className, locale, labels }: ThemePickerProps): react_jsx_runtime.JSX.Element;
+declare function ThemePicker({ themes, value, onChange, allowCustom, sections, className, locale, labels, paletteMaxHeight, }: ThemePickerProps): react_jsx_runtime.JSX.Element;
 
 export { type ColorMode, ThemeContext, type ThemeContextValue, ThemePicker, type ThemePickerProps, type ThemePickerSection, ThemeProvider, type ThemeProviderProps, useTheme };

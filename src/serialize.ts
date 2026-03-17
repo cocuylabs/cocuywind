@@ -1,8 +1,59 @@
-import type { Theme, StoredTheme, ThemeFonts, ThemePattern } from './types.js'
+import type { Theme, StoredTheme, ThemeFonts, ThemePattern, ResolvedTokens } from './types.js'
 import { resolveTokens } from './generate.js'
 import { storedThemeToCSS } from './generate.js'
 
 export { storedThemeToCSS }
+
+const REQUIRED_TOKENS: (keyof ResolvedTokens)[] = [
+  'background', 'foreground', 'card', 'cardForeground',
+  'popover', 'popoverForeground', 'primary', 'primaryForeground',
+  'secondary', 'secondaryForeground', 'muted', 'mutedForeground',
+  'accent', 'accentForeground', 'destructive', 'destructiveForeground',
+  'border', 'input', 'ring',
+]
+
+export interface ThemeValidationResult {
+  valid: boolean
+  errors: string[]
+}
+
+/**
+ * Validates a value as a well-formed StoredTheme.
+ * Useful before passing untrusted data to storedThemeToCSS or deserializeTheme.
+ */
+export function validateStoredTheme(stored: unknown): ThemeValidationResult {
+  const errors: string[] = []
+
+  if (!stored || typeof stored !== 'object') {
+    return { valid: false, errors: ['Value is not an object'] }
+  }
+
+  const s = stored as Record<string, unknown>
+
+  if (typeof s.name   !== 'string' || !s.name)   errors.push('Missing or invalid "name"')
+  if (typeof s.label  !== 'string' || !s.label)  errors.push('Missing or invalid "label"')
+  if (typeof s.radius !== 'string' || !s.radius) errors.push('Missing or invalid "radius"')
+
+  if (!s.styles || typeof s.styles !== 'object') {
+    errors.push('Missing "styles"')
+  } else {
+    const styles = s.styles as Record<string, unknown>
+    for (const mode of ['light', 'dark'] as const) {
+      if (!styles[mode] || typeof styles[mode] !== 'object') {
+        errors.push(`Missing "styles.${mode}"`)
+      } else {
+        const tokens = styles[mode] as Record<string, unknown>
+        for (const key of REQUIRED_TOKENS) {
+          if (typeof tokens[key] !== 'string' || !(tokens[key] as string).trim()) {
+            errors.push(`Missing or empty "styles.${mode}.${key}"`)
+          }
+        }
+      }
+    }
+  }
+
+  return { valid: errors.length === 0, errors }
+}
 
 /**
  * Theme object → StoredTheme (for saving to DB).
@@ -26,13 +77,16 @@ export function serializeTheme(theme: Theme): StoredTheme {
     _source?: StoredTheme['_source']
     _presetName?: string
     _generatorConfig?: StoredTheme['_generatorConfig']
+    _overlayConfig?: StoredTheme['_overlayConfig']
     _sourceName?: string
   }
 
-  if (t._source) stored._source = t._source
-  if (t._presetName) stored._presetName = t._presetName
+  if (theme.backgroundImage) stored.backgroundImage = theme.backgroundImage
+  if (t._source)          stored._source          = t._source
+  if (t._presetName)      stored._presetName      = t._presetName
   if (t._generatorConfig) stored._generatorConfig = t._generatorConfig
-  if (t._sourceName) stored._sourceName = t._sourceName
+  if (t._overlayConfig)   stored._overlayConfig   = t._overlayConfig
+  if (t._sourceName)      stored._sourceName      = t._sourceName
 
   return stored
 }
@@ -67,9 +121,11 @@ export function deserializeTheme(stored: StoredTheme): Theme {
     radius,
   }
 
-  if (stored._sourceName) {
-    theme._sourceName = stored._sourceName
-  }
+  if (stored.backgroundImage)   theme.backgroundImage           = stored.backgroundImage
+  if (stored._sourceName)       (theme as any)._sourceName      = stored._sourceName
+  if (stored._presetName)       (theme as any)._presetName      = stored._presetName
+  if (stored._overlayConfig)    (theme as any)._overlayConfig   = stored._overlayConfig
+  if (stored._generatorConfig)  (theme as any)._generatorConfig = stored._generatorConfig
 
   return theme
 }

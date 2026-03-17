@@ -65,10 +65,17 @@ export function generateCSS(theme: Theme): string {
     const patternStyle = generatePattern(theme.pattern)
     lines.push(`  --pattern-image: ${patternStyle.backgroundImage};`)
     lines.push(`  --pattern-size: ${patternStyle.backgroundSize};`)
-    if (patternStyle.backgroundColor) {
-      lines.push(`  --pattern-color: ${patternStyle.backgroundColor};`)
+    if (patternStyle.backgroundPosition) {
+      lines.push(`  --pattern-position: ${patternStyle.backgroundPosition};`)
     }
+  } else {
+    lines.push(`  --pattern-image: none;`)
+    lines.push(`  --pattern-size: auto;`)
   }
+
+  // Background image CSS variable (consumer uploads, provides URL)
+  lines.push(`  --bg-image: ${theme.backgroundImage ?? 'none'};`)
+
   lines.push('}', '')
 
   // ─── Font application rules ───────────────────────────────────────────────
@@ -123,10 +130,17 @@ export function storedThemeToCSS(stored: StoredTheme): string {
     const patternStyle = generatePattern(pattern)
     lines.push(`  --pattern-image: ${patternStyle.backgroundImage};`)
     lines.push(`  --pattern-size: ${patternStyle.backgroundSize};`)
-    if (patternStyle.backgroundColor) {
-      lines.push(`  --pattern-color: ${patternStyle.backgroundColor};`)
+    if (patternStyle.backgroundPosition) {
+      lines.push(`  --pattern-position: ${patternStyle.backgroundPosition};`)
     }
+  } else {
+    lines.push(`  --pattern-image: none;`)
+    lines.push(`  --pattern-size: auto;`)
   }
+
+  // Background image CSS variable
+  lines.push(`  --bg-image: ${stored.backgroundImage ?? 'none'};`)
+
   lines.push('}', '')
 
   // ─── Font application rules ───────────────────────────────────────────────

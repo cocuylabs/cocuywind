@@ -307,6 +307,135 @@ function resolveColor(token2) {
   return token2;
 }
 
+// src/patterns.ts
+var SIZE_MAP = {
+  sm: { dots: 12, grid: 16, lines: 16, cross: 16, zigzag: 14, checker: 12, tri: 12, hex: 24 },
+  md: { dots: 20, grid: 24, lines: 24, cross: 24, zigzag: 20, checker: 20, tri: 20, hex: 36 },
+  lg: { dots: 32, grid: 40, lines: 40, cross: 40, zigzag: 30, checker: 32, tri: 32, hex: 56 }
+};
+function getSize(s, key) {
+  return SIZE_MAP[s ?? "md"][key];
+}
+function generatePattern(config) {
+  const size = config.size ?? "md";
+  const opacity = config.opacity ?? 0.12;
+  const color = config.color ? resolveColor(config.color) : "currentColor";
+  const colorWithOpacity = wrapWithOpacity(color, opacity);
+  switch (config.type) {
+    case "none":
+      return { backgroundImage: "none", backgroundSize: "auto" };
+    case "dots": {
+      const s = getSize(size, "dots");
+      return {
+        backgroundImage: `radial-gradient(${colorWithOpacity} 1.5px, transparent 1.5px)`,
+        backgroundSize: `${s}px ${s}px`
+      };
+    }
+    case "grid": {
+      const s = getSize(size, "grid");
+      return {
+        backgroundImage: [
+          `linear-gradient(${colorWithOpacity} 1px, transparent 1px)`,
+          `linear-gradient(to right, ${colorWithOpacity} 1px, transparent 1px)`
+        ].join(", "),
+        backgroundSize: `${s}px ${s}px`
+      };
+    }
+    case "cross": {
+      const s = getSize(size, "cross");
+      const half = s / 2;
+      const arm = Math.max(1, Math.round(s * 0.08));
+      return {
+        backgroundImage: [
+          `linear-gradient(${colorWithOpacity} ${arm}px, transparent ${arm}px)`,
+          `linear-gradient(to right, ${colorWithOpacity} ${arm}px, transparent ${arm}px)`
+        ].join(", "),
+        backgroundSize: `${s}px ${s}px`,
+        backgroundPosition: `${half - arm / 2}px ${half - arm / 2}px, ${half - arm / 2}px ${half - arm / 2}px`
+      };
+    }
+    case "diagonal-lines": {
+      const s = getSize(size, "lines");
+      return {
+        backgroundImage: `repeating-linear-gradient(45deg, ${colorWithOpacity} 0, ${colorWithOpacity} 1px, transparent 0, transparent 50%)`,
+        backgroundSize: `${s}px ${s}px`
+      };
+    }
+    case "horizontal-lines": {
+      const s = getSize(size, "lines");
+      return {
+        backgroundImage: `repeating-linear-gradient(0deg, ${colorWithOpacity} 0, ${colorWithOpacity} 1px, transparent 1px, transparent ${s}px)`,
+        backgroundSize: `${s}px ${s}px`
+      };
+    }
+    case "vertical-lines": {
+      const s = getSize(size, "lines");
+      return {
+        backgroundImage: `repeating-linear-gradient(90deg, ${colorWithOpacity} 0, ${colorWithOpacity} 1px, transparent 1px, transparent ${s}px)`,
+        backgroundSize: `${s}px ${s}px`
+      };
+    }
+    case "zigzag": {
+      const s = getSize(size, "zigzag");
+      const half = s / 2;
+      return {
+        backgroundImage: [
+          `linear-gradient(135deg, ${colorWithOpacity} 25%, transparent 25%) -${half}px 0`,
+          `linear-gradient(225deg, ${colorWithOpacity} 25%, transparent 25%) -${half}px 0`,
+          `linear-gradient(315deg, ${colorWithOpacity} 25%, transparent 25%)`,
+          `linear-gradient(45deg,  ${colorWithOpacity} 25%, transparent 25%)`
+        ].join(", "),
+        backgroundSize: `${s}px ${half}px`
+      };
+    }
+    case "checkerboard": {
+      const s = getSize(size, "checker");
+      return {
+        backgroundImage: `conic-gradient(${colorWithOpacity} 90deg, transparent 90deg 180deg, ${colorWithOpacity} 180deg 270deg, transparent 270deg)`,
+        backgroundSize: `${s}px ${s}px`
+      };
+    }
+    case "triangles": {
+      const s = getSize(size, "tri");
+      const half = s / 2;
+      return {
+        backgroundImage: [
+          `linear-gradient(120deg, ${colorWithOpacity} 33.33%, transparent 33.33%)`,
+          `linear-gradient(240deg, ${colorWithOpacity} 33.33%, transparent 33.33%)`,
+          `linear-gradient(0deg,   ${colorWithOpacity} 33.33%, transparent 33.33%)`
+        ].join(", "),
+        backgroundSize: `${s}px ${half}px`
+      };
+    }
+    case "hexagons": {
+      const s = getSize(size, "hex");
+      const h = Math.round(s * 0.866);
+      return {
+        backgroundImage: [
+          `linear-gradient(120deg, ${colorWithOpacity} 25%, transparent 25% 75%, ${colorWithOpacity} 75%)`,
+          `linear-gradient(60deg,  ${colorWithOpacity} 25%, transparent 25% 75%, ${colorWithOpacity} 75%)`,
+          `linear-gradient(${colorWithOpacity} 10%, transparent 10% 90%, ${colorWithOpacity} 90%)`
+        ].join(", "),
+        backgroundSize: `${s}px ${h}px`
+      };
+    }
+    case "noise": {
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='200' height='200' filter='url(#n)' opacity='${opacity}'/></svg>`;
+      const encoded = encodeURIComponent(svg);
+      return {
+        backgroundImage: `url("data:image/svg+xml,${encoded}")`,
+        backgroundSize: "200px 200px"
+      };
+    }
+    default:
+      return { backgroundImage: "none", backgroundSize: "auto" };
+  }
+}
+function wrapWithOpacity(color, opacity) {
+  const pct = Math.round(opacity * 100);
+  return `color-mix(in oklch, ${color} ${pct}%, transparent)`;
+}
+
 // src/generate.ts
 var TOKEN_TO_CSS_VAR = {
   background: "--background",
@@ -338,6 +467,69 @@ function generateThemeVariables(tokens) {
   return result;
 }
 
+// src/fonts.ts
+var FONTS = {
+  // ─── System fonts ─────────────────────────────────────────────────────────
+  SYSTEM_SANS: "system-ui, -apple-system, sans-serif",
+  SYSTEM_SERIF: "Georgia, 'Times New Roman', serif",
+  SYSTEM_MONO: "ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace",
+  // ─── Sans-serif Google Fonts ───────────────────────────────────────────────
+  INTER: "'Inter', system-ui, sans-serif",
+  GEIST: "'Geist', system-ui, sans-serif",
+  PLUS_JAKARTA: "'Plus Jakarta Sans', system-ui, sans-serif",
+  NUNITO: "'Nunito', system-ui, sans-serif",
+  POPPINS: "'Poppins', system-ui, sans-serif",
+  OUTFIT: "'Outfit', system-ui, sans-serif",
+  DM_SANS: "'DM Sans', system-ui, sans-serif",
+  MANROPE: "'Manrope', system-ui, sans-serif",
+  // ─── Serif Google Fonts ────────────────────────────────────────────────────
+  PLAYFAIR: "'Playfair Display', Georgia, serif",
+  LORA: "'Lora', Georgia, serif",
+  MERRIWEATHER: "'Merriweather', Georgia, serif",
+  DM_SERIF: "'DM Serif Display', Georgia, serif",
+  // ─── Monospace Google Fonts ────────────────────────────────────────────────
+  JETBRAINS_MONO: "'JetBrains Mono', ui-monospace, monospace",
+  FIRA_CODE: "'Fira Code', ui-monospace, monospace",
+  SOURCE_CODE_PRO: "'Source Code Pro', ui-monospace, monospace",
+  IBM_PLEX_MONO: "'IBM Plex Mono', ui-monospace, monospace"
+};
+var GOOGLE_FONT_NAMES = {
+  INTER: "Inter:wght@400;500;600;700",
+  GEIST: "Geist:wght@400;500;600;700",
+  PLUS_JAKARTA: "Plus+Jakarta+Sans:wght@400;500;600;700",
+  NUNITO: "Nunito:wght@400;500;600;700",
+  POPPINS: "Poppins:wght@400;500;600;700",
+  OUTFIT: "Outfit:wght@400;500;600;700",
+  DM_SANS: "DM+Sans:wght@400;500;600;700",
+  MANROPE: "Manrope:wght@400;500;600;700",
+  PLAYFAIR: "Playfair+Display:wght@400;600;700",
+  LORA: "Lora:wght@400;500;600;700",
+  MERRIWEATHER: "Merriweather:wght@300;400;700",
+  DM_SERIF: "DM+Serif+Display:wght@400",
+  JETBRAINS_MONO: "JetBrains+Mono:wght@400;500;700",
+  FIRA_CODE: "Fira+Code:wght@400;500;700",
+  SOURCE_CODE_PRO: "Source+Code+Pro:wght@400;500;700",
+  IBM_PLEX_MONO: "IBM+Plex+Mono:wght@400;500;700"
+};
+function googleFontsUrl(families) {
+  const fontKeys = Object.keys(GOOGLE_FONT_NAMES);
+  const params = [];
+  for (const family of families) {
+    const matchedKey = fontKeys.find((k) => FONTS[k] === family);
+    if (matchedKey && GOOGLE_FONT_NAMES[matchedKey]) {
+      params.push(`family=${GOOGLE_FONT_NAMES[matchedKey]}`);
+    } else {
+      const match = family.match(/['"]([^'"]+)['"]/);
+      if (match) {
+        const name = match[1].replace(/\s+/g, "+");
+        params.push(`family=${name}:wght@400;700`);
+      }
+    }
+  }
+  if (params.length === 0) return "";
+  return `https://fonts.googleapis.com/css2?${params.join("&")}&display=swap`;
+}
+
 // src/react/ThemeProvider.tsx
 var import_jsx_runtime = require("react/jsx-runtime");
 var ThemeContext = (0, import_react.createContext)(null);
@@ -353,8 +545,7 @@ function ThemeProvider({
   themes,
   defaultTheme,
   defaultMode = "system",
-  persistKey = DEFAULT_PERSIST_KEY,
-  target
+  persistKey = DEFAULT_PERSIST_KEY
 }) {
   const [theme, setThemeState] = (0, import_react.useState)(() => {
     if (persistKey && typeof window !== "undefined") {
@@ -398,7 +589,46 @@ function ThemeProvider({
     }
     root.style.setProperty("--radius", theme.radius ?? "0.5rem");
     if (theme.fonts?.body) root.style.setProperty("--font-body", theme.fonts.body);
+    else root.style.removeProperty("--font-body");
     if (theme.fonts?.heading) root.style.setProperty("--font-heading", theme.fonts.heading);
+    else root.style.removeProperty("--font-heading");
+    const styleId = "tailtheme-font-rules";
+    let styleEl = document.getElementById(styleId);
+    if (!styleEl) {
+      styleEl = document.createElement("style");
+      styleEl.id = styleId;
+      document.head.appendChild(styleEl);
+    }
+    const bodyRule = theme.fonts?.body ? `body,  :root { font-family: var(--font-body); }` : "";
+    const headingRule = theme.fonts?.heading ? `h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }` : "";
+    styleEl.textContent = [bodyRule, headingRule].filter(Boolean).join("\n");
+    const linkId = "tailtheme-gfonts";
+    const families = [theme.fonts?.body, theme.fonts?.heading].filter((f) => !!f);
+    const gfontsUrl = families.length > 0 ? googleFontsUrl(families) : "";
+    let linkEl = document.getElementById(linkId);
+    if (gfontsUrl) {
+      if (!linkEl) {
+        linkEl = document.createElement("link");
+        linkEl.id = linkId;
+        linkEl.rel = "stylesheet";
+        document.head.appendChild(linkEl);
+      }
+      if (linkEl.href !== gfontsUrl) linkEl.href = gfontsUrl;
+    } else if (linkEl) {
+      linkEl.remove();
+    }
+    root.style.setProperty("--bg-image", theme.backgroundImage ?? "none");
+    if (theme.pattern && theme.pattern.type !== "none") {
+      const ps = generatePattern(theme.pattern);
+      root.style.setProperty("--pattern-image", ps.backgroundImage);
+      root.style.setProperty("--pattern-size", ps.backgroundSize);
+      if (ps.backgroundPosition) root.style.setProperty("--pattern-position", ps.backgroundPosition);
+      else root.style.removeProperty("--pattern-position");
+    } else {
+      root.style.setProperty("--pattern-image", "none");
+      root.style.setProperty("--pattern-size", "auto");
+      root.style.removeProperty("--pattern-position");
+    }
     if (resolvedMode === "dark") {
       root.classList.add("dark");
     } else {
@@ -460,6 +690,46 @@ function useTheme() {
 // src/react/ThemePicker.tsx
 var import_react3 = require("react");
 
+// src/types.ts
+var raw = (value) => value;
+
+// src/vividness.ts
+var VIVIDNESS_PRESETS = {
+  playful: 1.3,
+  vivid: 1.15,
+  default: 1,
+  professional: 0.75,
+  elegant: 0.5
+};
+var MAX_CHROMA = 0.4;
+function parseOklch(value) {
+  const match = value.trim().match(/^oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*\)$/);
+  if (!match) return null;
+  return { l: parseFloat(match[1]), c: parseFloat(match[2]), h: parseFloat(match[3]) };
+}
+function scaleChroma(cssValue, factor) {
+  const parsed = parseOklch(cssValue);
+  if (!parsed) return cssValue;
+  const newC = Math.min(MAX_CHROMA, Math.max(0, parsed.c * factor));
+  return `oklch(${parsed.l} ${parseFloat(newC.toFixed(4))} ${parsed.h})`;
+}
+function adjustVividness(theme, factor) {
+  if (factor === 1) return theme;
+  function scaleTokens(tokens) {
+    const result = {};
+    for (const key of Object.keys(tokens)) {
+      const resolved = resolveColor(tokens[key]);
+      result[key] = raw(scaleChroma(resolved, factor));
+    }
+    return result;
+  }
+  return {
+    ...theme,
+    light: scaleTokens(theme.light),
+    dark: scaleTokens(theme.dark)
+  };
+}
+
 // src/factory.ts
 var LIGHT_PRIMARY_SHADE = 600;
 var DARK_PRIMARY_SHADE = 400;
@@ -518,8 +788,10 @@ function buildDarkTokens(primary, neutral, secondary, overrides) {
   return overrides ? { ...base, ...overrides } : base;
 }
 function createTheme(config) {
-  const { name, label, primary, neutral, secondary, radius, fonts, pattern, category, overrides } = config;
-  return {
+  const { name, label, primary, neutral, secondary, radius, fonts, pattern, category, overrides, vividness } = config;
+  const vividnessFactor = typeof vividness === "string" ? VIVIDNESS_PRESETS[vividness] : typeof vividness === "number" ? vividness : void 0;
+  const vividnessPresetName = typeof vividness === "string" ? vividness : void 0;
+  const base = {
     name,
     label,
     light: buildLightTokens(primary, neutral, secondary, overrides?.light),
@@ -528,30 +800,20 @@ function createTheme(config) {
     pattern,
     radius: radius ?? "0.5rem",
     category,
-    _generatorConfig: { primary, neutral, secondary, radius }
+    _generatorConfig: {
+      primary,
+      neutral,
+      secondary,
+      radius,
+      vividness: vividnessFactor,
+      vividnessPreset: vividnessPresetName
+    }
   };
+  if (vividnessFactor !== void 0 && vividnessFactor !== 1) {
+    return adjustVividness(base, vividnessFactor);
+  }
+  return base;
 }
-
-// src/fonts.ts
-var FONTS = {
-  // ─── System fonts ─────────────────────────────────────────────────────────
-  SYSTEM_SANS: "system-ui, -apple-system, sans-serif",
-  SYSTEM_SERIF: "Georgia, 'Times New Roman', serif",
-  // ─── Sans-serif Google Fonts ───────────────────────────────────────────────
-  INTER: "'Inter', system-ui, sans-serif",
-  GEIST: "'Geist', system-ui, sans-serif",
-  PLUS_JAKARTA: "'Plus Jakarta Sans', system-ui, sans-serif",
-  NUNITO: "'Nunito', system-ui, sans-serif",
-  POPPINS: "'Poppins', system-ui, sans-serif",
-  OUTFIT: "'Outfit', system-ui, sans-serif",
-  DM_SANS: "'DM Sans', system-ui, sans-serif",
-  MANROPE: "'Manrope', system-ui, sans-serif",
-  // ─── Serif Google Fonts ────────────────────────────────────────────────────
-  PLAYFAIR: "'Playfair Display', Georgia, serif",
-  LORA: "'Lora', Georgia, serif",
-  MERRIWEATHER: "'Merriweather', Georgia, serif",
-  DM_SERIF: "'DM Serif Display', Georgia, serif"
-};
 
 // src/react/ThemePicker.tsx
 var import_jsx_runtime2 = require("react/jsx-runtime");
@@ -590,7 +852,28 @@ var PATTERN_TYPES = [
   "vertical-lines",
   "zigzag",
   "checkerboard",
-  "triangles"
+  "triangles",
+  "hexagons",
+  "noise"
+];
+var PATTERN_LABELS = {
+  "none": "None",
+  "dots": "Dots",
+  "grid": "Grid",
+  "cross": "Cross",
+  "diagonal-lines": "Diagonal",
+  "horizontal-lines": "H-Lines",
+  "vertical-lines": "V-Lines",
+  "zigzag": "Zigzag",
+  "checkerboard": "Checker",
+  "triangles": "Triangles",
+  "hexagons": "Hexagons",
+  "noise": "Noise"
+};
+var PATTERN_OPACITY_PRESETS = [
+  { label: "Subtle", value: 0.06 },
+  { label: "Normal", value: 0.12 },
+  { label: "Bold", value: 0.25 }
 ];
 var RADIUS_PRESETS = [
   { label: "None", value: "0rem" },
@@ -600,10 +883,51 @@ var RADIUS_PRESETS = [
   { label: "XL", value: "1rem" },
   { label: "Full", value: "9999px" }
 ];
-var FONT_OPTIONS = Object.entries(FONTS).map(([key, value]) => ({
-  label: key.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()),
-  value
-}));
+var FONT_GROUPS = [
+  {
+    label: "System",
+    options: [
+      { label: "System default (sans-serif)", value: FONTS.SYSTEM_SANS },
+      { label: "System serif", value: FONTS.SYSTEM_SERIF }
+    ]
+  },
+  {
+    label: "Sans-serif",
+    options: [
+      { label: "Inter", value: FONTS.INTER },
+      { label: "Geist", value: FONTS.GEIST },
+      { label: "Plus Jakarta Sans", value: FONTS.PLUS_JAKARTA },
+      { label: "Nunito", value: FONTS.NUNITO },
+      { label: "Poppins", value: FONTS.POPPINS },
+      { label: "Outfit", value: FONTS.OUTFIT },
+      { label: "DM Sans", value: FONTS.DM_SANS },
+      { label: "Manrope", value: FONTS.MANROPE }
+    ]
+  },
+  {
+    label: "Serif",
+    options: [
+      { label: "Playfair Display", value: FONTS.PLAYFAIR },
+      { label: "Lora", value: FONTS.LORA },
+      { label: "Merriweather", value: FONTS.MERRIWEATHER },
+      { label: "DM Serif Display", value: FONTS.DM_SERIF }
+    ]
+  }
+];
+var PRIMARY_KEYS = ["primary", "primaryForeground", "ring"];
+var SECONDARY_KEYS = ["secondary", "secondaryForeground", "accent", "accentForeground"];
+var NEUTRAL_KEYS = [
+  "background",
+  "foreground",
+  "card",
+  "cardForeground",
+  "popover",
+  "popoverForeground",
+  "muted",
+  "mutedForeground",
+  "border",
+  "input"
+];
 function getSwatchColors(theme, mode = "light") {
   const t = mode === "dark" ? theme.dark : theme.light;
   return [resolveColor(t.background), resolveColor(t.primary), resolveColor(t.secondary)];
@@ -614,53 +938,139 @@ function ThemeSwatch({ theme, selected, onClick, previewMode = "light", labelOve
   return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("button", { onClick, title: label, style: {
     display: "flex",
     alignItems: "center",
-    gap: 3,
-    padding: "6px 10px",
-    borderRadius: 8,
-    border: selected ? "2px solid currentColor" : "2px solid transparent",
-    background: "transparent",
+    gap: 6,
+    padding: "6px 8px",
+    borderRadius: 6,
+    border: selected ? "2px solid var(--ring)" : "1px solid var(--border)",
+    background: selected ? "var(--accent)" : "transparent",
     cursor: "pointer",
     outline: "none",
-    color: "var(--foreground)"
+    color: "var(--foreground)",
+    width: "100%",
+    textAlign: "left",
+    minWidth: 0
   }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 12, height: 12, borderRadius: "50%", background: bg, border: "1px solid var(--border)", display: "inline-block" } }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 12, height: 12, borderRadius: "50%", background: pri, display: "inline-block" } }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 12, height: 12, borderRadius: "50%", background: sec, display: "inline-block" } }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { marginLeft: 4, fontSize: 12 }, children: label })
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("span", { style: { flexShrink: 0, display: "flex", gap: 2 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 10, height: 10, borderRadius: "50%", background: bg, border: "1px solid var(--border)", display: "inline-block" } }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 10, height: 10, borderRadius: "50%", background: pri, display: "inline-block" } }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 10, height: 10, borderRadius: "50%", background: sec, display: "inline-block" } })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }, children: label })
   ] });
 }
-function ThemePicker({ themes, value, onChange, allowCustom = false, sections = ["colors", "fonts", "patterns", "radius"], className, locale = "en", labels }) {
-  const [tab, setTab] = (0, import_react3.useState)("presets");
-  const [customPrimary, setCustomPrimary] = (0, import_react3.useState)("blue");
-  const [customSecondary, setCustomSecondary] = (0, import_react3.useState)(null);
-  const [customNeutral, setCustomNeutral] = (0, import_react3.useState)(null);
-  const [customRadius, setCustomRadius] = (0, import_react3.useState)("0.5rem");
-  const [customFonts, setCustomFonts] = (0, import_react3.useState)({});
-  const [customPattern, setCustomPattern] = (0, import_react3.useState)({ type: "none" });
-  const buildCustomTheme = (primary, secondary, neutral, radius, fonts, pattern) => createTheme({
-    name: `custom-${primary}${neutral ? `-${neutral}` : ""}${secondary ? `-${secondary}` : ""}`,
-    label: `Custom (${primary})`,
-    primary,
-    neutral: neutral ?? void 0,
-    secondary: secondary ?? void 0,
-    radius,
-    fonts: Object.keys(fonts).length > 0 ? fonts : void 0,
-    pattern: pattern.type !== "none" ? pattern : void 0
-  });
-  (0, import_react3.useEffect)(() => {
-    if (tab === "custom") {
-      onChange(buildCustomTheme(customPrimary, customSecondary, customNeutral, customRadius, customFonts, customPattern));
+function buildTheme(themes, selectedPresetName, customPrimary, customSecondary, customNeutral) {
+  if (selectedPresetName) {
+    const preset = themes.find((t) => t.name === selectedPresetName) ?? themes[0];
+    if (!preset) return null;
+    if (customPrimary === null && customSecondary === null && customNeutral === null) {
+      return { ...preset, _source: "preset", _presetName: preset.name };
     }
-  }, [tab, customPrimary, customSecondary, customNeutral, customRadius, customFonts, customPattern]);
-  const btn = (active) => ({
-    padding: "4px 12px",
-    border: "none",
-    background: active ? "var(--accent)" : "transparent",
-    color: active ? "var(--accent-foreground)" : "var(--foreground)",
-    borderRadius: 6,
-    cursor: "pointer",
-    fontWeight: active ? 600 : 400
+    const ref = createTheme({
+      name: "ref",
+      label: "ref",
+      primary: customPrimary ?? "blue",
+      neutral: customNeutral === "none" ? void 0 : customNeutral ?? void 0,
+      secondary: customSecondary ?? void 0
+    });
+    const lightOverride = {};
+    const darkOverride = {};
+    if (customPrimary !== null) {
+      for (const k of PRIMARY_KEYS) {
+        lightOverride[k] = ref.light[k];
+        darkOverride[k] = ref.dark[k];
+      }
+    }
+    if (customSecondary !== null) {
+      for (const k of SECONDARY_KEYS) {
+        lightOverride[k] = ref.light[k];
+        darkOverride[k] = ref.dark[k];
+      }
+    }
+    if (customNeutral !== null) {
+      for (const k of NEUTRAL_KEYS) {
+        lightOverride[k] = ref.light[k];
+        darkOverride[k] = ref.dark[k];
+      }
+    }
+    return {
+      ...preset,
+      name: `${preset.name}-custom`,
+      light: { ...preset.light, ...lightOverride },
+      dark: { ...preset.dark, ...darkOverride },
+      _source: "preset",
+      _presetName: preset.name,
+      _overlayConfig: {
+        basePreset: preset.name,
+        ...customPrimary !== null && { primary: customPrimary },
+        ...customSecondary !== null && { secondary: customSecondary },
+        ...customNeutral !== null && { neutral: customNeutral }
+      }
+    };
+  }
+  const primary = customPrimary ?? "blue";
+  const neutral = customNeutral === "none" ? void 0 : customNeutral ?? void 0;
+  const secondary = customSecondary ?? void 0;
+  return Object.assign(
+    createTheme({
+      name: `custom-${primary}${neutral ? `-${neutral}` : ""}${secondary ? `-${secondary}` : ""}`,
+      label: `Custom (${primary})`,
+      primary,
+      neutral,
+      secondary
+    }),
+    {
+      _source: "generated",
+      _generatorConfig: { primary, neutral, secondary }
+    }
+  );
+}
+function ThemePicker({
+  themes,
+  value,
+  onChange,
+  allowCustom = false,
+  sections = [],
+  className,
+  locale = "en",
+  labels,
+  paletteMaxHeight
+}) {
+  const v = value;
+  const [selectedPresetName, setSelectedPresetName] = (0, import_react3.useState)(() => {
+    if (v._overlayConfig?.basePreset) {
+      const found = themes.find((t) => t.name === v._overlayConfig.basePreset);
+      if (found) return found.name;
+    }
+    if (v._presetName) {
+      const found = themes.find((t) => t.name === v._presetName);
+      if (found) return found.name;
+    }
+    return themes.find((t) => t.name === value.name)?.name ?? null;
   });
+  const [customPrimary, setCustomPrimary] = (0, import_react3.useState)(
+    () => v._overlayConfig?.primary ?? (v._generatorConfig?.primary ?? null)
+  );
+  const [customSecondary, setCustomSecondary] = (0, import_react3.useState)(
+    () => v._overlayConfig?.secondary ?? (v._generatorConfig?.secondary ?? null)
+  );
+  const [customNeutral, setCustomNeutral] = (0, import_react3.useState)(
+    () => v._overlayConfig?.neutral ?? (v._generatorConfig?.neutral ? v._generatorConfig.neutral : null)
+  );
+  const [overrideRadius, setOverrideRadius] = (0, import_react3.useState)(value.radius ?? "0.5rem");
+  const [overrideFonts, setOverrideFonts] = (0, import_react3.useState)(value.fonts ?? {});
+  const [overridePattern, setOverridePattern] = (0, import_react3.useState)(value.pattern ?? { type: "none" });
+  const [overrideBgImage, setOverrideBgImage] = (0, import_react3.useState)(value.backgroundImage ?? "");
+  (0, import_react3.useEffect)(() => {
+    const base = buildTheme(themes, selectedPresetName, customPrimary, customSecondary, customNeutral);
+    if (!base) return;
+    onChange({
+      ...base,
+      radius: overrideRadius,
+      fonts: Object.keys(overrideFonts).length > 0 ? overrideFonts : void 0,
+      pattern: overridePattern.type !== "none" ? overridePattern : void 0,
+      backgroundImage: overrideBgImage || void 0
+    });
+  }, [selectedPresetName, customPrimary, customSecondary, customNeutral, overrideRadius, overrideFonts, overridePattern, overrideBgImage]);
   const chip = (active) => ({
     padding: "4px 10px",
     borderRadius: 6,
@@ -670,62 +1080,79 @@ function ThemePicker({ themes, value, onChange, allowCustom = false, sections = 
     border: active ? "2px solid var(--foreground)" : "1px solid var(--border)",
     background: active ? "var(--accent)" : "transparent"
   });
+  const hasPreset = selectedPresetName !== null;
   return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className, style: { fontFamily: "system-ui, sans-serif", fontSize: 14, color: "var(--foreground)" }, children: [
-    allowCustom && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { display: "flex", gap: 4, marginBottom: 12, borderBottom: "1px solid var(--border)", paddingBottom: 8 }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { style: btn(tab === "presets"), onClick: () => setTab("presets"), children: "Presets" }),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { style: btn(tab === "custom"), onClick: () => setTab("custom"), children: "Custom" })
-    ] }),
-    tab === "presets" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: 2 }, children: themes.map((t) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+    themes.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: paletteMaxHeight ? { maxHeight: paletteMaxHeight, overflowY: "auto" } : void 0, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 4 }, children: themes.map((t) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
       ThemeSwatch,
       {
         theme: t,
-        selected: t.name === value.name,
-        onClick: () => onChange(t),
+        selected: t.name === selectedPresetName,
+        onClick: () => {
+          setSelectedPresetName(t.name);
+          setOverrideRadius(t.radius ?? "0.5rem");
+          setCustomPrimary(null);
+          setCustomSecondary(null);
+          setCustomNeutral(null);
+        },
         labelOverride: labels?.[locale]?.[t.name]
       },
       t.name
-    )) }),
-    tab === "custom" && allowCustom && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { display: "flex", flexDirection: "column", gap: 16 }, children: [
-      sections.includes("colors") && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("section", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "0 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Primary Color" }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: TAILWIND_COLORS2.map((color) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomPrimary(color), title: color, style: {
-          width: 28,
-          height: 28,
-          borderRadius: "50%",
-          cursor: "pointer",
-          outline: "none",
-          background: resolveColor(`${color}-500`),
-          border: customPrimary === color ? "3px solid var(--foreground)" : "2px solid transparent"
-        } }, color)) }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "12px 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Secondary Color" }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomSecondary(null), title: "Auto (same as primary)", style: {
-            width: 28,
-            height: 28,
-            borderRadius: "50%",
-            cursor: "pointer",
-            outline: "none",
-            background: `conic-gradient(${TAILWIND_COLORS2.slice(5, 10).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(", ")})`,
-            border: customSecondary === null ? "3px solid var(--foreground)" : "2px solid transparent"
-          } }),
-          TAILWIND_COLORS2.map((color) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomSecondary(color), title: color, style: {
-            width: 28,
-            height: 28,
+    )) }) }),
+    allowCustom && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: {
+      borderTop: themes.length > 0 ? "1px solid var(--border)" : void 0,
+      marginTop: themes.length > 0 ? 12 : 0,
+      paddingTop: themes.length > 0 ? 12 : 0
+    }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { marginBottom: 8 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { fontSize: 10, fontWeight: 600, opacity: 0.6, letterSpacing: "0.05em", textTransform: "uppercase" }, children: "Custom palette" }),
+        hasPreset && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { fontSize: 10, opacity: 0.45, marginLeft: 6 }, children: "overrides on preset" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: 10 }, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("section", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "0 0 6px", fontSize: 11, fontWeight: 600, opacity: 0.7 }, children: "Primary" }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center" }, children: [
+          hasPreset && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomPrimary(null), style: chip(customPrimary === null), children: "Auto" }),
+          TAILWIND_COLORS2.map((color) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomPrimary(color), title: color, style: {
+            width: 24,
+            height: 24,
             borderRadius: "50%",
             cursor: "pointer",
             outline: "none",
             background: resolveColor(`${color}-500`),
-            border: customSecondary === color ? "3px solid var(--foreground)" : "2px solid transparent"
+            border: customPrimary === color ? "2px solid var(--foreground)" : "1px solid var(--border)"
           } }, color))
         ] }),
-        customSecondary === null && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { style: { margin: "6px 0 0", fontSize: 11, opacity: 0.5 }, children: "Auto \u2014 derived from primary" }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "12px 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Neutral Base" }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomNeutral(null), style: chip(customNeutral === null), children: "none" }),
+        customPrimary === null && hasPreset && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { style: { margin: "4px 0 0", fontSize: 10, opacity: 0.45 }, children: "Using preset" }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "10px 0 6px", fontSize: 11, fontWeight: 600, opacity: 0.7 }, children: "Secondary" }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center" }, children: [
+          hasPreset ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomSecondary(null), style: chip(customSecondary === null), children: "Auto" }) : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomSecondary(null), title: "Auto (derived from primary)", style: {
+            width: 24,
+            height: 24,
+            borderRadius: "50%",
+            cursor: "pointer",
+            outline: "none",
+            background: `conic-gradient(${TAILWIND_COLORS2.slice(5, 10).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(", ")})`,
+            border: customSecondary === null ? "2px solid var(--foreground)" : "1px solid var(--border)"
+          } }),
+          TAILWIND_COLORS2.map((color) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomSecondary(color), title: color, style: {
+            width: 24,
+            height: 24,
+            borderRadius: "50%",
+            cursor: "pointer",
+            outline: "none",
+            background: resolveColor(`${color}-500`),
+            border: customSecondary === color ? "2px solid var(--foreground)" : "1px solid var(--border)"
+          } }, color))
+        ] }),
+        customSecondary === null && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { style: { margin: "4px 0 0", fontSize: 10, opacity: 0.45 }, children: hasPreset ? "Using preset" : "Auto from primary" }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "10px 0 6px", fontSize: 11, fontWeight: 600, opacity: 0.7 }, children: "Neutral base" }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { display: "flex", flexWrap: "wrap", gap: 4 }, children: [
+          hasPreset ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomNeutral(null), style: chip(customNeutral === null), children: "Auto" }) : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomNeutral("none"), style: chip(customNeutral === null || customNeutral === "none"), children: "none" }),
           NEUTRAL_COLORS.map((color) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomNeutral(color), style: chip(customNeutral === color), children: color }, color))
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { style: { margin: "6px 0 0", fontSize: 11, opacity: 0.5 }, children: customNeutral === null ? "None \u2014 backgrounds use the primary color family" : `${customNeutral} \u2014 overrides backgrounds and surfaces` })
-      ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { style: { margin: "4px 0 0", fontSize: 10, opacity: 0.45 }, children: customNeutral === null ? hasPreset ? "Using preset" : "Primary family" : customNeutral === "none" ? "Primary family" : `${customNeutral} surfaces` })
+      ] }) })
+    ] }),
+    sections.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { borderTop: "1px solid var(--border)", marginTop: 16, paddingTop: 16, display: "flex", flexDirection: "column", gap: 16 }, children: [
       sections.includes("fonts") && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("section", { children: [
         /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "0 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Fonts" }),
         /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", flexDirection: "column", gap: 8 }, children: ["body", "heading"].map((fontType) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("label", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
@@ -733,12 +1160,12 @@ function ThemePicker({ themes, value, onChange, allowCustom = false, sections = 
           /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
             "select",
             {
-              value: customFonts[fontType] ?? "",
-              onChange: (e) => setCustomFonts((f) => ({ ...f, [fontType]: e.target.value || void 0 })),
+              value: overrideFonts[fontType] ?? "",
+              onChange: (e) => setOverrideFonts((f) => ({ ...f, [fontType]: e.target.value || void 0 })),
               style: { flex: 1, padding: "4px 8px", borderRadius: 4, border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", fontSize: 12 },
               children: [
                 /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("option", { value: "", children: fontType === "heading" ? "Same as body" : "System default" }),
-                FONT_OPTIONS.map((f) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("option", { value: f.value, children: f.label }, f.value))
+                FONT_GROUPS.map((group) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("optgroup", { label: group.label, children: group.options.map((f) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("option", { value: f.value, children: f.label }, f.value)) }, group.label))
               ]
             }
           )
@@ -746,11 +1173,85 @@ function ThemePicker({ themes, value, onChange, allowCustom = false, sections = 
       ] }),
       sections.includes("patterns") && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("section", { children: [
         /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "0 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Pattern" }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: PATTERN_TYPES.map((pt) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomPattern({ type: pt }), style: chip(customPattern.type === pt), children: pt }, pt)) })
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: PATTERN_TYPES.map((pt) => {
+          const active = overridePattern.type === pt;
+          const ps = pt !== "none" ? generatePattern({ type: pt, opacity: 0.18, size: "sm" }) : null;
+          return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+            "button",
+            {
+              onClick: () => setOverridePattern((p) => ({ ...p, type: pt })),
+              title: PATTERN_LABELS[pt],
+              style: {
+                width: 44,
+                height: 44,
+                borderRadius: 8,
+                cursor: "pointer",
+                padding: 0,
+                border: active ? "2px solid var(--foreground)" : "1px solid var(--border)",
+                backgroundColor: "var(--background)",
+                backgroundImage: ps?.backgroundImage ?? "none",
+                backgroundSize: ps?.backgroundSize ?? "auto",
+                backgroundPosition: ps?.backgroundPosition ?? "center",
+                outline: active ? "2px solid var(--ring)" : "none",
+                outlineOffset: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                overflow: "hidden"
+              },
+              children: pt === "none" && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { fontSize: 9, opacity: 0.5, color: "var(--foreground)", pointerEvents: "none" }, children: "none" })
+            },
+            pt
+          );
+        }) }),
+        overridePattern.type !== "none" && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { marginTop: 10, display: "flex", flexDirection: "column", gap: 8 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 52, fontSize: 11, opacity: 0.6 }, children: "Size" }),
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", gap: 4 }, children: ["sm", "md", "lg"].map((s) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setOverridePattern((p) => ({ ...p, size: s })), style: chip((overridePattern.size ?? "md") === s), children: s.toUpperCase() }, s)) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { width: 52, fontSize: 11, opacity: 0.6 }, children: "Density" }),
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", gap: 4 }, children: PATTERN_OPACITY_PRESETS.map((o) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setOverridePattern((p) => ({ ...p, opacity: o.value })), style: chip((overridePattern.opacity ?? 0.12) === o.value), children: o.label }, o.label)) })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { style: { margin: "6px 0 0", fontSize: 11, opacity: 0.5 }, children: overridePattern.type === "none" ? "No pattern" : PATTERN_LABELS[overridePattern.type] })
       ] }),
       sections.includes("radius") && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("section", { children: [
         /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "0 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Border Radius" }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", gap: 6 }, children: RADIUS_PRESETS.map((r) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setCustomRadius(r.value), style: chip(customRadius === r.value), children: r.label }, r.value)) })
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { display: "flex", gap: 6 }, children: RADIUS_PRESETS.map((r) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setOverrideRadius(r.value), style: chip(overrideRadius === r.value), children: r.label }, r.value)) })
+      ] }),
+      sections.includes("background") && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("section", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h4", { style: { margin: "0 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Background Image" }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { display: "flex", gap: 6 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+            "input",
+            {
+              type: "text",
+              value: overrideBgImage,
+              onChange: (e) => {
+                const raw2 = e.target.value.trim();
+                if (!raw2) {
+                  setOverrideBgImage("");
+                  return;
+                }
+                const val = /^https?:\/\/|^\//.test(raw2) && !raw2.startsWith("url(") ? `url('${raw2}')` : raw2;
+                setOverrideBgImage(val);
+              },
+              placeholder: "https://\u2026 or url('\u2026') or gradient CSS",
+              style: {
+                flex: 1,
+                padding: "6px 8px",
+                borderRadius: 4,
+                fontSize: 12,
+                border: "1px solid var(--border)",
+                background: "var(--background)",
+                color: "var(--foreground)"
+              }
+            }
+          ),
+          overrideBgImage && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { onClick: () => setOverrideBgImage(""), style: chip(false), children: "Clear" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { style: { margin: "6px 0 0", fontSize: 11, opacity: 0.5 }, children: "Pattern always overlays on top of background image." })
       ] })
     ] })
   ] });

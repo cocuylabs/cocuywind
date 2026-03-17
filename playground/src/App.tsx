@@ -1,15 +1,45 @@
 import React, { useState } from 'react'
 import { ThemeProvider, useTheme } from 'tailtheme/react'
 import { ThemePicker } from 'tailtheme/react'
-import { themes, builtinThemes, tweakcnThemes, communityThemes, tailwindBasicThemes, generateCSS, themeLabelsEs, themeLabelsPt } from 'tailtheme'
+import { themes, builtinThemes, tweakcnThemes, communityThemes, tailwindBasicThemes, generateCSS, themeLabelsEn, themeLabelsEs, themeLabelsPt, generatePattern, FONTS } from 'tailtheme'
+import type { Theme, ThemeFonts, ThemePattern, PatternType } from 'tailtheme'
 import './styles.css'
 
 const INITIAL_THEME = builtinThemes[0]
 const curatedThemes = builtinThemes.filter(t => !tailwindBasicThemes.includes(t))
 const allThemes = [...themes, ...communityThemes]
 
+const PATTERN_TYPES: PatternType[] = [
+  'none', 'dots', 'grid', 'cross', 'diagonal-lines',
+  'horizontal-lines', 'vertical-lines', 'zigzag', 'checkerboard',
+  'triangles', 'hexagons', 'noise',
+]
+const PATTERN_LABELS: Record<PatternType, string> = {
+  'none': 'None',
+  'dots': 'Dots',
+  'grid': 'Grid',
+  'cross': 'Cross',
+  'diagonal-lines': 'Diagonal',
+  'horizontal-lines': 'H-Lines',
+  'vertical-lines': 'V-Lines',
+  'zigzag': 'Zigzag',
+  'checkerboard': 'Checker',
+  'triangles': 'Triangles',
+  'hexagons': 'Hexagons',
+  'noise': 'Noise',
+}
+const RADIUS_PRESETS = [
+  { label: 'None', value: '0rem' }, { label: 'SM', value: '0.25rem' },
+  { label: 'MD', value: '0.5rem' }, { label: 'LG', value: '0.75rem' },
+  { label: 'XL', value: '1rem' }, { label: 'Full', value: '9999px' },
+]
+const FONT_OPTIONS = Object.entries(FONTS).map(([key, value]) => ({
+  label: key.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase()),
+  value,
+}))
+
 function AccordionSection({ title, count, defaultOpen = true, children }: {
-  title: string; count: number; defaultOpen?: boolean; children: React.ReactNode
+  title: string; count?: number; defaultOpen?: boolean; children: React.ReactNode
 }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
@@ -20,7 +50,7 @@ function AccordionSection({ title, count, defaultOpen = true, children }: {
         color: 'var(--foreground)',
       }}>
         <span style={{ fontSize: 11, fontWeight: 600, opacity: 0.5, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-          {title} ({count})
+          {title}{count !== undefined ? ` (${count})` : ''}
         </span>
         <span style={{ fontSize: 12, opacity: 0.4, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>▾</span>
       </button>
@@ -33,94 +63,251 @@ function Demo() {
   const { theme, setTheme, mode, setMode } = useTheme()
   const [locale, setLocale] = useState<'en' | 'es' | 'pt'>('en')
 
+  // Style state — independent of palette
+  const [styleFonts, setStyleFonts] = useState<ThemeFonts>({})
+  const [stylePattern, setStylePattern] = useState<ThemePattern>({ type: 'none' })
+  const [styleRadius, setStyleRadius] = useState('0.5rem')
+  const [styleBgImage, setStyleBgImage] = useState('')
+  const [bgImageInput, setBgImageInput] = useState('')
+
+  const chip = (active: boolean): React.CSSProperties => ({
+    padding: '4px 10px', borderRadius: 6, cursor: 'pointer', fontSize: 12,
+    color: 'var(--foreground)',
+    border: active ? '2px solid var(--foreground)' : '1px solid var(--border)',
+    background: active ? 'var(--accent)' : 'transparent',
+  })
+
+  // Called by each catalog's ThemePicker — merges palette with current style overrides
+  const applyPalette = (palette: Theme) => {
+    setTheme({
+      ...palette,
+      radius: styleRadius,
+      fonts: Object.keys(styleFonts).length > 0 ? styleFonts : undefined,
+      pattern: stylePattern.type !== 'none' ? stylePattern : undefined,
+      backgroundImage: styleBgImage || undefined,
+    })
+  }
+
+  const applyStyle = (fonts: ThemeFonts, pattern: ThemePattern, radius: string, bgImage?: string) => {
+    setStyleFonts(fonts)
+    setStylePattern(pattern)
+    setStyleRadius(radius)
+    if (bgImage !== undefined) setStyleBgImage(bgImage)
+    setTheme({
+      ...theme,
+      fonts: Object.keys(fonts).length > 0 ? fonts : undefined,
+      pattern: pattern.type !== 'none' ? pattern : undefined,
+      radius,
+      backgroundImage: (bgImage ?? styleBgImage) || undefined,
+    })
+  }
+
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--background)', color: 'var(--foreground)', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--background)', backgroundImage: 'var(--pattern-image, none), var(--bg-image, none)', backgroundSize: 'var(--pattern-size, auto), cover', backgroundPosition: 'var(--pattern-position, center), center', color: 'var(--foreground)', fontFamily: 'var(--font-body, system-ui, sans-serif)' }}>
       {/* Header */}
-      <div style={{ borderBottom: '1px solid var(--border)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h1 style={{ fontSize: 18, fontWeight: 700 }}>tailtheme playground</h1>
+      <div style={{ padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+        <h1 style={{ fontSize: 18, fontWeight: 700, color: 'var(--primary-foreground)' }}>Tailtheme Playground</h1>
         <div style={{ display: 'flex', gap: 8 }}>
           {(['en', 'es', 'pt'] as const).map(l => (
             <button key={l} onClick={() => setLocale(l)} style={{
-              padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border)',
-              background: locale === l ? 'var(--primary)' : 'var(--card)',
-              color: locale === l ? 'var(--primary-foreground)' : 'var(--foreground)',
+              padding: '4px 10px', borderRadius: 6,
+              border: locale === l ? '2px solid var(--primary-foreground)' : '1px solid color-mix(in oklch, var(--primary-foreground) 40%, transparent)',
+              background: locale === l ? 'color-mix(in oklch, var(--primary-foreground) 20%, transparent)' : 'transparent',
+              color: 'var(--primary-foreground)',
               cursor: 'pointer', fontSize: 12,
-            }}>{l}</button>
+            }}>{l.toUpperCase()}</button>
           ))}
           {(['light', 'dark', 'system'] as const).map(m => (
             <button key={m} onClick={() => setMode(m)} style={{
-              padding: '4px 12px', borderRadius: 6, border: '1px solid var(--border)',
-              background: mode === m ? 'var(--primary)' : 'var(--card)',
-              color: mode === m ? 'var(--primary-foreground)' : 'var(--foreground)',
+              padding: '4px 12px', borderRadius: 6,
+              border: mode === m ? '2px solid var(--primary-foreground)' : '1px solid color-mix(in oklch, var(--primary-foreground) 40%, transparent)',
+              background: mode === m ? 'color-mix(in oklch, var(--primary-foreground) 20%, transparent)' : 'transparent',
+              color: 'var(--primary-foreground)',
               cursor: 'pointer', fontSize: 13,
-            }}>{m}</button>
+            }}>{m.charAt(0).toUpperCase() + m.slice(1)}</button>
           ))}
         </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', height: 'calc(100vh - 57px)' }}>
-        {/* Sidebar — ThemePicker */}
+        {/* Sidebar */}
         <div style={{ borderRight: '1px solid var(--border)', padding: '0 20px', overflowY: 'auto', background: 'var(--card)' }}>
-          <AccordionSection title="Built-in" count={curatedThemes.length} defaultOpen>
-            <ThemePicker
-              themes={curatedThemes}
-              value={theme}
-              onChange={setTheme}
-              locale={locale}
-              labels={{ es: themeLabelsEs, pt: themeLabelsPt }}
-              allowCustom
-              sections={['colors', 'fonts', 'patterns', 'radius']}
-            />
+
+          {/* Style section — fonts, pattern, radius — placed above palette sections */}
+          <AccordionSection title="Style" defaultOpen>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* Fonts */}
+              <section>
+                <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, opacity: 0.7 }}>Fonts</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {(['body', 'heading'] as const).map(fontType => (
+                    <label key={fontType} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ width: 52, fontSize: 12, opacity: 0.7 }}>{fontType}</span>
+                      <select
+                        value={styleFonts[fontType] ?? ''}
+                        onChange={e => {
+                          const updated = { ...styleFonts, [fontType]: e.target.value || undefined }
+                          applyStyle(updated, stylePattern, styleRadius)
+                        }}
+                        style={{ flex: 1, padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)', fontSize: 12 }}
+                      >
+                        <option value="">{fontType === 'heading' ? 'Same as body' : 'System default'}</option>
+                        {FONT_OPTIONS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+                      </select>
+                    </label>
+                  ))}
+                </div>
+              </section>
+
+              {/* Pattern */}
+              <section>
+                <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, opacity: 0.7 }}>Pattern</h4>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {PATTERN_TYPES.map(pt => {
+                    const active = stylePattern.type === pt
+                    const ps = pt !== 'none' ? generatePattern({ type: pt, opacity: 0.18, size: 'sm' }) : null
+                    return (
+                      <button
+                        key={pt}
+                        onClick={() => {
+                          const updated: ThemePattern = { type: pt }
+                          applyStyle(styleFonts, updated, styleRadius)
+                        }}
+                        title={PATTERN_LABELS[pt]}
+                        style={{
+                          width: 44, height: 44, borderRadius: 8, cursor: 'pointer', padding: 0,
+                          border: active ? '2px solid var(--foreground)' : '1px solid var(--border)',
+                          backgroundColor: 'var(--background)',
+                          backgroundImage: ps?.backgroundImage ?? 'none',
+                          backgroundSize: ps?.backgroundSize ?? 'auto',
+                          backgroundPosition: ps?.backgroundPosition ?? 'center',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          flexDirection: 'column', gap: 2, overflow: 'hidden',
+                          outline: active ? '2px solid var(--ring)' : 'none',
+                          outlineOffset: 1,
+                        }}
+                      >
+                        {pt === 'none' && (
+                          <span style={{ fontSize: 9, opacity: 0.5, color: 'var(--foreground)', pointerEvents: 'none' }}>none</span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+                <p style={{ margin: '6px 0 0', fontSize: 11, opacity: 0.5 }}>
+                  {stylePattern.type === 'none' ? 'No pattern — solid background' : PATTERN_LABELS[stylePattern.type]}
+                </p>
+              </section>
+
+              {/* Radius */}
+              <section>
+                <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, opacity: 0.7 }}>Border Radius</h4>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {RADIUS_PRESETS.map(r => (
+                    <button key={r.value} onClick={() => applyStyle(styleFonts, stylePattern, r.value)} style={chip(styleRadius === r.value)}>{r.label}</button>
+                  ))}
+                </div>
+              </section>
+
+              {/* Background image */}
+              <section>
+                <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, opacity: 0.7 }}>Background Image</h4>
+                <p style={{ margin: '0 0 8px', fontSize: 11, opacity: 0.5 }}>
+                  Paste an image URL — tailtheme stores it, your app handles the upload.
+                </p>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <input
+                    type="text"
+                    placeholder="https://example.com/image.jpg"
+                    value={bgImageInput}
+                    onChange={e => setBgImageInput(e.target.value)}
+                    style={{ flex: 1, padding: '5px 8px', borderRadius: 4, border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)', fontSize: 12 }}
+                  />
+                  <button
+                    onClick={() => {
+                      const val = bgImageInput.trim() ? `url('${bgImageInput.trim()}')` : ''
+                      applyStyle(styleFonts, stylePattern, styleRadius, val)
+                    }}
+                    style={{ ...chip(false), whiteSpace: 'nowrap' }}
+                  >Apply</button>
+                  {styleBgImage && (
+                    <button
+                      onClick={() => { setBgImageInput(''); applyStyle(styleFonts, stylePattern, styleRadius, '') }}
+                      style={{ ...chip(false), opacity: 0.6 }}
+                    >✕</button>
+                  )}
+                </div>
+                {styleBgImage && (
+                  <p style={{ margin: '4px 0 0', fontSize: 11, opacity: 0.5 }}>
+                    Active — pattern overlays on top
+                  </p>
+                )}
+              </section>
+            </div>
           </AccordionSection>
 
-          <AccordionSection title="Basic" count={tailwindBasicThemes.length} defaultOpen={false}>
-            <ThemePicker
-              themes={tailwindBasicThemes}
-              value={theme}
-              onChange={setTheme}
-              locale={locale}
-              labels={{ es: themeLabelsEs, pt: themeLabelsPt }}
-            />
-          </AccordionSection>
-
-          <AccordionSection title="TweakCN" count={tweakcnThemes.length} defaultOpen={false}>
-            <ThemePicker
-              themes={tweakcnThemes}
-              value={theme}
-              onChange={setTheme}
-              locale={locale}
-              labels={{ es: themeLabelsEs, pt: themeLabelsPt }}
-            />
-          </AccordionSection>
-
-          <AccordionSection title="Community" count={communityThemes.length} defaultOpen={false}>
-            <ThemePicker
-              themes={communityThemes}
-              value={theme}
-              onChange={setTheme}
-              locale={locale}
-              labels={{ es: themeLabelsEs, pt: themeLabelsPt }}
-            />
-          </AccordionSection>
+          {/* Palette section */}
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: 16 }}>
+            <div style={{ padding: '0 0 12px', fontSize: 11, fontWeight: 600, opacity: 0.5, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              Palette
+            </div>
+            <AccordionSection title="Built-in" count={curatedThemes.length} defaultOpen>
+              <ThemePicker
+                themes={curatedThemes}
+                value={theme}
+                onChange={applyPalette}
+                locale={locale}
+                labels={{ en: themeLabelsEn, es: themeLabelsEs, pt: themeLabelsPt }}
+                allowCustom
+              />
+            </AccordionSection>
+            <AccordionSection title="Basic" count={tailwindBasicThemes.length} defaultOpen={false}>
+              <ThemePicker
+                themes={tailwindBasicThemes}
+                value={theme}
+                onChange={applyPalette}
+                locale={locale}
+                labels={{ en: themeLabelsEn, es: themeLabelsEs, pt: themeLabelsPt }}
+              />
+            </AccordionSection>
+            <AccordionSection title="TweakCN" count={tweakcnThemes.length} defaultOpen={false}>
+              <ThemePicker
+                themes={tweakcnThemes}
+                value={theme}
+                onChange={applyPalette}
+                locale={locale}
+                labels={{ en: themeLabelsEn, es: themeLabelsEs, pt: themeLabelsPt }}
+              />
+            </AccordionSection>
+            <AccordionSection title="Community" count={communityThemes.length} defaultOpen={false}>
+              <ThemePicker
+                themes={communityThemes}
+                value={theme}
+                onChange={applyPalette}
+                locale={locale}
+                labels={{ en: themeLabelsEn, es: themeLabelsEs, pt: themeLabelsPt }}
+              />
+            </AccordionSection>
+          </div>
         </div>
 
         {/* Main — preview */}
         <div style={{ padding: 32, overflowY: 'auto' }}>
           <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>{theme.label}</h2>
-          <p style={{ color: 'var(--muted-foreground)', marginBottom: 32, fontSize: 14 }}>Live preview of the selected theme</p>
+          <p style={{ color: 'var(--muted-foreground)', marginBottom: 32, fontSize: 14 }}>Live preview of the selected theme.</p>
 
           {/* Color swatches */}
           <section style={{ marginBottom: 32 }}>
             <h3 style={{ fontSize: 11, fontWeight: 600, opacity: 0.5, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Color tokens</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
               {[
-                ['background', 'var(--background)', 'var(--foreground)'],
-                ['card', 'var(--card)', 'var(--card-foreground)'],
-                ['primary', 'var(--primary)', 'var(--primary-foreground)'],
-                ['secondary', 'var(--secondary)', 'var(--secondary-foreground)'],
-                ['muted', 'var(--muted)', 'var(--muted-foreground)'],
-                ['accent', 'var(--accent)', 'var(--accent-foreground)'],
-                ['destructive', 'var(--destructive)', 'var(--destructive-foreground)'],
+                ['Background', 'var(--background)', 'var(--foreground)'],
+                ['Card', 'var(--card)', 'var(--card-foreground)'],
+                ['Primary', 'var(--primary)', 'var(--primary-foreground)'],
+                ['Secondary', 'var(--secondary)', 'var(--secondary-foreground)'],
+                ['Muted', 'var(--muted)', 'var(--muted-foreground)'],
+                ['Accent', 'var(--accent)', 'var(--accent-foreground)'],
+                ['Destructive', 'var(--destructive)', 'var(--destructive-foreground)'],
               ].map(([name, bg, fg]) => (
                 <div key={name} style={{ background: bg, color: fg, padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)' }}>
                   <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.7 }}>{name}</div>

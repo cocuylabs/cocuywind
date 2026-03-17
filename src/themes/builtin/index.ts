@@ -9,6 +9,7 @@ export { indigoTheme } from './indigo.js'
 export { tealTheme } from './teal.js'
 export { candyTheme } from './candy.js'
 export * from './tailwind-basics.js'
+export * from './claude-themes.js'
 
 import { defaultTheme } from './default.js'
 import { oceanTheme } from './ocean.js'
@@ -21,6 +22,8 @@ import { indigoTheme } from './indigo.js'
 import { tealTheme } from './teal.js'
 import { candyTheme } from './candy.js'
 import { tailwindBasicThemes } from './tailwind-basics.js'
+import { claudeThemes } from './claude-themes.js'
+export { claudeThemes }
 
 export const builtinThemes = [
   defaultTheme,
