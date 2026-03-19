@@ -225,8 +225,9 @@ const DEFAULT_LABELS: Record<'en' | 'es' | 'pt', Record<string, string>> = {
   },
 }
 
-function translate(labels: ThemePickerProps['labels'], locale: 'en' | 'es' | 'pt', key: string, fallback: string): string {
-  return labels?.[locale]?.[key] ?? DEFAULT_LABELS[locale][key] ?? fallback
+function translate(labels: ThemePickerProps['labels'], locale: string | undefined, key: string, fallback: string): string {
+  const lang = (locale === 'es' || locale === 'pt' || locale === 'en') ? locale : 'en'
+  return labels?.[lang]?.[key] ?? DEFAULT_LABELS[lang][key] ?? fallback
 }
 
 function getSwatchColors(theme: Theme, mode: 'light' | 'dark' = 'light'): [string, string, string] {
@@ -291,6 +292,7 @@ export function ThemePalettePicker({
   swatchSize,
 }: ThemePalettePickerProps) {
   if (themes.length === 0) return null
+  const lang = (locale === 'es' || locale === 'pt' || locale === 'en') ? locale : 'en'
   return (
     <div className={className} style={paletteMaxHeight ? { maxHeight: paletteMaxHeight, overflowY: 'auto' } : undefined}>
       <div className="grid grid-cols-2 gap-2">
@@ -300,7 +302,7 @@ export function ThemePalettePicker({
             theme={t}
             selected={t.name === value}
             onClick={() => onChange(t.name)}
-            labelOverride={labels?.[locale]?.[t.name]}
+            labelOverride={labels?.[lang]?.[t.name]}
             previewMode={previewMode}
             swatchSize={swatchSize}
           />
@@ -515,6 +517,7 @@ export interface ThemePatternsPickerProps {
 
 export function ThemePatternsPicker({ value, onChange, className, labels, locale = 'en' }: ThemePatternsPickerProps) {
   const t = (key: string, fallback: string) => translate(labels, locale, key, fallback)
+  const lang = (locale === 'es' || locale === 'pt' || locale === 'en') ? locale : 'en'
   const activeType = value.type
   return (
     <div className={cn('space-y-3', className)}>
@@ -579,7 +582,7 @@ export function ThemePatternsPicker({ value, onChange, className, labels, locale
       <p className="text-xs text-muted-foreground">
         {activeType === 'none'
           ? t('ui.pattern.none', 'No pattern')
-          : (labels?.[locale]?.[`ui.pattern.${activeType}`] ?? PATTERN_LABELS[activeType])}
+          : (labels?.[lang]?.[`ui.pattern.${activeType}`] ?? PATTERN_LABELS[activeType])}
       </p>
     </div>
   )

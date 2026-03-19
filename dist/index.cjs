@@ -1432,7 +1432,7 @@ var theme_labels_en_default = {
   "community-sesi-theme-2-cmmmkb": "Sesi Theme",
   "community-shopify-red-cmmaba": "Shopify Red",
   "community-sky-cmmjha": "Sky",
-  "community-something": "Something",
+  "community-something-cmmmy7": "Something",
   "community-spacelinear-cmm4ya": "Space Linear",
   "community-stella-cmm2mf": "Stella",
   "community-student-spacelab-network-1-cmmkfn": "Spacelab Network",

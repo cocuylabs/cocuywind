@@ -1250,7 +1250,8 @@ var DEFAULT_LABELS = {
   }
 };
 function translate(labels, locale, key, fallback) {
-  return labels?.[locale]?.[key] ?? DEFAULT_LABELS[locale][key] ?? fallback;
+  const lang = locale === "es" || locale === "pt" || locale === "en" ? locale : "en";
+  return labels?.[lang]?.[key] ?? DEFAULT_LABELS[lang][key] ?? fallback;
 }
 function getSwatchColors(theme, mode = "light") {
   const t = mode === "dark" ? theme.dark : theme.light;
@@ -1309,13 +1310,14 @@ function ThemePalettePicker({
   swatchSize
 }) {
   if (themes.length === 0) return null;
+  const lang = locale === "es" || locale === "pt" || locale === "en" ? locale : "en";
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className, style: paletteMaxHeight ? { maxHeight: paletteMaxHeight, overflowY: "auto" } : void 0, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "grid grid-cols-2 gap-2", children: themes.map((t) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
     ThemeSwatch,
     {
       theme: t,
       selected: t.name === value,
       onClick: () => onChange(t.name),
-      labelOverride: labels?.[locale]?.[t.name],
+      labelOverride: labels?.[lang]?.[t.name],
       previewMode,
       swatchSize
     },
@@ -1448,6 +1450,7 @@ function ThemeFontsPicker({ value, onChange, className, labels, locale = "en" })
 }
 function ThemePatternsPicker({ value, onChange, className, labels, locale = "en" }) {
   const t = (key, fallback) => translate(labels, locale, key, fallback);
+  const lang = locale === "es" || locale === "pt" || locale === "en" ? locale : "en";
   const activeType = value.type;
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: cn("space-y-3", className), children: [
     /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h4", { className: "text-sm font-semibold", children: t("ui.pattern", "Pattern") }),
@@ -1492,7 +1495,7 @@ function ThemePatternsPicker({ value, onChange, className, labels, locale = "en"
         )) })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "text-xs text-muted-foreground", children: activeType === "none" ? t("ui.pattern.none", "No pattern") : labels?.[locale]?.[`ui.pattern.${activeType}`] ?? PATTERN_LABELS[activeType] })
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "text-xs text-muted-foreground", children: activeType === "none" ? t("ui.pattern.none", "No pattern") : labels?.[lang]?.[`ui.pattern.${activeType}`] ?? PATTERN_LABELS[activeType] })
   ] });
 }
 function ThemeRadiusPicker({ value, onChange, className, labels, locale = "en" }) {
