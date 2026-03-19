@@ -222,5 +222,22 @@
   "redwood": "Redwood",
   "sakura": "Sakura",
   "terracotta": "Terracotta",
-  "tomato": "Tomato"
+  "tomato": "Tomato",
+  "tw-red": "Red",
+  "tw-orange": "Orange",
+  "tw-amber": "Amber",
+  "tw-yellow": "Yellow",
+  "tw-lime": "Lime",
+  "tw-green": "Green",
+  "tw-emerald": "Emerald",
+  "tw-teal": "Teal",
+  "tw-cyan": "Cyan",
+  "tw-sky": "Sky",
+  "tw-blue": "Blue",
+  "tw-indigo": "Indigo",
+  "tw-violet": "Violet",
+  "tw-purple": "Purple",
+  "tw-fuchsia": "Fuchsia",
+  "tw-pink": "Pink",
+  "tw-rose": "Rose"
 }

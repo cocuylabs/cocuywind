@@ -32,7 +32,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "pnpm build",
+    "release": "pnpm build && git add . && git commit -m \"Release v$npm_config_version\" && git push"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.7",

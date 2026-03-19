@@ -751,7 +751,24 @@ var themeLabels_en = {
 	redwood: redwood$2,
 	sakura: sakura$2,
 	terracotta: terracotta$2,
-	tomato: tomato$2
+	tomato: tomato$2,
+	"tw-red": "Red",
+	"tw-orange": "Orange",
+	"tw-amber": "Amber",
+	"tw-yellow": "Yellow",
+	"tw-lime": "Lime",
+	"tw-green": "Green",
+	"tw-emerald": "Emerald",
+	"tw-teal": "Teal",
+	"tw-cyan": "Cyan",
+	"tw-sky": "Sky",
+	"tw-blue": "Blue",
+	"tw-indigo": "Indigo",
+	"tw-violet": "Violet",
+	"tw-purple": "Purple",
+	"tw-fuchsia": "Fuchsia",
+	"tw-pink": "Pink",
+	"tw-rose": "Rose"
 };
 
 var amber$1 = "Ámbar Cálido";
@@ -1012,7 +1029,24 @@ var themeLabels_es = {
 	redwood: redwood$1,
 	sakura: sakura$1,
 	terracotta: terracotta$1,
-	tomato: tomato$1
+	tomato: tomato$1,
+	"tw-red": "Rojo",
+	"tw-orange": "Naranja",
+	"tw-amber": "Ámbar",
+	"tw-yellow": "Amarillo",
+	"tw-lime": "Lima",
+	"tw-green": "Verde",
+	"tw-emerald": "Esmeralda",
+	"tw-teal": "Verde Azulado",
+	"tw-cyan": "Cian",
+	"tw-sky": "Azul Cielo",
+	"tw-blue": "Azul",
+	"tw-indigo": "Índigo",
+	"tw-violet": "Violeta",
+	"tw-purple": "Púrpura",
+	"tw-fuchsia": "Fucsia",
+	"tw-pink": "Rosa",
+	"tw-rose": "Rosa"
 };
 
 var amber = "Âmbar Quente";
@@ -1273,7 +1307,24 @@ var themeLabels_pt = {
 	redwood: redwood,
 	sakura: sakura,
 	terracotta: terracotta,
-	tomato: tomato
+	tomato: tomato,
+	"tw-red": "Vermelho",
+	"tw-orange": "Laranja",
+	"tw-amber": "Âmbar",
+	"tw-yellow": "Amarelo",
+	"tw-lime": "Lima",
+	"tw-green": "Verde",
+	"tw-emerald": "Esmeralda",
+	"tw-teal": "Ciano",
+	"tw-cyan": "Ciano Claro",
+	"tw-sky": "Azul Céu",
+	"tw-blue": "Azul",
+	"tw-indigo": "Índigo",
+	"tw-violet": "Violeta",
+	"tw-purple": "Roxo",
+	"tw-fuchsia": "Fúcsia",
+	"tw-pink": "Rosa",
+	"tw-rose": "Rosa"
 };
 
 var all$2 = "All";

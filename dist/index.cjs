@@ -1511,7 +1511,24 @@ var theme_labels_en_default = {
   redwood: "Redwood",
   sakura: "Sakura",
   terracotta: "Terracotta",
-  tomato: "Tomato"
+  tomato: "Tomato",
+  "tw-red": "Red",
+  "tw-orange": "Orange",
+  "tw-amber": "Amber",
+  "tw-yellow": "Yellow",
+  "tw-lime": "Lime",
+  "tw-green": "Green",
+  "tw-emerald": "Emerald",
+  "tw-teal": "Teal",
+  "tw-cyan": "Cyan",
+  "tw-sky": "Sky",
+  "tw-blue": "Blue",
+  "tw-indigo": "Indigo",
+  "tw-violet": "Violet",
+  "tw-purple": "Purple",
+  "tw-fuchsia": "Fuchsia",
+  "tw-pink": "Pink",
+  "tw-rose": "Rose"
 };
 
 // src/i18n/theme-labels.es.json
@@ -1739,7 +1756,24 @@ var theme_labels_es_default = {
   redwood: "Secuoya",
   sakura: "Sakura",
   terracotta: "Terracota",
-  tomato: "Tomate"
+  tomato: "Tomate",
+  "tw-red": "Rojo",
+  "tw-orange": "Naranja",
+  "tw-amber": "\xC1mbar",
+  "tw-yellow": "Amarillo",
+  "tw-lime": "Lima",
+  "tw-green": "Verde",
+  "tw-emerald": "Esmeralda",
+  "tw-teal": "Verde Azulado",
+  "tw-cyan": "Cian",
+  "tw-sky": "Azul Cielo",
+  "tw-blue": "Azul",
+  "tw-indigo": "\xCDndigo",
+  "tw-violet": "Violeta",
+  "tw-purple": "P\xFArpura",
+  "tw-fuchsia": "Fucsia",
+  "tw-pink": "Rosa",
+  "tw-rose": "Rosa"
 };
 
 // src/i18n/theme-labels.pt.json
@@ -1967,7 +2001,24 @@ var theme_labels_pt_default = {
   redwood: "Sequoia",
   sakura: "Sakura",
   terracotta: "Terracota",
-  tomato: "Tomate"
+  tomato: "Tomate",
+  "tw-red": "Vermelho",
+  "tw-orange": "Laranja",
+  "tw-amber": "\xC2mbar",
+  "tw-yellow": "Amarelo",
+  "tw-lime": "Lima",
+  "tw-green": "Verde",
+  "tw-emerald": "Esmeralda",
+  "tw-teal": "Ciano",
+  "tw-cyan": "Ciano Claro",
+  "tw-sky": "Azul C\xE9u",
+  "tw-blue": "Azul",
+  "tw-indigo": "\xCDndigo",
+  "tw-violet": "Violeta",
+  "tw-purple": "Roxo",
+  "tw-fuchsia": "F\xFAcsia",
+  "tw-pink": "Rosa",
+  "tw-rose": "Rosa"
 };
 
 // src/i18n/theme-category-labels.en.json
