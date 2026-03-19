@@ -1151,6 +1151,107 @@ var NEUTRAL_KEYS = [
   "border",
   "input"
 ];
+var DEFAULT_LABELS = {
+  en: {
+    "ui.primary": "Primary",
+    "ui.secondary": "Secondary",
+    "ui.neutralBase": "Neutral base",
+    "ui.auto": "Auto",
+    "ui.usingPreset": "Using preset",
+    "ui.autoFromPrimary": "Auto from primary",
+    "ui.primaryFamily": "Primary family",
+    "ui.surfacesSuffix": "surfaces",
+    "ui.pattern": "Pattern",
+    "ui.pattern.none": "No pattern",
+    "ui.pattern.size": "Size",
+    "ui.pattern.density": "Density",
+    "ui.backgroundImage": "Background Image",
+    "ui.backgroundPlaceholder": "https://\u2026 or url('\u2026') or gradient CSS",
+    "ui.clear": "Clear",
+    "ui.patternOverlayHint": "Pattern always overlays on top of background image.",
+    "ui.overrideOnPreset": "overrides on preset",
+    "ui.font.body": "body",
+    "ui.font.heading": "heading",
+    "ui.font.sameAsBody": "Same as body",
+    "ui.font.systemDefault": "System default",
+    "ui.font.systemDefaultSans": "System default (sans-serif)",
+    "ui.font.systemSerif": "System serif",
+    "ui.size.sm": "SM",
+    "ui.size.md": "MD",
+    "ui.size.lg": "LG",
+    "ui.opacity.subtle": "Subtle",
+    "ui.opacity.normal": "Normal",
+    "ui.opacity.bold": "Bold",
+    "ui.neutral.none": "none"
+  },
+  es: {
+    "ui.primary": "Primario",
+    "ui.secondary": "Secundario",
+    "ui.neutralBase": "Base neutral",
+    "ui.auto": "Auto",
+    "ui.usingPreset": "Usando preset",
+    "ui.autoFromPrimary": "Auto desde primario",
+    "ui.primaryFamily": "Familia primaria",
+    "ui.surfacesSuffix": "superficies",
+    "ui.pattern": "Patr\xF3n",
+    "ui.pattern.none": "Sin patr\xF3n",
+    "ui.pattern.size": "Tama\xF1o",
+    "ui.pattern.density": "Densidad",
+    "ui.backgroundImage": "Imagen de fondo",
+    "ui.backgroundPlaceholder": "https://\u2026 o url('\u2026') o CSS de gradiente",
+    "ui.clear": "Borrar",
+    "ui.patternOverlayHint": "El patr\xF3n siempre se superpone a la imagen de fondo.",
+    "ui.overrideOnPreset": "sobrescribe el preset",
+    "ui.font.body": "cuerpo",
+    "ui.font.heading": "t\xEDtulos",
+    "ui.font.sameAsBody": "Igual que cuerpo",
+    "ui.font.systemDefault": "Sistema por defecto",
+    "ui.font.systemDefaultSans": "Sistema por defecto (sans-serif)",
+    "ui.font.systemSerif": "Sistema serif",
+    "ui.size.sm": "SM",
+    "ui.size.md": "MD",
+    "ui.size.lg": "LG",
+    "ui.opacity.subtle": "Sutil",
+    "ui.opacity.normal": "Normal",
+    "ui.opacity.bold": "Fuerte",
+    "ui.neutral.none": "ninguno"
+  },
+  pt: {
+    "ui.primary": "Prim\xE1rio",
+    "ui.secondary": "Secund\xE1rio",
+    "ui.neutralBase": "Base neutra",
+    "ui.auto": "Auto",
+    "ui.usingPreset": "Usando preset",
+    "ui.autoFromPrimary": "Auto do prim\xE1rio",
+    "ui.primaryFamily": "Fam\xEDlia prim\xE1ria",
+    "ui.surfacesSuffix": "superf\xEDcies",
+    "ui.pattern": "Padr\xE3o",
+    "ui.pattern.none": "Sem padr\xE3o",
+    "ui.pattern.size": "Tamanho",
+    "ui.pattern.density": "Densidade",
+    "ui.backgroundImage": "Imagem de fundo",
+    "ui.backgroundPlaceholder": "https://\u2026 ou url('\u2026') ou CSS de gradiente",
+    "ui.clear": "Limpar",
+    "ui.patternOverlayHint": "O padr\xE3o sempre sobrep\xF5e a imagem de fundo.",
+    "ui.overrideOnPreset": "sobrescreve o preset",
+    "ui.font.body": "corpo",
+    "ui.font.heading": "t\xEDtulos",
+    "ui.font.sameAsBody": "Igual ao corpo",
+    "ui.font.systemDefault": "Sistema padr\xE3o",
+    "ui.font.systemDefaultSans": "Sistema padr\xE3o (sans-serif)",
+    "ui.font.systemSerif": "Sistema serif",
+    "ui.size.sm": "SM",
+    "ui.size.md": "MD",
+    "ui.size.lg": "LG",
+    "ui.opacity.subtle": "Suave",
+    "ui.opacity.normal": "Normal",
+    "ui.opacity.bold": "Forte",
+    "ui.neutral.none": "nenhum"
+  }
+};
+function translate(labels, locale, key, fallback) {
+  return labels?.[locale]?.[key] ?? DEFAULT_LABELS[locale][key] ?? fallback;
+}
 function getSwatchColors(theme, mode = "light") {
   const t = mode === "dark" ? theme.dark : theme.light;
   return [resolveColor(t.background), resolveColor(t.primary), resolveColor(t.secondary)];
@@ -1231,17 +1332,20 @@ function ThemeCustomPalettePicker({
   onNeutralChange,
   className,
   title,
-  subtitle
+  subtitle,
+  labels,
+  locale = "en"
 }) {
+  const t = (key, fallback) => translate(labels, locale, key, fallback);
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: cn("space-y-4", className), children: [
     /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "flex items-baseline gap-2", children: [
       /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "text-[11px] font-semibold uppercase tracking-wide text-muted-foreground", children: title }),
       subtitle && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "text-[11px] text-muted-foreground/70", children: subtitle })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "space-y-2", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h4", { className: "text-xs font-semibold text-muted-foreground", children: "Primary" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h4", { className: "text-xs font-semibold text-muted-foreground", children: t("ui.primary", "Primary") }),
       /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "flex flex-wrap items-center gap-2", children: [
-        hasPreset && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Button, { variant: primary === null ? "secondary" : "outline", size: "xs", onClick: () => onPrimaryChange(null), children: "Auto" }),
+        hasPreset && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Button, { variant: primary === null ? "secondary" : "outline", size: "xs", onClick: () => onPrimaryChange(null), children: t("ui.auto", "Auto") }),
         TAILWIND_COLORS2.map((color) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
           "button",
           {
@@ -1256,12 +1360,12 @@ function ThemeCustomPalettePicker({
           color
         ))
       ] }),
-      primary === null && hasPreset && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "text-[11px] text-muted-foreground", children: "Using preset" })
+      primary === null && hasPreset && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "text-[11px] text-muted-foreground", children: t("ui.usingPreset", "Using preset") })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "space-y-2", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h4", { className: "text-xs font-semibold text-muted-foreground", children: "Secondary" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h4", { className: "text-xs font-semibold text-muted-foreground", children: t("ui.secondary", "Secondary") }),
       /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "flex flex-wrap items-center gap-2", children: [
-        hasPreset ? /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Button, { variant: secondary === null ? "secondary" : "outline", size: "xs", onClick: () => onSecondaryChange(null), children: "Auto" }) : /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+        hasPreset ? /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Button, { variant: secondary === null ? "secondary" : "outline", size: "xs", onClick: () => onSecondaryChange(null), children: t("ui.auto", "Auto") }) : /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
           "button",
           {
             onClick: () => onSecondaryChange(null),
@@ -1289,18 +1393,18 @@ function ThemeCustomPalettePicker({
           color
         ))
       ] }),
-      secondary === null && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "text-[11px] text-muted-foreground", children: hasPreset ? "Using preset" : "Auto from primary" })
+      secondary === null && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "text-[11px] text-muted-foreground", children: hasPreset ? t("ui.usingPreset", "Using preset") : t("ui.autoFromPrimary", "Auto from primary") })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "space-y-2", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h4", { className: "text-xs font-semibold text-muted-foreground", children: "Neutral base" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h4", { className: "text-xs font-semibold text-muted-foreground", children: t("ui.neutralBase", "Neutral base") }),
       /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "flex flex-wrap items-center gap-2", children: [
-        hasPreset ? /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Button, { variant: neutral === null ? "secondary" : "outline", size: "xs", onClick: () => onNeutralChange(null), children: "Auto" }) : /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+        hasPreset ? /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Button, { variant: neutral === null ? "secondary" : "outline", size: "xs", onClick: () => onNeutralChange(null), children: t("ui.auto", "Auto") }) : /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
           Button,
           {
             variant: neutral === null || neutral === "none" ? "secondary" : "outline",
             size: "xs",
             onClick: () => onNeutralChange("none"),
-            children: "none"
+            children: t("ui.neutral.none", "none")
           }
         ),
         NEUTRAL_COLORS.map((color) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
@@ -1314,26 +1418,27 @@ function ThemeCustomPalettePicker({
           color
         ))
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "text-[11px] text-muted-foreground", children: neutral === null ? hasPreset ? "Using preset" : "Primary family" : neutral === "none" ? "Primary family" : `${neutral} surfaces` })
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "text-[11px] text-muted-foreground", children: neutral === null ? hasPreset ? t("ui.usingPreset", "Using preset") : t("ui.primaryFamily", "Primary family") : neutral === "none" ? t("ui.primaryFamily", "Primary family") : `${neutral} ${t("ui.surfacesSuffix", "surfaces")}` })
     ] })
   ] });
 }
-function ThemeFontsPicker({ value, onChange, className }) {
+function ThemeFontsPicker({ value, onChange, className, labels, locale = "en" }) {
+  const t = (key, fallback) => translate(labels, locale, key, fallback);
   const DEFAULT = "__default__";
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: cn("space-y-3", className), children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "space-y-2", children: ["body", "heading"].map((fontType) => /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "grid grid-cols-[64px_1fr] items-center gap-3", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Label, { className: "text-xs text-muted-foreground capitalize", children: fontType }),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Label, { className: "text-xs text-muted-foreground capitalize", children: fontType === "heading" ? t("ui.font.heading", "heading") : t("ui.font.body", "body") }),
     /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(
       Select,
       {
         value: value[fontType] ?? DEFAULT,
         onValueChange: (v) => onChange({ ...value, [fontType]: v === DEFAULT ? void 0 : v }),
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectValue, { placeholder: fontType === "heading" ? "Same as body" : "System default" }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectValue, { placeholder: fontType === "heading" ? t("ui.font.sameAsBody", "Same as body") : t("ui.font.systemDefault", "System default") }) }),
           /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(SelectContent, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectGroup, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectItem, { value: DEFAULT, children: fontType === "heading" ? "Same as body" : "System default" }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectGroup, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectItem, { value: DEFAULT, children: fontType === "heading" ? t("ui.font.sameAsBody", "Same as body") : t("ui.font.systemDefault", "System default") }) }),
             FONT_GROUPS.map((group) => /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(SelectGroup, { children: [
               /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectLabel, { children: group.label }),
-              group.options.map((f) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectItem, { value: f.value, children: f.label }, f.value))
+              group.options.map((f) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectItem, { value: f.value, children: f.label === "System default (sans-serif)" ? t("ui.font.systemDefaultSans", f.label) : f.label === "System serif" ? t("ui.font.systemSerif", f.label) : f.label }, f.value))
             ] }, group.label))
           ] })
         ]
@@ -1341,10 +1446,11 @@ function ThemeFontsPicker({ value, onChange, className }) {
     )
   ] }, fontType)) }) });
 }
-function ThemePatternsPicker({ value, onChange, className }) {
+function ThemePatternsPicker({ value, onChange, className, labels, locale = "en" }) {
+  const t = (key, fallback) => translate(labels, locale, key, fallback);
   const activeType = value.type;
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: cn("space-y-3", className), children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h4", { className: "text-sm font-semibold", children: "Pattern" }),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h4", { className: "text-sm font-semibold", children: t("ui.pattern", "Pattern") }),
     /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "flex flex-wrap gap-2", children: PATTERN_TYPES.map((pt) => {
       const active = activeType === pt;
       const ps = pt !== "none" ? generatePattern({ type: pt, opacity: 0.18, size: "sm" }) : null;
@@ -1362,48 +1468,50 @@ function ThemePatternsPicker({ value, onChange, className }) {
             backgroundSize: ps?.backgroundSize ?? "auto",
             backgroundPosition: ps?.backgroundPosition ?? "center"
           },
-          children: pt === "none" && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { children: "none" })
+          children: pt === "none" && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { children: t("ui.neutral.none", "none") })
         },
         pt
       );
     }) }),
     activeType !== "none" && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "space-y-2", children: [
       /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "flex items-center gap-3", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "w-16 text-xs text-muted-foreground", children: "Size" }),
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "flex gap-2", children: ["sm", "md", "lg"].map((s) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Button, { variant: (value.size ?? "md") === s ? "secondary" : "outline", size: "xs", onClick: () => onChange({ ...value, size: s }), children: s.toUpperCase() }, s)) })
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "w-16 text-xs text-muted-foreground", children: t("ui.pattern.size", "Size") }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "flex gap-2", children: ["sm", "md", "lg"].map((s) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Button, { variant: (value.size ?? "md") === s ? "secondary" : "outline", size: "xs", onClick: () => onChange({ ...value, size: s }), children: s === "sm" ? t("ui.size.sm", "SM") : s === "md" ? t("ui.size.md", "MD") : t("ui.size.lg", "LG") }, s)) })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "flex items-center gap-3", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "w-16 text-xs text-muted-foreground", children: "Density" }),
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "w-16 text-xs text-muted-foreground", children: t("ui.pattern.density", "Density") }),
         /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "flex gap-2", children: PATTERN_OPACITY_PRESETS.map((o) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
           Button,
           {
             variant: (value.opacity ?? 0.12) === o.value ? "secondary" : "outline",
             size: "xs",
             onClick: () => onChange({ ...value, opacity: o.value }),
-            children: o.label
+            children: o.label === "Subtle" ? t("ui.opacity.subtle", o.label) : o.label === "Normal" ? t("ui.opacity.normal", o.label) : t("ui.opacity.bold", o.label)
           },
           o.label
         )) })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "text-xs text-muted-foreground", children: activeType === "none" ? "No pattern" : PATTERN_LABELS[activeType] })
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "text-xs text-muted-foreground", children: activeType === "none" ? t("ui.pattern.none", "No pattern") : labels?.[locale]?.[`ui.pattern.${activeType}`] ?? PATTERN_LABELS[activeType] })
   ] });
 }
-function ThemeRadiusPicker({ value, onChange, className }) {
+function ThemeRadiusPicker({ value, onChange, className, labels, locale = "en" }) {
+  const t = (key, fallback) => translate(labels, locale, key, fallback);
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: cn("space-y-3", className), children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "flex flex-wrap gap-2", children: RADIUS_PRESETS.map((r) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
     Button,
     {
       variant: value === r.value ? "secondary" : "outline",
       size: "xs",
       onClick: () => onChange(r.value),
-      children: r.label
+      children: r.label === "None" ? t("ui.neutral.none", r.label) : r.label
     },
     r.value
   )) }) });
 }
-function ThemeBackgroundImagePicker({ value, onChange, className }) {
+function ThemeBackgroundImagePicker({ value, onChange, className, labels, locale = "en" }) {
+  const t = (key, fallback) => translate(labels, locale, key, fallback);
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: cn("space-y-3", className), children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h4", { className: "text-sm font-semibold", children: "Background Image" }),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h4", { className: "text-sm font-semibold", children: t("ui.backgroundImage", "Background Image") }),
     /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "flex flex-wrap gap-2", children: [
       /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
         Input,
@@ -1418,13 +1526,13 @@ function ThemeBackgroundImagePicker({ value, onChange, className }) {
             const val = /^https?:\/\/|^\//.test(raw2) && !raw2.startsWith("url(") ? `url('${raw2}')` : raw2;
             onChange(val);
           },
-          placeholder: "https://\u2026 or url('\u2026') or gradient CSS",
+          placeholder: t("ui.backgroundPlaceholder", "https://\u2026 or url('\u2026') or gradient CSS"),
           className: "text-xs"
         }
       ),
-      value && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Button, { variant: "outline", size: "xs", onClick: () => onChange(""), children: "Clear" })
+      value && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Button, { variant: "outline", size: "xs", onClick: () => onChange(""), children: t("ui.clear", "Clear") })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "text-xs text-muted-foreground", children: "Pattern always overlays on top of background image." })
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("p", { className: "text-xs text-muted-foreground", children: t("ui.patternOverlayHint", "Pattern always overlays on top of background image.") })
   ] });
 }
 function buildTheme(themes, selectedPresetName, customPrimary, customSecondary, customNeutral) {
@@ -1574,14 +1682,16 @@ function ThemePicker({
         onPrimaryChange: setCustomPrimary,
         onSecondaryChange: setCustomSecondary,
         onNeutralChange: setCustomNeutral,
-        subtitle: hasPreset ? "overrides on preset" : void 0
+        subtitle: hasPreset ? translate(labels, locale, "ui.overrideOnPreset", "overrides on preset") : void 0,
+        labels,
+        locale
       }
     ) }),
     sections.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "space-y-4 border-t border-border pt-4", children: [
-      sections.includes("fonts") && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ThemeFontsPicker, { value: overrideFonts, onChange: setOverrideFonts }),
-      sections.includes("patterns") && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ThemePatternsPicker, { value: overridePattern, onChange: setOverridePattern }),
-      sections.includes("radius") && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ThemeRadiusPicker, { value: overrideRadius, onChange: setOverrideRadius }),
-      sections.includes("background") && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ThemeBackgroundImagePicker, { value: overrideBgImage, onChange: setOverrideBgImage })
+      sections.includes("fonts") && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ThemeFontsPicker, { value: overrideFonts, onChange: setOverrideFonts, labels, locale }),
+      sections.includes("patterns") && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ThemePatternsPicker, { value: overridePattern, onChange: setOverridePattern, labels, locale }),
+      sections.includes("radius") && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ThemeRadiusPicker, { value: overrideRadius, onChange: setOverrideRadius, labels, locale }),
+      sections.includes("background") && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ThemeBackgroundImagePicker, { value: overrideBgImage, onChange: setOverrideBgImage, labels, locale })
     ] })
   ] });
 }

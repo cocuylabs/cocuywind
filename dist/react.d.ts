@@ -154,32 +154,42 @@ interface ThemeCustomPalettePickerProps {
     className?: string;
     title?: string;
     subtitle?: string;
+    labels?: Record<string, Record<string, string>>;
+    locale?: 'en' | 'es' | 'pt';
 }
-declare function ThemeCustomPalettePicker({ hasPreset, primary, secondary, neutral, onPrimaryChange, onSecondaryChange, onNeutralChange, className, title, subtitle, }: ThemeCustomPalettePickerProps): react_jsx_runtime.JSX.Element;
+declare function ThemeCustomPalettePicker({ hasPreset, primary, secondary, neutral, onPrimaryChange, onSecondaryChange, onNeutralChange, className, title, subtitle, labels, locale, }: ThemeCustomPalettePickerProps): react_jsx_runtime.JSX.Element;
 interface ThemeFontsPickerProps {
     value: ThemeFonts;
     onChange: (value: ThemeFonts) => void;
     className?: string;
+    labels?: Record<string, Record<string, string>>;
+    locale?: 'en' | 'es' | 'pt';
 }
-declare function ThemeFontsPicker({ value, onChange, className }: ThemeFontsPickerProps): react_jsx_runtime.JSX.Element;
+declare function ThemeFontsPicker({ value, onChange, className, labels, locale }: ThemeFontsPickerProps): react_jsx_runtime.JSX.Element;
 interface ThemePatternsPickerProps {
     value: ThemePattern;
     onChange: (value: ThemePattern) => void;
     className?: string;
+    labels?: Record<string, Record<string, string>>;
+    locale?: 'en' | 'es' | 'pt';
 }
-declare function ThemePatternsPicker({ value, onChange, className }: ThemePatternsPickerProps): react_jsx_runtime.JSX.Element;
+declare function ThemePatternsPicker({ value, onChange, className, labels, locale }: ThemePatternsPickerProps): react_jsx_runtime.JSX.Element;
 interface ThemeRadiusPickerProps {
     value: string;
     onChange: (value: string) => void;
     className?: string;
+    labels?: Record<string, Record<string, string>>;
+    locale?: 'en' | 'es' | 'pt';
 }
-declare function ThemeRadiusPicker({ value, onChange, className }: ThemeRadiusPickerProps): react_jsx_runtime.JSX.Element;
+declare function ThemeRadiusPicker({ value, onChange, className, labels, locale }: ThemeRadiusPickerProps): react_jsx_runtime.JSX.Element;
 interface ThemeBackgroundImagePickerProps {
     value: string;
     onChange: (value: string) => void;
     className?: string;
+    labels?: Record<string, Record<string, string>>;
+    locale?: 'en' | 'es' | 'pt';
 }
-declare function ThemeBackgroundImagePicker({ value, onChange, className }: ThemeBackgroundImagePickerProps): react_jsx_runtime.JSX.Element;
+declare function ThemeBackgroundImagePicker({ value, onChange, className, labels, locale }: ThemeBackgroundImagePickerProps): react_jsx_runtime.JSX.Element;
 declare function ThemePicker({ themes, value, onChange, allowCustom, sections, className, locale, labels, paletteMaxHeight, paletteSwatchSize, showPalette, showCustomPalette, }: ThemePickerProps): react_jsx_runtime.JSX.Element;
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
