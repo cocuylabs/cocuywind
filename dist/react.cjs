@@ -1235,7 +1235,7 @@ function ThemeCustomPalettePicker({
 }) {
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: cn("space-y-4", className), children: [
     /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "flex items-baseline gap-2", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "text-[11px] font-semibold tracking-wide text-muted-foreground", children: title }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "text-[11px] font-semibold uppercase tracking-wide text-muted-foreground", children: title }),
       subtitle && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "text-[11px] text-muted-foreground/70", children: subtitle })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("section", { className: "space-y-2", children: [

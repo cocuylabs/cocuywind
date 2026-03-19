@@ -235,7 +235,7 @@ export function ThemeCustomPalettePicker({
   return (
     <div className={cn('space-y-4', className)}>
       <div className="flex items-baseline gap-2">
-        <span className="text-[11px] font-semibold tracking-wide text-muted-foreground">{title}</span>
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{title}</span>
         {subtitle && <span className="text-[11px] text-muted-foreground/70">{subtitle}</span>}
       </div>
 
@@ -355,11 +355,10 @@ export function ThemeFontsPicker({ value, onChange, className }: ThemeFontsPicke
   const DEFAULT = '__default__'
   return (
     <div className={cn('space-y-3', className)}>
-      <h4 className="text-sm font-semibold">Fonts</h4>
       <div className="space-y-2">
         {(['body', 'heading'] as const).map(fontType => (
           <div key={fontType} className="grid grid-cols-[64px_1fr] items-center gap-3">
-            <Label className="text-xs text-muted-foreground">{fontType}</Label>
+            <Label className="text-xs text-muted-foreground capitalize">{fontType}</Label>
             <Select
               value={value[fontType] ?? DEFAULT}
               onValueChange={(v) => onChange({ ...value, [fontType]: v === DEFAULT ? undefined : v })}
@@ -472,7 +471,6 @@ export interface ThemeRadiusPickerProps {
 export function ThemeRadiusPicker({ value, onChange, className }: ThemeRadiusPickerProps) {
   return (
     <div className={cn('space-y-3', className)}>
-      <h4 className="text-sm font-semibold">Border Radius</h4>
       <div className="flex flex-wrap gap-2">
         {RADIUS_PRESETS.map(r => (
           <Button
