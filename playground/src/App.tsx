@@ -106,7 +106,7 @@ function Demo() {
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--background)', backgroundImage: 'var(--pattern-image, none), var(--bg-image, none)', backgroundSize: 'var(--pattern-size, auto), cover', backgroundPosition: 'var(--pattern-position, center), center', color: 'var(--foreground)', fontFamily: 'var(--font-body, system-ui, sans-serif)' }}>
       {/* Header */}
       <div style={{ padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--primary)', color: 'var(--primary-foreground)' }}>
-        <h1 style={{ fontSize: 18, fontWeight: 700, color: 'var(--primary-foreground)' }}>Tailtheme Playground</h1>
+        <h1 style={{ fontSize: 18, fontWeight: 700, color: 'var(--primary-foreground)' }}>Cocuywind Playground</h1>
         <div style={{ display: 'flex', gap: 8 }}>
           {(['en', 'es', 'pt'] as const).map(l => (
             <button key={l} onClick={() => setLocale(l)} style={{

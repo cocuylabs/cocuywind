@@ -5,6 +5,12 @@ import path from 'path'
 
 export default defineConfig({
   root: path.resolve(__dirname, 'playground'),
+  server: {
+    fs: {
+      // Allow Vite to watch and serve source files outside the playground root.
+      allow: [path.resolve(__dirname)],
+    },
+  },
   plugins: [
     react(),
     tailwindcss(),

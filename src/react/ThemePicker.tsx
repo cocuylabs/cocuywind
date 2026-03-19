@@ -235,7 +235,7 @@ export function ThemeCustomPalettePicker({
   return (
     <div className={cn('space-y-4', className)}>
       <div className="flex items-baseline gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{title}</span>
+        <span className="text-[11px] font-semibold tracking-wide text-muted-foreground">{title}</span>
         {subtitle && <span className="text-[11px] text-muted-foreground/70">{subtitle}</span>}
       </div>
 
