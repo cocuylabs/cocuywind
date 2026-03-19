@@ -1857,6 +1857,36 @@ var theme_labels_pt_default = {
   tomato: "Tomate"
 };
 
+// src/i18n/theme-category-labels.en.json
+var theme_category_labels_en_default = {
+  all: "All",
+  curated: "Featured",
+  basic: "Basic",
+  claude: "Studio",
+  tweakcn: "Signature",
+  community: "Community"
+};
+
+// src/i18n/theme-category-labels.es.json
+var theme_category_labels_es_default = {
+  all: "Todos",
+  curated: "Destacados",
+  basic: "B\xE1sicos",
+  claude: "Studio",
+  tweakcn: "Signature",
+  community: "Comunidad"
+};
+
+// src/i18n/theme-category-labels.pt.json
+var theme_category_labels_pt_default = {
+  all: "Todos",
+  curated: "Destaques",
+  basic: "B\xE1sicos",
+  claude: "Studio",
+  tweakcn: "Signature",
+  community: "Comunidade"
+};
+
 // src/themes/builtin/default.ts
 var defaultTheme = defineTheme({
   name: "default",
@@ -13689,6 +13719,9 @@ export {
   tailwindBasicThemes,
   tangerineTheme,
   tealTheme,
+  theme_category_labels_en_default as themeCategoryLabelsEn,
+  theme_category_labels_es_default as themeCategoryLabelsEs,
+  theme_category_labels_pt_default as themeCategoryLabelsPt,
   themeFromCSS,
   themeFromCSSVars,
   themeFromSnippetOutput,

@@ -90,6 +90,9 @@ __export(src_exports, {
   tailwindBasicThemes: () => tailwindBasicThemes,
   tangerineTheme: () => tangerineTheme,
   tealTheme: () => tealTheme,
+  themeCategoryLabelsEn: () => theme_category_labels_en_default,
+  themeCategoryLabelsEs: () => theme_category_labels_es_default,
+  themeCategoryLabelsPt: () => theme_category_labels_pt_default,
   themeFromCSS: () => themeFromCSS,
   themeFromCSSVars: () => themeFromCSSVars,
   themeFromSnippetOutput: () => themeFromSnippetOutput,
@@ -1965,6 +1968,36 @@ var theme_labels_pt_default = {
   sakura: "Sakura",
   terracotta: "Terracota",
   tomato: "Tomate"
+};
+
+// src/i18n/theme-category-labels.en.json
+var theme_category_labels_en_default = {
+  all: "All",
+  curated: "Featured",
+  basic: "Basic",
+  claude: "Studio",
+  tweakcn: "Signature",
+  community: "Community"
+};
+
+// src/i18n/theme-category-labels.es.json
+var theme_category_labels_es_default = {
+  all: "Todos",
+  curated: "Destacados",
+  basic: "B\xE1sicos",
+  claude: "Studio",
+  tweakcn: "Signature",
+  community: "Comunidad"
+};
+
+// src/i18n/theme-category-labels.pt.json
+var theme_category_labels_pt_default = {
+  all: "Todos",
+  curated: "Destaques",
+  basic: "B\xE1sicos",
+  claude: "Studio",
+  tweakcn: "Signature",
+  community: "Comunidade"
 };
 
 // src/themes/builtin/default.ts
@@ -13800,6 +13833,9 @@ var themes = [...builtinThemes, ...claudeThemes, ...tweakcnThemes];
   tailwindBasicThemes,
   tangerineTheme,
   tealTheme,
+  themeCategoryLabelsEn,
+  themeCategoryLabelsEs,
+  themeCategoryLabelsPt,
   themeFromCSS,
   themeFromCSSVars,
   themeFromSnippetOutput,

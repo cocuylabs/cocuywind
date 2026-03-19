@@ -499,7 +499,7 @@ var caffeine$2 = "Caffeine";
 var candy$2 = "Candy";
 var candyland$2 = "Candyland";
 var catppuccin$2 = "Catppuccin";
-var claude$2 = "Claude";
+var claude$5 = "Claude";
 var claymorphism$2 = "Claymorphism";
 var cyberpunk$2 = "Cyberpunk";
 var forest$2 = "Forest Green";
@@ -537,7 +537,7 @@ var themeLabels_en = {
 	candy: candy$2,
 	candyland: candyland$2,
 	catppuccin: catppuccin$2,
-	claude: claude$2,
+	claude: claude$5,
 	claymorphism: claymorphism$2,
 	"clean-slate": "Clean Slate",
 	"community-1-cmlwi5": "Cobalt Vista",
@@ -760,7 +760,7 @@ var caffeine$1 = "Cafeína";
 var candy$1 = "Caramelo";
 var candyland$1 = "Mundo de Dulces";
 var catppuccin$1 = "Catppuccin";
-var claude$1 = "Claude";
+var claude$4 = "Claude";
 var claymorphism$1 = "Claymorphism";
 var cyberpunk$1 = "Cyberpunk";
 var forest$1 = "Verde Bosque";
@@ -798,7 +798,7 @@ var themeLabels_es = {
 	candy: candy$1,
 	candyland: candyland$1,
 	catppuccin: catppuccin$1,
-	claude: claude$1,
+	claude: claude$4,
 	claymorphism: claymorphism$1,
 	"clean-slate": "Página en Blanco",
 	"community-1-cmlwi5": "Vista Cobalto",
@@ -1021,7 +1021,7 @@ var caffeine = "Cafeína";
 var candy = "Doce";
 var candyland = "Reino dos Doces";
 var catppuccin = "Catppuccin";
-var claude = "Claude";
+var claude$3 = "Claude";
 var claymorphism = "Claymorphism";
 var cyberpunk = "Cyberpunk";
 var forest = "Verde Floresta";
@@ -1059,7 +1059,7 @@ var themeLabels_pt = {
 	candy: candy,
 	candyland: candyland,
 	catppuccin: catppuccin,
-	claude: claude,
+	claude: claude$3,
 	claymorphism: claymorphism,
 	"clean-slate": "Página Limpa",
 	"community-1-cmlwi5": "Vista Cobalto",
@@ -1276,6 +1276,51 @@ var themeLabels_pt = {
 	tomato: tomato
 };
 
+var all$2 = "All";
+var curated$2 = "Featured";
+var basic$2 = "Basic";
+var claude$2 = "Studio";
+var tweakcn$2 = "Signature";
+var community$2 = "Community";
+var themeCategoryLabels_en = {
+	all: all$2,
+	curated: curated$2,
+	basic: basic$2,
+	claude: claude$2,
+	tweakcn: tweakcn$2,
+	community: community$2
+};
+
+var all$1 = "Todos";
+var curated$1 = "Destacados";
+var basic$1 = "Básicos";
+var claude$1 = "Studio";
+var tweakcn$1 = "Signature";
+var community$1 = "Comunidad";
+var themeCategoryLabels_es = {
+	all: all$1,
+	curated: curated$1,
+	basic: basic$1,
+	claude: claude$1,
+	tweakcn: tweakcn$1,
+	community: community$1
+};
+
+var all = "Todos";
+var curated = "Destaques";
+var basic = "Básicos";
+var claude = "Studio";
+var tweakcn = "Signature";
+var community = "Comunidade";
+var themeCategoryLabels_pt = {
+	all: all,
+	curated: curated,
+	basic: basic,
+	claude: claude,
+	tweakcn: tweakcn,
+	community: community
+};
+
 declare const defaultTheme: Theme;
 
 declare const oceanTheme: Theme;
@@ -1383,4 +1428,4 @@ declare const communityThemes: Theme[];
 /** All themes — 10 curated built-in + 17 Tailwind basic + 10 Claude + 37 tweakcn */
 declare const themes: Theme[];
 
-export { type ColorToken, type CreateThemeConfig, FONTS, type FontFamily, type FontKey, type PatternStyle, type PatternType, type RawColor, type ResolvedTokens, type StealMeta, type StoredTheme, TAILWIND_COLORS, type TailwindColor, type TailwindShade, type TailwindToken, type Theme, type ThemeFonts, type ThemePattern, type ThemeTokens, type ThemeValidationResult, type TweakCNRegistryEntry, type TweakCNThemeItem, VIVIDNESS_PRESETS, type VividnessPreset, adjustVividness, amberMinimalTheme, amberTheme, amethystHazeTheme, boldTechTheme, bookmarkletUrl, browserSnippet, bubblegumTheme, builtinThemes, caffeineTheme, candyTheme, candylandTheme, catppuccinTheme, claudeTheme, claudeThemes, claymorphismTheme, cleanSlateTheme, communityThemes, cosmicNightTheme, createTheme, cyberpunkTheme, defaultTheme, defineTheme, deserializeTheme, doom64Theme, elegantLuxuryTheme, extendTheme, fetchAllTweakCNThemes, fetchTweakCNRegistry, fetchTweakCNTheme, forestTheme, generateCSS, generatePattern, generateThemeVariables, googleFontsUrl, graphiteTheme, indigoTheme, kodamaGroveTheme, midnightBloomTheme, midnightTheme, mochaMousseTheme, modernMinimalTheme, natureTheme, neoBrutalismTheme, northernLightsTheme, notebookTheme, oceanBreezeTheme, oceanTheme, pastelDreamsTheme, perpetuityTheme, quantumRoseTheme, raw, resolveColor, resolveTokens, retroArcadeTheme, roseTheme, serializeTheme, solarDuskTheme, starryNightTheme, storedThemeToCSS, sunsetHorizonTheme, sunsetTheme, supabaseTheme, t3ChatTheme, tailwindBasicThemes, tangerineTheme, tealTheme, themeFromCSS, themeFromCSSVars, themeFromSnippetOutput, themeFromTweakCNItem, themeLabels_en as themeLabelsEn, themeLabels_es as themeLabelsEs, themeLabels_pt as themeLabelsPt, themes, tweakcnBookmarkletUrl, tweakcnSnippet, tweakcnThemes, twitterTheme, validateStoredTheme, vintagePaperTheme, violetBloomTheme };
+export { type ColorToken, type CreateThemeConfig, FONTS, type FontFamily, type FontKey, type PatternStyle, type PatternType, type RawColor, type ResolvedTokens, type StealMeta, type StoredTheme, TAILWIND_COLORS, type TailwindColor, type TailwindShade, type TailwindToken, type Theme, type ThemeFonts, type ThemePattern, type ThemeTokens, type ThemeValidationResult, type TweakCNRegistryEntry, type TweakCNThemeItem, VIVIDNESS_PRESETS, type VividnessPreset, adjustVividness, amberMinimalTheme, amberTheme, amethystHazeTheme, boldTechTheme, bookmarkletUrl, browserSnippet, bubblegumTheme, builtinThemes, caffeineTheme, candyTheme, candylandTheme, catppuccinTheme, claudeTheme, claudeThemes, claymorphismTheme, cleanSlateTheme, communityThemes, cosmicNightTheme, createTheme, cyberpunkTheme, defaultTheme, defineTheme, deserializeTheme, doom64Theme, elegantLuxuryTheme, extendTheme, fetchAllTweakCNThemes, fetchTweakCNRegistry, fetchTweakCNTheme, forestTheme, generateCSS, generatePattern, generateThemeVariables, googleFontsUrl, graphiteTheme, indigoTheme, kodamaGroveTheme, midnightBloomTheme, midnightTheme, mochaMousseTheme, modernMinimalTheme, natureTheme, neoBrutalismTheme, northernLightsTheme, notebookTheme, oceanBreezeTheme, oceanTheme, pastelDreamsTheme, perpetuityTheme, quantumRoseTheme, raw, resolveColor, resolveTokens, retroArcadeTheme, roseTheme, serializeTheme, solarDuskTheme, starryNightTheme, storedThemeToCSS, sunsetHorizonTheme, sunsetTheme, supabaseTheme, t3ChatTheme, tailwindBasicThemes, tangerineTheme, tealTheme, themeCategoryLabels_en as themeCategoryLabelsEn, themeCategoryLabels_es as themeCategoryLabelsEs, themeCategoryLabels_pt as themeCategoryLabelsPt, themeFromCSS, themeFromCSSVars, themeFromSnippetOutput, themeFromTweakCNItem, themeLabels_en as themeLabelsEn, themeLabels_es as themeLabelsEs, themeLabels_pt as themeLabelsPt, themes, tweakcnBookmarkletUrl, tweakcnSnippet, tweakcnThemes, twitterTheme, validateStoredTheme, vintagePaperTheme, violetBloomTheme };

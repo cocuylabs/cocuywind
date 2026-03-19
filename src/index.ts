@@ -71,6 +71,9 @@ export type { PatternStyle } from './patterns.js'
 export { default as themeLabelsEn } from './i18n/theme-labels.en.json'
 export { default as themeLabelsEs } from './i18n/theme-labels.es.json'
 export { default as themeLabelsPt } from './i18n/theme-labels.pt.json'
+export { default as themeCategoryLabelsEn } from './i18n/theme-category-labels.en.json'
+export { default as themeCategoryLabelsEs } from './i18n/theme-category-labels.es.json'
+export { default as themeCategoryLabelsPt } from './i18n/theme-category-labels.pt.json'
 
 // ─── Themes ───────────────────────────────────────────────────────────────────
 export { themes, builtinThemes, tweakcnThemes, communityThemes, tailwindBasicThemes, claudeThemes } from './themes/index.js'
