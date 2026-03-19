@@ -126,6 +126,109 @@ const NEUTRAL_KEYS   = [
   'border', 'input',
 ] as const
 
+const DEFAULT_LABELS: Record<'en' | 'es' | 'pt', Record<string, string>> = {
+  en: {
+    'ui.primary': 'Primary',
+    'ui.secondary': 'Secondary',
+    'ui.neutralBase': 'Neutral base',
+    'ui.auto': 'Auto',
+    'ui.usingPreset': 'Using preset',
+    'ui.autoFromPrimary': 'Auto from primary',
+    'ui.primaryFamily': 'Primary family',
+    'ui.surfacesSuffix': 'surfaces',
+    'ui.pattern': 'Pattern',
+    'ui.pattern.none': 'No pattern',
+    'ui.pattern.size': 'Size',
+    'ui.pattern.density': 'Density',
+    'ui.backgroundImage': 'Background Image',
+    'ui.backgroundPlaceholder': "https://… or url('…') or gradient CSS",
+    'ui.clear': 'Clear',
+    'ui.patternOverlayHint': 'Pattern always overlays on top of background image.',
+    'ui.overrideOnPreset': 'overrides on preset',
+    'ui.font.body': 'body',
+    'ui.font.heading': 'heading',
+    'ui.font.sameAsBody': 'Same as body',
+    'ui.font.systemDefault': 'System default',
+    'ui.font.systemDefaultSans': 'System default (sans-serif)',
+    'ui.font.systemSerif': 'System serif',
+    'ui.size.sm': 'SM',
+    'ui.size.md': 'MD',
+    'ui.size.lg': 'LG',
+    'ui.opacity.subtle': 'Subtle',
+    'ui.opacity.normal': 'Normal',
+    'ui.opacity.bold': 'Bold',
+    'ui.neutral.none': 'none',
+  },
+  es: {
+    'ui.primary': 'Primario',
+    'ui.secondary': 'Secundario',
+    'ui.neutralBase': 'Base neutral',
+    'ui.auto': 'Auto',
+    'ui.usingPreset': 'Usando preset',
+    'ui.autoFromPrimary': 'Auto desde primario',
+    'ui.primaryFamily': 'Familia primaria',
+    'ui.surfacesSuffix': 'superficies',
+    'ui.pattern': 'Patrón',
+    'ui.pattern.none': 'Sin patrón',
+    'ui.pattern.size': 'Tamaño',
+    'ui.pattern.density': 'Densidad',
+    'ui.backgroundImage': 'Imagen de fondo',
+    'ui.backgroundPlaceholder': "https://… o url('…') o CSS de gradiente",
+    'ui.clear': 'Borrar',
+    'ui.patternOverlayHint': 'El patrón siempre se superpone a la imagen de fondo.',
+    'ui.overrideOnPreset': 'sobrescribe el preset',
+    'ui.font.body': 'cuerpo',
+    'ui.font.heading': 'títulos',
+    'ui.font.sameAsBody': 'Igual que cuerpo',
+    'ui.font.systemDefault': 'Sistema por defecto',
+    'ui.font.systemDefaultSans': 'Sistema por defecto (sans-serif)',
+    'ui.font.systemSerif': 'Sistema serif',
+    'ui.size.sm': 'SM',
+    'ui.size.md': 'MD',
+    'ui.size.lg': 'LG',
+    'ui.opacity.subtle': 'Sutil',
+    'ui.opacity.normal': 'Normal',
+    'ui.opacity.bold': 'Fuerte',
+    'ui.neutral.none': 'ninguno',
+  },
+  pt: {
+    'ui.primary': 'Primário',
+    'ui.secondary': 'Secundário',
+    'ui.neutralBase': 'Base neutra',
+    'ui.auto': 'Auto',
+    'ui.usingPreset': 'Usando preset',
+    'ui.autoFromPrimary': 'Auto do primário',
+    'ui.primaryFamily': 'Família primária',
+    'ui.surfacesSuffix': 'superfícies',
+    'ui.pattern': 'Padrão',
+    'ui.pattern.none': 'Sem padrão',
+    'ui.pattern.size': 'Tamanho',
+    'ui.pattern.density': 'Densidade',
+    'ui.backgroundImage': 'Imagem de fundo',
+    'ui.backgroundPlaceholder': "https://… ou url('…') ou CSS de gradiente",
+    'ui.clear': 'Limpar',
+    'ui.patternOverlayHint': 'O padrão sempre sobrepõe a imagem de fundo.',
+    'ui.overrideOnPreset': 'sobrescreve o preset',
+    'ui.font.body': 'corpo',
+    'ui.font.heading': 'títulos',
+    'ui.font.sameAsBody': 'Igual ao corpo',
+    'ui.font.systemDefault': 'Sistema padrão',
+    'ui.font.systemDefaultSans': 'Sistema padrão (sans-serif)',
+    'ui.font.systemSerif': 'Sistema serif',
+    'ui.size.sm': 'SM',
+    'ui.size.md': 'MD',
+    'ui.size.lg': 'LG',
+    'ui.opacity.subtle': 'Suave',
+    'ui.opacity.normal': 'Normal',
+    'ui.opacity.bold': 'Forte',
+    'ui.neutral.none': 'nenhum',
+  },
+}
+
+function translate(labels: ThemePickerProps['labels'], locale: 'en' | 'es' | 'pt', key: string, fallback: string): string {
+  return labels?.[locale]?.[key] ?? DEFAULT_LABELS[locale][key] ?? fallback
+}
+
 function getSwatchColors(theme: Theme, mode: 'light' | 'dark' = 'light'): [string, string, string] {
   const t = mode === 'dark' ? theme.dark : theme.light
   return [resolveColor(t.background), resolveColor(t.primary), resolveColor(t.secondary)]
@@ -218,6 +321,8 @@ export interface ThemeCustomPalettePickerProps {
   className?: string
   title?: string
   subtitle?: string
+  labels?: Record<string, Record<string, string>>
+  locale?: 'en' | 'es' | 'pt'
 }
 
 export function ThemeCustomPalettePicker({
@@ -231,7 +336,10 @@ export function ThemeCustomPalettePicker({
   className,
   title,
   subtitle,
+  labels,
+  locale = 'en',
 }: ThemeCustomPalettePickerProps) {
+  const t = (key: string, fallback: string) => translate(labels, locale, key, fallback)
   return (
     <div className={cn('space-y-4', className)}>
       <div className="flex items-baseline gap-2">
@@ -240,11 +348,11 @@ export function ThemeCustomPalettePicker({
       </div>
 
       <section className="space-y-2">
-        <h4 className="text-xs font-semibold text-muted-foreground">Primary</h4>
+        <h4 className="text-xs font-semibold text-muted-foreground">{t('ui.primary', 'Primary')}</h4>
         <div className="flex flex-wrap items-center gap-2">
           {hasPreset && (
             <Button variant={primary === null ? 'secondary' : 'outline'} size="xs" onClick={() => onPrimaryChange(null)}>
-              Auto
+              {t('ui.auto', 'Auto')}
             </Button>
           )}
           {TAILWIND_COLORS.map(color => (
@@ -261,16 +369,16 @@ export function ThemeCustomPalettePicker({
           ))}
         </div>
         {primary === null && hasPreset && (
-          <p className="text-[11px] text-muted-foreground">Using preset</p>
+          <p className="text-[11px] text-muted-foreground">{t('ui.usingPreset', 'Using preset')}</p>
         )}
       </section>
 
       <section className="space-y-2">
-        <h4 className="text-xs font-semibold text-muted-foreground">Secondary</h4>
+        <h4 className="text-xs font-semibold text-muted-foreground">{t('ui.secondary', 'Secondary')}</h4>
         <div className="flex flex-wrap items-center gap-2">
           {hasPreset ? (
             <Button variant={secondary === null ? 'secondary' : 'outline'} size="xs" onClick={() => onSecondaryChange(null)}>
-              Auto
+              {t('ui.auto', 'Auto')}
             </Button>
           ) : (
             <button
@@ -300,18 +408,18 @@ export function ThemeCustomPalettePicker({
         </div>
         {secondary === null && (
           <p className="text-[11px] text-muted-foreground">
-            {hasPreset ? 'Using preset' : 'Auto from primary'}
+            {hasPreset ? t('ui.usingPreset', 'Using preset') : t('ui.autoFromPrimary', 'Auto from primary')}
           </p>
         )}
       </section>
 
       <section className="space-y-2">
-        <h4 className="text-xs font-semibold text-muted-foreground">Neutral base</h4>
+        <h4 className="text-xs font-semibold text-muted-foreground">{t('ui.neutralBase', 'Neutral base')}</h4>
         <div className="flex flex-wrap items-center gap-2">
           {hasPreset
             ? (
               <Button variant={neutral === null ? 'secondary' : 'outline'} size="xs" onClick={() => onNeutralChange(null)}>
-                Auto
+                {t('ui.auto', 'Auto')}
               </Button>
             ) : (
               <Button
@@ -319,7 +427,7 @@ export function ThemeCustomPalettePicker({
                 size="xs"
                 onClick={() => onNeutralChange('none')}
               >
-                none
+                {t('ui.neutral.none', 'none')}
               </Button>
             )
           }
@@ -336,9 +444,9 @@ export function ThemeCustomPalettePicker({
         </div>
         <p className="text-[11px] text-muted-foreground">
           {neutral === null
-            ? (hasPreset ? 'Using preset' : 'Primary family')
-            : neutral === 'none' ? 'Primary family'
-            : `${neutral} surfaces`}
+            ? (hasPreset ? t('ui.usingPreset', 'Using preset') : t('ui.primaryFamily', 'Primary family'))
+            : neutral === 'none' ? t('ui.primaryFamily', 'Primary family')
+            : `${neutral} ${t('ui.surfacesSuffix', 'surfaces')}`}
         </p>
       </section>
     </div>
@@ -349,34 +457,42 @@ export interface ThemeFontsPickerProps {
   value: ThemeFonts
   onChange: (value: ThemeFonts) => void
   className?: string
+  labels?: Record<string, Record<string, string>>
+  locale?: 'en' | 'es' | 'pt'
 }
 
-export function ThemeFontsPicker({ value, onChange, className }: ThemeFontsPickerProps) {
+export function ThemeFontsPicker({ value, onChange, className, labels, locale = 'en' }: ThemeFontsPickerProps) {
+  const t = (key: string, fallback: string) => translate(labels, locale, key, fallback)
   const DEFAULT = '__default__'
   return (
     <div className={cn('space-y-3', className)}>
       <div className="space-y-2">
         {(['body', 'heading'] as const).map(fontType => (
           <div key={fontType} className="grid grid-cols-[64px_1fr] items-center gap-3">
-            <Label className="text-xs text-muted-foreground capitalize">{fontType}</Label>
+            <Label className="text-xs text-muted-foreground capitalize">
+              {fontType === 'heading' ? t('ui.font.heading', 'heading') : t('ui.font.body', 'body')}
+            </Label>
             <Select
               value={value[fontType] ?? DEFAULT}
               onValueChange={(v) => onChange({ ...value, [fontType]: v === DEFAULT ? undefined : v })}
             >
               <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder={fontType === 'heading' ? 'Same as body' : 'System default'} />
+                <SelectValue placeholder={fontType === 'heading' ? t('ui.font.sameAsBody', 'Same as body') : t('ui.font.systemDefault', 'System default')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   <SelectItem value={DEFAULT}>
-                    {fontType === 'heading' ? 'Same as body' : 'System default'}
+                    {fontType === 'heading' ? t('ui.font.sameAsBody', 'Same as body') : t('ui.font.systemDefault', 'System default')}
                   </SelectItem>
                 </SelectGroup>
                 {FONT_GROUPS.map(group => (
                   <SelectGroup key={group.label}>
                     <SelectLabel>{group.label}</SelectLabel>
                     {group.options.map(f => (
-                      <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                      <SelectItem key={f.value} value={f.value}>
+                        {f.label === 'System default (sans-serif)' ? t('ui.font.systemDefaultSans', f.label) :
+                         f.label === 'System serif' ? t('ui.font.systemSerif', f.label) : f.label}
+                      </SelectItem>
                     ))}
                   </SelectGroup>
                 ))}
@@ -393,13 +509,16 @@ export interface ThemePatternsPickerProps {
   value: ThemePattern
   onChange: (value: ThemePattern) => void
   className?: string
+  labels?: Record<string, Record<string, string>>
+  locale?: 'en' | 'es' | 'pt'
 }
 
-export function ThemePatternsPicker({ value, onChange, className }: ThemePatternsPickerProps) {
+export function ThemePatternsPicker({ value, onChange, className, labels, locale = 'en' }: ThemePatternsPickerProps) {
+  const t = (key: string, fallback: string) => translate(labels, locale, key, fallback)
   const activeType = value.type
   return (
     <div className={cn('space-y-3', className)}>
-      <h4 className="text-sm font-semibold">Pattern</h4>
+      <h4 className="text-sm font-semibold">{t('ui.pattern', 'Pattern')}</h4>
       <div className="flex flex-wrap gap-2">
         {PATTERN_TYPES.map(pt => {
           const active = activeType === pt
@@ -419,7 +538,7 @@ export function ThemePatternsPicker({ value, onChange, className }: ThemePattern
                 backgroundPosition: ps?.backgroundPosition ?? 'center',
               }}
             >
-              {pt === 'none' && <span>none</span>}
+              {pt === 'none' && <span>{t('ui.neutral.none', 'none')}</span>}
             </button>
           )
         })}
@@ -428,17 +547,17 @@ export function ThemePatternsPicker({ value, onChange, className }: ThemePattern
       {activeType !== 'none' && (
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <span className="w-16 text-xs text-muted-foreground">Size</span>
+            <span className="w-16 text-xs text-muted-foreground">{t('ui.pattern.size', 'Size')}</span>
             <div className="flex gap-2">
               {(['sm', 'md', 'lg'] as const).map(s => (
                 <Button key={s} variant={(value.size ?? 'md') === s ? 'secondary' : 'outline'} size="xs" onClick={() => onChange({ ...value, size: s })}>
-                  {s.toUpperCase()}
+                  {s === 'sm' ? t('ui.size.sm', 'SM') : s === 'md' ? t('ui.size.md', 'MD') : t('ui.size.lg', 'LG')}
                 </Button>
               ))}
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="w-16 text-xs text-muted-foreground">Density</span>
+            <span className="w-16 text-xs text-muted-foreground">{t('ui.pattern.density', 'Density')}</span>
             <div className="flex gap-2">
               {PATTERN_OPACITY_PRESETS.map(o => (
                 <Button
@@ -447,7 +566,9 @@ export function ThemePatternsPicker({ value, onChange, className }: ThemePattern
                   size="xs"
                   onClick={() => onChange({ ...value, opacity: o.value })}
                 >
-                  {o.label}
+                  {o.label === 'Subtle' ? t('ui.opacity.subtle', o.label)
+                    : o.label === 'Normal' ? t('ui.opacity.normal', o.label)
+                    : t('ui.opacity.bold', o.label)}
                 </Button>
               ))}
             </div>
@@ -456,7 +577,9 @@ export function ThemePatternsPicker({ value, onChange, className }: ThemePattern
       )}
 
       <p className="text-xs text-muted-foreground">
-        {activeType === 'none' ? 'No pattern' : PATTERN_LABELS[activeType]}
+        {activeType === 'none'
+          ? t('ui.pattern.none', 'No pattern')
+          : (labels?.[locale]?.[`ui.pattern.${activeType}`] ?? PATTERN_LABELS[activeType])}
       </p>
     </div>
   )
@@ -466,9 +589,12 @@ export interface ThemeRadiusPickerProps {
   value: string
   onChange: (value: string) => void
   className?: string
+  labels?: Record<string, Record<string, string>>
+  locale?: 'en' | 'es' | 'pt'
 }
 
-export function ThemeRadiusPicker({ value, onChange, className }: ThemeRadiusPickerProps) {
+export function ThemeRadiusPicker({ value, onChange, className, labels, locale = 'en' }: ThemeRadiusPickerProps) {
+  const t = (key: string, fallback: string) => translate(labels, locale, key, fallback)
   return (
     <div className={cn('space-y-3', className)}>
       <div className="flex flex-wrap gap-2">
@@ -479,7 +605,7 @@ export function ThemeRadiusPicker({ value, onChange, className }: ThemeRadiusPic
             size="xs"
             onClick={() => onChange(r.value)}
           >
-            {r.label}
+            {r.label === 'None' ? t('ui.neutral.none', r.label) : r.label}
           </Button>
         ))}
       </div>
@@ -491,12 +617,15 @@ export interface ThemeBackgroundImagePickerProps {
   value: string
   onChange: (value: string) => void
   className?: string
+  labels?: Record<string, Record<string, string>>
+  locale?: 'en' | 'es' | 'pt'
 }
 
-export function ThemeBackgroundImagePicker({ value, onChange, className }: ThemeBackgroundImagePickerProps) {
+export function ThemeBackgroundImagePicker({ value, onChange, className, labels, locale = 'en' }: ThemeBackgroundImagePickerProps) {
+  const t = (key: string, fallback: string) => translate(labels, locale, key, fallback)
   return (
     <div className={cn('space-y-3', className)}>
-      <h4 className="text-sm font-semibold">Background Image</h4>
+      <h4 className="text-sm font-semibold">{t('ui.backgroundImage', 'Background Image')}</h4>
       <div className="flex flex-wrap gap-2">
         <Input
           value={value}
@@ -508,14 +637,14 @@ export function ThemeBackgroundImagePicker({ value, onChange, className }: Theme
               : raw
             onChange(val)
           }}
-          placeholder="https://… or url('…') or gradient CSS"
+          placeholder={t('ui.backgroundPlaceholder', "https://… or url('…') or gradient CSS")}
           className="text-xs"
         />
         {value && (
-          <Button variant="outline" size="xs" onClick={() => onChange('')}>Clear</Button>
+          <Button variant="outline" size="xs" onClick={() => onChange('')}>{t('ui.clear', 'Clear')}</Button>
         )}
       </div>
-      <p className="text-xs text-muted-foreground">Pattern always overlays on top of background image.</p>
+      <p className="text-xs text-muted-foreground">{t('ui.patternOverlayHint', 'Pattern always overlays on top of background image.')}</p>
     </div>
   )
 }
@@ -689,7 +818,9 @@ export function ThemePicker({
             onPrimaryChange={setCustomPrimary}
             onSecondaryChange={setCustomSecondary}
             onNeutralChange={setCustomNeutral}
-            subtitle={hasPreset ? 'overrides on preset' : undefined}
+            subtitle={hasPreset ? translate(labels, locale, 'ui.overrideOnPreset', 'overrides on preset') : undefined}
+            labels={labels}
+            locale={locale}
           />
         </div>
       )}
@@ -697,16 +828,16 @@ export function ThemePicker({
       {sections.length > 0 && (
         <div className="space-y-4 border-t border-border pt-4">
           {sections.includes('fonts') && (
-            <ThemeFontsPicker value={overrideFonts} onChange={setOverrideFonts} />
+            <ThemeFontsPicker value={overrideFonts} onChange={setOverrideFonts} labels={labels} locale={locale} />
           )}
           {sections.includes('patterns') && (
-            <ThemePatternsPicker value={overridePattern} onChange={setOverridePattern} />
+            <ThemePatternsPicker value={overridePattern} onChange={setOverridePattern} labels={labels} locale={locale} />
           )}
           {sections.includes('radius') && (
-            <ThemeRadiusPicker value={overrideRadius} onChange={setOverrideRadius} />
+            <ThemeRadiusPicker value={overrideRadius} onChange={setOverrideRadius} labels={labels} locale={locale} />
           )}
           {sections.includes('background') && (
-            <ThemeBackgroundImagePicker value={overrideBgImage} onChange={setOverrideBgImage} />
+            <ThemeBackgroundImagePicker value={overrideBgImage} onChange={setOverrideBgImage} labels={labels} locale={locale} />
           )}
         </div>
       )}
