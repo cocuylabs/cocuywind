@@ -158,6 +158,12 @@ const DEFAULT_LABELS: Record<'en' | 'es' | 'pt', Record<string, string>> = {
     'ui.opacity.normal': 'Normal',
     'ui.opacity.bold': 'Bold',
     'ui.neutral.none': 'none',
+    'ui.filter.all': 'All',
+    'ui.filter.curated': 'Featured',
+    'ui.filter.basic': 'Basic',
+    'ui.filter.claude': 'Studio',
+    'ui.filter.tweakcn': 'Signature',
+    'ui.filter.community': 'Community',
   },
   es: {
     'ui.primary': 'Primario',
@@ -190,6 +196,12 @@ const DEFAULT_LABELS: Record<'en' | 'es' | 'pt', Record<string, string>> = {
     'ui.opacity.normal': 'Normal',
     'ui.opacity.bold': 'Fuerte',
     'ui.neutral.none': 'ninguno',
+    'ui.filter.all': 'Todos',
+    'ui.filter.curated': 'Destacados',
+    'ui.filter.basic': 'Básicos',
+    'ui.filter.claude': 'Studio',
+    'ui.filter.tweakcn': 'Signature',
+    'ui.filter.community': 'Comunidad',
   },
   pt: {
     'ui.primary': 'Primário',
@@ -222,6 +234,12 @@ const DEFAULT_LABELS: Record<'en' | 'es' | 'pt', Record<string, string>> = {
     'ui.opacity.normal': 'Normal',
     'ui.opacity.bold': 'Forte',
     'ui.neutral.none': 'nenhum',
+    'ui.filter.all': 'Todos',
+    'ui.filter.curated': 'Destaques',
+    'ui.filter.basic': 'Básicos',
+    'ui.filter.claude': 'Studio',
+    'ui.filter.tweakcn': 'Signature',
+    'ui.filter.community': 'Comunidade',
   },
 }
 

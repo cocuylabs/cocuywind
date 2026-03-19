@@ -1386,7 +1386,19 @@ var theme_labels_en_default = {
   teal: "Teal",
   twitter: "Twitter / X",
   "vintage-paper": "Vintage Paper",
-  "violet-bloom": "Violet Bloom"
+  "violet-bloom": "Violet Bloom",
+  carnival: "Carnival",
+  "community-chalk-cmmjgo": "Chalk",
+  dusk: "Dusk",
+  glacier: "Glacier",
+  harvest: "Harvest",
+  lagoon: "Lagoon",
+  matcha: "Matcha",
+  obsidian: "Obsidian",
+  redwood: "Redwood",
+  sakura: "Sakura",
+  terracotta: "Terracotta",
+  tomato: "Tomato"
 };
 
 // src/i18n/theme-labels.es.json
@@ -1602,7 +1614,19 @@ var theme_labels_es_default = {
   teal: "Verde Azulado",
   twitter: "Twitter / X",
   "vintage-paper": "Papel Vintage",
-  "violet-bloom": "Flor Violeta"
+  "violet-bloom": "Flor Violeta",
+  carnival: "Carnaval",
+  "community-chalk-cmmjgo": "Tiza",
+  dusk: "Crep\xFAsculo",
+  glacier: "Glaciar",
+  harvest: "Cosecha",
+  lagoon: "Laguna",
+  matcha: "Matcha",
+  obsidian: "Obsidiana",
+  redwood: "Secuoya",
+  sakura: "Sakura",
+  terracotta: "Terracota",
+  tomato: "Tomate"
 };
 
 // src/i18n/theme-labels.pt.json
@@ -1818,7 +1842,19 @@ var theme_labels_pt_default = {
   teal: "Ciano",
   twitter: "Twitter / X",
   "vintage-paper": "Papel Vintage",
-  "violet-bloom": "Flor Violeta"
+  "violet-bloom": "Flor Violeta",
+  carnival: "Carnaval",
+  "community-chalk-cmmjgo": "Giz",
+  dusk: "Crep\xFAsculo",
+  glacier: "Glaciar",
+  harvest: "Colheita",
+  lagoon: "Lagoa",
+  matcha: "Matcha",
+  obsidian: "Obsidiana",
+  redwood: "Sequoia",
+  sakura: "Sakura",
+  terracotta: "Terracota",
+  tomato: "Tomate"
 };
 
 // src/themes/builtin/default.ts

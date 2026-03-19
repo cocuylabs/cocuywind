@@ -1132,7 +1132,13 @@ var DEFAULT_LABELS = {
     "ui.opacity.subtle": "Subtle",
     "ui.opacity.normal": "Normal",
     "ui.opacity.bold": "Bold",
-    "ui.neutral.none": "none"
+    "ui.neutral.none": "none",
+    "ui.filter.all": "All",
+    "ui.filter.curated": "Featured",
+    "ui.filter.basic": "Basic",
+    "ui.filter.claude": "Studio",
+    "ui.filter.tweakcn": "Signature",
+    "ui.filter.community": "Community"
   },
   es: {
     "ui.primary": "Primario",
@@ -1164,7 +1170,13 @@ var DEFAULT_LABELS = {
     "ui.opacity.subtle": "Sutil",
     "ui.opacity.normal": "Normal",
     "ui.opacity.bold": "Fuerte",
-    "ui.neutral.none": "ninguno"
+    "ui.neutral.none": "ninguno",
+    "ui.filter.all": "Todos",
+    "ui.filter.curated": "Destacados",
+    "ui.filter.basic": "B\xE1sicos",
+    "ui.filter.claude": "Studio",
+    "ui.filter.tweakcn": "Signature",
+    "ui.filter.community": "Comunidad"
   },
   pt: {
     "ui.primary": "Prim\xE1rio",
@@ -1196,7 +1208,13 @@ var DEFAULT_LABELS = {
     "ui.opacity.subtle": "Suave",
     "ui.opacity.normal": "Normal",
     "ui.opacity.bold": "Forte",
-    "ui.neutral.none": "nenhum"
+    "ui.neutral.none": "nenhum",
+    "ui.filter.all": "Todos",
+    "ui.filter.curated": "Destaques",
+    "ui.filter.basic": "B\xE1sicos",
+    "ui.filter.claude": "Studio",
+    "ui.filter.tweakcn": "Signature",
+    "ui.filter.community": "Comunidade"
   }
 };
 function translate(labels, locale, key, fallback) {

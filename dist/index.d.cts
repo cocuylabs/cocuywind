@@ -516,6 +516,17 @@ var supabase$2 = "Supabase";
 var tangerine$2 = "Tangerine";
 var teal$2 = "Teal";
 var twitter$2 = "Twitter / X";
+var carnival$2 = "Carnival";
+var dusk$2 = "Dusk";
+var glacier$2 = "Glacier";
+var harvest$2 = "Harvest";
+var lagoon$2 = "Lagoon";
+var matcha$2 = "Matcha";
+var obsidian$2 = "Obsidian";
+var redwood$2 = "Redwood";
+var sakura$2 = "Sakura";
+var terracotta$2 = "Terracotta";
+var tomato$2 = "Tomato";
 var themeLabels_en = {
 	amber: amber$2,
 	"amber-minimal": "Amber Minimal",
@@ -728,7 +739,19 @@ var themeLabels_en = {
 	teal: teal$2,
 	twitter: twitter$2,
 	"vintage-paper": "Vintage Paper",
-	"violet-bloom": "Violet Bloom"
+	"violet-bloom": "Violet Bloom",
+	carnival: carnival$2,
+	"community-chalk-cmmjgo": "Chalk",
+	dusk: dusk$2,
+	glacier: glacier$2,
+	harvest: harvest$2,
+	lagoon: lagoon$2,
+	matcha: matcha$2,
+	obsidian: obsidian$2,
+	redwood: redwood$2,
+	sakura: sakura$2,
+	terracotta: terracotta$2,
+	tomato: tomato$2
 };
 
 var amber$1 = "Ámbar Cálido";
@@ -754,6 +777,17 @@ var supabase$1 = "Supabase";
 var tangerine$1 = "Mandarina";
 var teal$1 = "Verde Azulado";
 var twitter$1 = "Twitter / X";
+var carnival$1 = "Carnaval";
+var dusk$1 = "Crepúsculo";
+var glacier$1 = "Glaciar";
+var harvest$1 = "Cosecha";
+var lagoon$1 = "Laguna";
+var matcha$1 = "Matcha";
+var obsidian$1 = "Obsidiana";
+var redwood$1 = "Secuoya";
+var sakura$1 = "Sakura";
+var terracotta$1 = "Terracota";
+var tomato$1 = "Tomate";
 var themeLabels_es = {
 	amber: amber$1,
 	"amber-minimal": "Ámbar Minimalista",
@@ -966,7 +1000,19 @@ var themeLabels_es = {
 	teal: teal$1,
 	twitter: twitter$1,
 	"vintage-paper": "Papel Vintage",
-	"violet-bloom": "Flor Violeta"
+	"violet-bloom": "Flor Violeta",
+	carnival: carnival$1,
+	"community-chalk-cmmjgo": "Tiza",
+	dusk: dusk$1,
+	glacier: glacier$1,
+	harvest: harvest$1,
+	lagoon: lagoon$1,
+	matcha: matcha$1,
+	obsidian: obsidian$1,
+	redwood: redwood$1,
+	sakura: sakura$1,
+	terracotta: terracotta$1,
+	tomato: tomato$1
 };
 
 var amber = "Âmbar Quente";
@@ -992,6 +1038,17 @@ var supabase = "Supabase";
 var tangerine = "Tangerina";
 var teal = "Ciano";
 var twitter = "Twitter / X";
+var carnival = "Carnaval";
+var dusk = "Crepúsculo";
+var glacier = "Glaciar";
+var harvest = "Colheita";
+var lagoon = "Lagoa";
+var matcha = "Matcha";
+var obsidian = "Obsidiana";
+var redwood = "Sequoia";
+var sakura = "Sakura";
+var terracotta = "Terracota";
+var tomato = "Tomate";
 var themeLabels_pt = {
 	amber: amber,
 	"amber-minimal": "Âmbar Minimalista",
@@ -1204,7 +1261,19 @@ var themeLabels_pt = {
 	teal: teal,
 	twitter: twitter,
 	"vintage-paper": "Papel Vintage",
-	"violet-bloom": "Flor Violeta"
+	"violet-bloom": "Flor Violeta",
+	carnival: carnival,
+	"community-chalk-cmmjgo": "Giz",
+	dusk: dusk,
+	glacier: glacier,
+	harvest: harvest,
+	lagoon: lagoon,
+	matcha: matcha,
+	obsidian: obsidian,
+	redwood: redwood,
+	sakura: sakura,
+	terracotta: terracotta,
+	tomato: tomato
 };
 
 declare const defaultTheme: Theme;
