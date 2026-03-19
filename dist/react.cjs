@@ -589,7 +589,7 @@ function googleFontsUrl(families) {
 // src/react/ThemeProvider.tsx
 var import_jsx_runtime = require("react/jsx-runtime");
 var ThemeContext = (0, import_react.createContext)(null);
-var DEFAULT_PERSIST_KEY = "tailtheme";
+var DEFAULT_PERSIST_KEY = "cocuywind";
 function resolveTheme(themeOrName, themes) {
   if (typeof themeOrName === "string") {
     return themes.find((t) => t.name === themeOrName);
@@ -648,7 +648,7 @@ function ThemeProvider({
     else root.style.removeProperty("--font-body");
     if (theme.fonts?.heading) root.style.setProperty("--font-heading", theme.fonts.heading);
     else root.style.removeProperty("--font-heading");
-    const styleId = "tailtheme-font-rules";
+    const styleId = "cocuywind-font-rules";
     let styleEl = document.getElementById(styleId);
     if (!styleEl) {
       styleEl = document.createElement("style");
@@ -658,7 +658,7 @@ function ThemeProvider({
     const bodyRule = theme.fonts?.body ? `body,  :root { font-family: var(--font-body); }` : "";
     const headingRule = theme.fonts?.heading ? `h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }` : "";
     styleEl.textContent = [bodyRule, headingRule].filter(Boolean).join("\n");
-    const linkId = "tailtheme-gfonts";
+    const linkId = "cocuywind-gfonts";
     const families = [theme.fonts?.body, theme.fonts?.heading].filter((f) => !!f);
     const gfontsUrl = families.length > 0 ? googleFontsUrl(families) : "";
     let linkEl = document.getElementById(linkId);
@@ -1155,7 +1155,7 @@ function getSwatchColors(theme, mode = "light") {
   const t = mode === "dark" ? theme.dark : theme.light;
   return [resolveColor(t.background), resolveColor(t.primary), resolveColor(t.secondary)];
 }
-function ThemeSwatch({ theme, selected, onClick, previewMode = "light", labelOverride }) {
+function ThemeSwatch({ theme, selected, onClick, previewMode = "light", labelOverride, swatchSize = 14 }) {
   const [bg, pri, sec] = getSwatchColors(theme, previewMode);
   const label = labelOverride ?? theme.label;
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(
@@ -1164,14 +1164,32 @@ function ThemeSwatch({ theme, selected, onClick, previewMode = "light", labelOve
       onClick,
       title: label,
       className: cn(
-        "flex w-full items-center gap-2 rounded-md border px-2 py-1 text-left text-xs transition-colors",
+        "flex w-full items-center gap-3 rounded-md border px-3 py-2 text-left text-sm transition-colors",
         selected ? "border-ring bg-accent text-accent-foreground" : "border-border hover:bg-muted/50"
       ),
       children: [
-        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("span", { className: "flex shrink-0 gap-1", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "inline-block h-2.5 w-2.5 rounded-full border border-border", style: { backgroundColor: bg } }),
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "inline-block h-2.5 w-2.5 rounded-full", style: { backgroundColor: pri } }),
-          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "inline-block h-2.5 w-2.5 rounded-full", style: { backgroundColor: sec } })
+        /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("span", { className: "flex shrink-0 gap-1.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+            "span",
+            {
+              className: "inline-block rounded-full border border-border",
+              style: { backgroundColor: bg, width: swatchSize, height: swatchSize }
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+            "span",
+            {
+              className: "inline-block rounded-full",
+              style: { backgroundColor: pri, width: swatchSize, height: swatchSize }
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+            "span",
+            {
+              className: "inline-block rounded-full",
+              style: { backgroundColor: sec, width: swatchSize, height: swatchSize }
+            }
+          )
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "truncate", children: label })
       ]
@@ -1186,7 +1204,8 @@ function ThemePalettePicker({
   locale = "en",
   paletteMaxHeight,
   previewMode = "light",
-  className
+  className,
+  swatchSize
 }) {
   if (themes.length === 0) return null;
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className, style: paletteMaxHeight ? { maxHeight: paletteMaxHeight, overflowY: "auto" } : void 0, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "grid grid-cols-2 gap-2", children: themes.map((t) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
@@ -1196,7 +1215,8 @@ function ThemePalettePicker({
       selected: t.name === value,
       onClick: () => onChange(t.name),
       labelOverride: labels?.[locale]?.[t.name],
-      previewMode
+      previewMode,
+      swatchSize
     },
     t.name
   )) }) });
@@ -1210,7 +1230,7 @@ function ThemeCustomPalettePicker({
   onSecondaryChange,
   onNeutralChange,
   className,
-  title = "Custom palette",
+  title,
   subtitle
 }) {
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: cn("space-y-4", className), children: [
@@ -1489,6 +1509,7 @@ function ThemePicker({
   locale = "en",
   labels,
   paletteMaxHeight,
+  paletteSwatchSize,
   showPalette = true,
   showCustomPalette = allowCustom
 }) {
@@ -1545,7 +1566,8 @@ function ThemePicker({
         },
         labels,
         locale,
-        paletteMaxHeight
+        paletteMaxHeight,
+        swatchSize: paletteSwatchSize
       }
     ),
     showCustomPalette && /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: cn(showPalette ? "border-t border-border pt-4" : ""), children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(

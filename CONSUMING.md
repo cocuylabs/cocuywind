@@ -1,13 +1,13 @@
 # CONSUMING.md — Integration Contract
 
-This document is the stable contract between `tailtheme` and the apps that depend on it.
+This document is the stable contract between `cocuywind` and the apps that depend on it.
 There are exactly two integration roles: **admin panel** (writes themes) and **consumer app** (reads themes).
 
 ---
 
 ## The boundary: `StoredTheme`
 
-`StoredTheme` is the only value that crosses the wire. It is plain JSON — always pre-resolved CSS strings, never Tailwind token refs or library internals. Consumer apps never need `tailtheme` as a runtime dependency.
+`StoredTheme` is the only value that crosses the wire. It is plain JSON — always pre-resolved CSS strings, never Tailwind token refs or library internals. Consumer apps never need `cocuywind` as a runtime dependency.
 
 ```
 Admin panel                  Database              Consumer app
@@ -36,15 +36,15 @@ A `StoredTheme` bundles two independent concerns that were set separately in the
 
 ### Required dependency
 ```
-tailtheme          (runtime)
-tailtheme/react    (runtime, for ThemePicker + ThemeProvider)
+cocuywind          (runtime)
+cocuywind/react    (runtime, for ThemePicker + ThemeProvider)
 ```
 
 ### Minimal integration
 
 ```tsx
-import { ThemePicker, ThemeProvider, useTheme } from 'tailtheme/react'
-import { serializeTheme, builtinThemes } from 'tailtheme'
+import { ThemePicker, ThemeProvider, useTheme } from 'cocuywind/react'
+import { serializeTheme, builtinThemes } from 'cocuywind'
 
 // 1. Wrap your app
 <ThemeProvider themes={builtinThemes} defaultTheme={builtinThemes[0]}>
@@ -112,14 +112,14 @@ If no preset is active (pure custom mode), the pickers build a full theme from s
 | `'radius'` | 0.5rem | Sets `--radius`; component variants derive `sm/md/lg/xl` from it |
 | `'fonts'` | System | `body` → `--font-body` on `:root`; `heading` → `--font-heading` on `h1–h6`. 3 system stacks (sans, serif, mono) + 16 Google Fonts (8 sans-serif, 4 serif, 4 monospace). |
 | `'patterns'` | None | Sets `--pattern-image`, `--pattern-size`, `--pattern-position` CSS vars. Exposes size (SM/MD/LG) and density (Subtle/Normal/Bold) controls when a pattern is active. |
-| `'background'` | None | Text input for a CSS `background-image` value. Bare URLs are auto-wrapped in `url('…')`. Sets `--bg-image`. **tailtheme does not manage upload** — your panel handles upload/storage, then the user pastes the URL here. Pattern always overlays on top. |
+| `'background'` | None | Text input for a CSS `background-image` value. Bare URLs are auto-wrapped in `url('…')`. Sets `--bg-image`. **cocuywind does not manage upload** — your panel handles upload/storage, then the user pastes the URL here. Pattern always overlays on top. |
 
 ### Vividness — chroma scaling
 
 `adjustVividness(theme, factor)` scales the chroma (C) component of every OKLCH color token in a theme. It is a post-processing transform — it works on any theme type (factory-generated, TweakCN, stolen) and always returns a new `Theme` with fully resolved raw oklch values.
 
 ```ts
-import { adjustVividness, VIVIDNESS_PRESETS } from 'tailtheme'
+import { adjustVividness, VIVIDNESS_PRESETS } from 'cocuywind'
 
 // Named presets
 adjustVividness(theme, VIVIDNESS_PRESETS.playful)      // 1.30 — vivid, fun
@@ -139,7 +139,7 @@ adjustVividness(theme, 0.6)
 **`createTheme` integration:** pass `vividness` directly to the factory instead of calling `adjustVividness` afterward:
 
 ```ts
-import { createTheme } from 'tailtheme'
+import { createTheme } from 'cocuywind'
 
 createTheme({ name: 'ocean', label: 'Ocean', primary: 'blue', vividness: 'elegant' })
 createTheme({ name: 'ocean', label: 'Ocean', primary: 'blue', vividness: 0.8 })
@@ -219,14 +219,14 @@ The relevant metadata fields on `StoredTheme` (all prefixed `_` — do not depen
 ## Consumer app (Astro, React storefront, etc.)
 
 ### Required dependency
-None. `storedThemeToCSS` can be inlined as a helper if you want zero deps. If you already have `tailtheme` available, import it directly.
+None. `storedThemeToCSS` can be inlined as a helper if you want zero deps. If you already have `cocuywind` available, import it directly.
 
 ### Validating a stored theme
 
 Before passing untrusted data (from DB, API, user upload) to `storedThemeToCSS` or `deserializeTheme`, validate it:
 
 ```ts
-import { validateStoredTheme } from 'tailtheme'
+import { validateStoredTheme } from 'cocuywind'
 
 const result = validateStoredTheme(stored)
 if (!result.valid) {
@@ -249,7 +249,7 @@ Calling `storedThemeToCSS(stored)` produces CSS that:
 
 ```astro
 ---
-import { storedThemeToCSS, googleFontsUrl } from 'tailtheme'
+import { storedThemeToCSS, googleFontsUrl } from 'cocuywind'
 const stored = await db.getTheme(tenantId)
 const css = storedThemeToCSS(stored)
 const fontsUrl = googleFontsUrl([stored.fonts?.body, stored.fonts?.heading].filter(Boolean))
@@ -271,7 +271,7 @@ const fontsUrl = googleFontsUrl([stored.fonts?.body, stored.fonts?.heading].filt
 
 ```tsx
 // In your layout or _document
-import { storedThemeToCSS, googleFontsUrl } from 'tailtheme'
+import { storedThemeToCSS, googleFontsUrl } from 'cocuywind'
 
 const stored = await db.getTheme(tenantId)
 const css = storedThemeToCSS(stored)
@@ -300,7 +300,7 @@ return (
 ### Vanilla JS (client-side injection)
 
 ```ts
-import { storedThemeToCSS, googleFontsUrl } from 'tailtheme'
+import { storedThemeToCSS, googleFontsUrl } from 'cocuywind'
 
 const stored = await fetch('/api/theme').then(r => r.json())
 const css = storedThemeToCSS(stored)
@@ -344,7 +344,7 @@ Both `--pattern-image` and `--bg-image` default to `none` when not set, so the b
 
 ### Dep-free inline helper
 
-If you cannot or do not want to depend on `tailtheme`, this is the full consumer contract:
+If you cannot or do not want to depend on `cocuywind`, this is the full consumer contract:
 
 ```ts
 function storedThemeToCSS(stored) {
@@ -362,7 +362,7 @@ function storedThemeToCSS(stored) {
 
   // Pattern vars (always emitted so CSS fallbacks work)
   const patternImage    = stored.pattern?.type && stored.pattern.type !== 'none'
-    ? `  /* pattern resolved by tailtheme — use storedThemeToCSS from the lib */`
+    ? `  /* pattern resolved by cocuywind — use storedThemeToCSS from the lib */`
     : `  --pattern-image: none;\n  --pattern-size: auto;`
   const bgImage = stored.backgroundImage
     ? `  --bg-image: ${stored.backgroundImage};`
@@ -377,7 +377,7 @@ function storedThemeToCSS(stored) {
 }
 ```
 
-> **Note:** Pattern CSS generation (SVG noise, conic-gradient checkerboard, etc.) requires the full library. For pattern support without a dep, use `storedThemeToCSS` from `tailtheme` directly.
+> **Note:** Pattern CSS generation (SVG noise, conic-gradient checkerboard, etc.) requires the full library. For pattern support without a dep, use `storedThemeToCSS` from `cocuywind` directly.
 
 ### Rules
 - Treat `stored.styles.light` and `stored.styles.dark` as opaque bags of CSS var values — do not read individual token keys for business logic.
@@ -412,7 +412,7 @@ interface StoredTheme {
   }
   /**
    * CSS background-image value — e.g. "url('https://...')".
-   * tailtheme does NOT manage upload. Admin panel uploads, gets a URL,
+   * cocuywind does NOT manage upload. Admin panel uploads, gets a URL,
    * stores it here. storedThemeToCSS emits it as --bg-image.
    * Pattern always renders on top of this image.
    */
@@ -424,6 +424,31 @@ interface StoredTheme {
   _generatorConfig?: unknown   // createTheme() inputs when source === 'generated'
 }
 ```
+
+---
+
+## React Picker + Tailwind Setup
+
+If you use `cocuywind/react` components (ThemePicker and the sub-pickers), they are styled with Tailwind classes (shadcn-style tokens like `bg-background`, `border-border`, etc.).
+
+Make sure your Tailwind config includes the library in `content`, otherwise utility classes (including the palette swatch dots) will be purged and the UI will look empty.
+
+Examples:
+
+```js
+// tailwind.config.js
+export default {
+  content: [
+    './src/**/*.{ts,tsx}',
+    // If you depend on the published package
+    './node_modules/cocuywind/dist/**/*.{js,mjs}',
+    // Or if you use a local workspace checkout
+    '../cocuywind/src/**/*.{ts,tsx}',
+  ],
+}
+```
+
+Also ensure your app includes the shadcn CSS variables (or an equivalent theme) so classes like `bg-background`, `text-foreground`, and `border-border` resolve correctly.
 
 ### The 19 token keys (in `styles.light` / `styles.dark`)
 
@@ -465,7 +490,7 @@ Catalogs are **palette-only** — they define colors and radius. Fonts, patterns
 In a real admin panel, pass a flat array to `ThemePicker` — the source catalog (builtin vs tweakcn vs community) is a library implementation detail, not something end users should see. You control the subset:
 
 ```tsx
-import { themes, communityThemes, builtinThemes, tailwindBasicThemes } from 'tailtheme'
+import { themes, communityThemes, builtinThemes, tailwindBasicThemes } from 'cocuywind'
 
 // Everything (recommended default)
 const palettes = [...themes, ...communityThemes]

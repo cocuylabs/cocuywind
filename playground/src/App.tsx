@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { ThemeProvider, useTheme } from 'tailtheme/react'
-import { ThemePicker } from 'tailtheme/react'
-import { themes, builtinThemes, tweakcnThemes, communityThemes, tailwindBasicThemes, generateCSS, themeLabelsEn, themeLabelsEs, themeLabelsPt, generatePattern, FONTS } from 'tailtheme'
-import type { Theme, ThemeFonts, ThemePattern, PatternType } from 'tailtheme'
+import { ThemeProvider, useTheme } from 'cocuywind/react'
+import { ThemePicker } from 'cocuywind/react'
+import { themes, builtinThemes, tweakcnThemes, communityThemes, tailwindBasicThemes, generateCSS, themeLabelsEn, themeLabelsEs, themeLabelsPt, generatePattern, FONTS } from 'cocuywind'
+import type { Theme, ThemeFonts, ThemePattern, PatternType } from 'cocuywind'
 import './styles.css'
 
 const INITIAL_THEME = builtinThemes[0]
@@ -213,7 +213,7 @@ function Demo() {
               <section>
                 <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, opacity: 0.7 }}>Background Image</h4>
                 <p style={{ margin: '0 0 8px', fontSize: 11, opacity: 0.5 }}>
-                  Paste an image URL — tailtheme stores it, your app handles the upload.
+                  Paste an image URL — cocuywind stores it, your app handles the upload.
                 </p>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <input

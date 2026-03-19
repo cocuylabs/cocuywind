@@ -62,7 +62,7 @@ interface Theme {
     pattern?: ThemePattern;
     /**
      * CSS background-image value for a custom background, e.g. `"url('https://...')"`.
-     * tailtheme does not manage upload — the consumer supplies a URL or data URL after upload.
+     * cocuywind does not manage upload — the consumer supplies a URL or data URL after upload.
      * Renders below any pattern overlay.
      */
     backgroundImage?: string;
@@ -124,6 +124,8 @@ interface ThemePickerProps {
     labels?: Record<string, Record<string, string>>;
     /** Max height for the palette swatches area only — sections remain visible below */
     paletteMaxHeight?: string | number;
+    /** Size (px) of the three palette dots in each swatch row */
+    paletteSwatchSize?: number;
     /** Show the preset palette grid */
     showPalette?: boolean;
     /** Show the custom palette controls */
@@ -138,8 +140,9 @@ interface ThemePalettePickerProps {
     paletteMaxHeight?: string | number;
     previewMode?: 'light' | 'dark';
     className?: string;
+    swatchSize?: number;
 }
-declare function ThemePalettePicker({ themes, value, onChange, labels, locale, paletteMaxHeight, previewMode, className, }: ThemePalettePickerProps): react_jsx_runtime.JSX.Element | null;
+declare function ThemePalettePicker({ themes, value, onChange, labels, locale, paletteMaxHeight, previewMode, className, swatchSize, }: ThemePalettePickerProps): react_jsx_runtime.JSX.Element | null;
 interface ThemeCustomPalettePickerProps {
     hasPreset: boolean;
     primary: TailwindColor | null;
@@ -177,7 +180,7 @@ interface ThemeBackgroundImagePickerProps {
     className?: string;
 }
 declare function ThemeBackgroundImagePicker({ value, onChange, className }: ThemeBackgroundImagePickerProps): react_jsx_runtime.JSX.Element;
-declare function ThemePicker({ themes, value, onChange, allowCustom, sections, className, locale, labels, paletteMaxHeight, showPalette, showCustomPalette, }: ThemePickerProps): react_jsx_runtime.JSX.Element;
+declare function ThemePicker({ themes, value, onChange, allowCustom, sections, className, locale, labels, paletteMaxHeight, paletteSwatchSize, showPalette, showCustomPalette, }: ThemePickerProps): react_jsx_runtime.JSX.Element;
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive';

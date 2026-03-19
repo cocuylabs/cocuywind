@@ -224,7 +224,7 @@ export const browserSnippet = /* js */`(function() {
   var out = JSON.stringify({ light: light, dark: dark }, null, 2);
   if (navigator.clipboard) {
     navigator.clipboard.writeText(out).then(function() {
-      console.log('%c tailtheme steal: copied to clipboard!', 'color: #4ade80; font-weight: bold;');
+      console.log('%c cocuywind steal: copied to clipboard!', 'color: #4ade80; font-weight: bold;');
     });
   }
   console.log(out);

@@ -907,7 +907,7 @@ var browserSnippet = (
   var out = JSON.stringify({ light: light, dark: dark }, null, 2);
   if (navigator.clipboard) {
     navigator.clipboard.writeText(out).then(function() {
-      console.log('%c tailtheme steal: copied to clipboard!', 'color: #4ade80; font-weight: bold;');
+      console.log('%c cocuywind steal: copied to clipboard!', 'color: #4ade80; font-weight: bold;');
     });
   }
   console.log(out);
@@ -1063,7 +1063,7 @@ var tweakcnSnippet = (
   if (!name) { console.warn('No theme name provided.'); return; }
   name = name.trim();
   var apiUrl = 'https://tweakcn.com/r/themes/' + encodeURIComponent(name) + '.json';
-  console.log('%c tailtheme: fetching ' + apiUrl, 'color: #60a5fa;');
+  console.log('%c cocuywind: fetching ' + apiUrl, 'color: #60a5fa;');
   try {
     var res = await fetch(apiUrl);
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -1071,12 +1071,12 @@ var tweakcnSnippet = (
     var out = JSON.stringify(item, null, 2);
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(out);
-      console.log('%c tailtheme: copied tweakcn theme JSON to clipboard!', 'color: #4ade80; font-weight: bold;');
+      console.log('%c cocuywind: copied tweakcn theme JSON to clipboard!', 'color: #4ade80; font-weight: bold;');
     }
     console.log(out);
     return item;
   } catch(e) {
-    console.error('tailtheme steal-tweakcn:', e);
+    console.error('cocuywind steal-tweakcn:', e);
   }
 })();`
 );

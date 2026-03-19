@@ -91,7 +91,7 @@ export interface Theme {
   pattern?: ThemePattern
   /**
    * CSS background-image value for a custom background, e.g. `"url('https://...')"`.
-   * tailtheme does not manage upload — the consumer supplies a URL or data URL after upload.
+   * cocuywind does not manage upload — the consumer supplies a URL or data URL after upload.
    * Renders below any pattern overlay.
    */
   backgroundImage?: string

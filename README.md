@@ -1,4 +1,4 @@
-# tailtheme
+# cocuywind
 
 Tailwind v4 theme library — standardized theming across multi-app patterns.
 
@@ -83,7 +83,7 @@ Built for the dashboard → DB → derived app flow: a Next.js dashboard where u
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Key insight:** `StoredTheme` is the **single contract** between apps. It's plain JSON with resolved CSS strings — consumer apps only need `storedThemeToCSS()`, which is pure string formatting with no color resolution and no `tailtheme` runtime dependency.
+**Key insight:** `StoredTheme` is the **single contract** between apps. It's plain JSON with resolved CSS strings — consumer apps only need `storedThemeToCSS()`, which is pure string formatting with no color resolution and no `cocuywind` runtime dependency.
 
 The two color forms collapse to the same resolved CSS string at `serializeTheme()` time:
 - `TailwindToken` (`'blue-600'`) — used in built-in themes, readable and maintainable
@@ -95,18 +95,18 @@ The two color forms collapse to the same resolved CSS string at `serializeTheme(
 
 - **Node.js** 18+
 - **Tailwind CSS v4** (uses `@theme inline` and `oklch` color space)
-- **React 18+** — only required for `tailtheme/react`
+- **React 18+** — only required for `cocuywind/react`
 
 ---
 
 ## Installation
 
 ```sh
-pnpm add tailtheme
+pnpm add cocuywind
 # or
-npm install tailtheme
+npm install cocuywind
 # or
-yarn add tailtheme
+yarn add cocuywind
 ```
 
 ---
@@ -114,8 +114,8 @@ yarn add tailtheme
 ## Package Exports
 
 ```
-tailtheme        → core library (zero runtime dependencies)
-tailtheme/react  → React components and hooks (requires react ≥ 18)
+cocuywind        → core library (zero runtime dependencies)
+cocuywind/react  → React components and hooks (requires react ≥ 18)
 ```
 
 ---
@@ -134,7 +134,7 @@ type TailwindToken = 'blue-600' | 'slate-50' | 'white' | 'black' | ...
 type RawColor = string // branded
 
 // Use raw() to create a RawColor
-import { raw } from 'tailtheme'
+import { raw } from 'cocuywind'
 raw('oklch(0.623 0.214 259.815)')
 raw('#3b82f6')
 raw('hsl(217, 91%, 60%)')
@@ -177,7 +177,7 @@ The 19 color tokens (`background`, `foreground`, `card`, `cardForeground`, `popo
 
 ```typescript
 // app/globals-theme.ts (or inline in globals.css)
-import { generateCSS, oceanTheme } from 'tailtheme'
+import { generateCSS, oceanTheme } from 'cocuywind'
 
 export const themeCSS = generateCSS(oceanTheme)
 ```
@@ -214,8 +214,8 @@ Now `bg-background`, `text-primary`, `border-border`, `rounded-md`, etc. all wor
 ```tsx
 // app/providers.tsx
 'use client'
-import { ThemeProvider } from 'tailtheme/react'
-import { themes } from 'tailtheme'
+import { ThemeProvider } from 'cocuywind/react'
+import { themes } from 'cocuywind'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -250,7 +250,7 @@ export default function RootLayout({ children }) {
 
 ```tsx
 'use client'
-import { useTheme } from 'tailtheme/react'
+import { useTheme } from 'cocuywind/react'
 
 export function ThemeToggle() {
   const { theme, setTheme, mode, setMode, availableThemes } = useTheme()
@@ -280,10 +280,10 @@ export function ThemeToggle() {
 import {
   defaultTheme, oceanTheme, forestTheme, sunsetTheme, midnightTheme,
   roseTheme, amberTheme, indigoTheme, tealTheme, candyTheme,
-} from 'tailtheme'
+} from 'cocuywind'
 
 // Or as an array:
-import { builtinThemes } from 'tailtheme'
+import { builtinThemes } from 'cocuywind'
 ```
 
 ### TweakCN ports (37) — use raw oklch values, Apache 2.0
@@ -302,13 +302,13 @@ import {
   oceanBreezeTheme, retroArcadeTheme, midnightBloomTheme, candylandTheme,
   northernLightsTheme, vintagePaperTheme, sunsetHorizonTheme,
   starryNightTheme, claudeTheme,
-} from 'tailtheme'
+} from 'cocuywind'
 
 // Or as an array:
-import { tweakcnThemes } from 'tailtheme'
+import { tweakcnThemes } from 'cocuywind'
 
 // All 47 together:
-import { themes } from 'tailtheme'
+import { themes } from 'cocuywind'
 ```
 
 ---
@@ -323,7 +323,7 @@ The library picks appropriate shades automatically:
 - Destructive: always red-600 light / red-400 dark
 
 ```typescript
-import { createTheme, FONTS } from 'tailtheme'
+import { createTheme, FONTS } from 'cocuywind'
 
 const brandTheme = createTheme({
   name: 'brand',
@@ -348,7 +348,7 @@ Available `TailwindColor` values: `slate` `gray` `zinc` `neutral` `stone` `red` 
 ### `extendTheme()` — start from a preset, override specific tokens
 
 ```typescript
-import { extendTheme, oceanTheme, FONTS } from 'tailtheme'
+import { extendTheme, oceanTheme, FONTS } from 'cocuywind'
 
 const myOcean = extendTheme(oceanTheme, {
   label: 'My Ocean',
@@ -367,7 +367,7 @@ const myOcean = extendTheme(oceanTheme, {
 ### `defineTheme()` — fully explicit, all 19 tokens
 
 ```typescript
-import { defineTheme, raw } from 'tailtheme'
+import { defineTheme, raw } from 'cocuywind'
 
 const customTheme = defineTheme({
   name: 'custom',
@@ -405,7 +405,7 @@ const customTheme = defineTheme({
 ## Fonts
 
 ```typescript
-import { FONTS, googleFontsUrl } from 'tailtheme'
+import { FONTS, googleFontsUrl } from 'cocuywind'
 
 // Use any FONTS constant as a font-family value:
 FONTS.INTER          // "'Inter', system-ui, sans-serif"
@@ -424,14 +424,14 @@ const url = googleFontsUrl([FONTS.INTER, FONTS.PLAYFAIR])
 // → "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap"
 ```
 
-Google Fonts must be loaded separately — `tailtheme` only builds the URL. In Next.js, prefer `next/font` instead.
+Google Fonts must be loaded separately — `cocuywind` only builds the URL. In Next.js, prefer `next/font` instead.
 
 ---
 
 ## Background Patterns
 
 ```typescript
-import { generatePattern } from 'tailtheme'
+import { generatePattern } from 'cocuywind'
 
 const style = generatePattern({
   type: 'dots',       // 'none' | 'dots' | 'grid' | 'cross' | 'diagonal-lines' |
@@ -452,10 +452,10 @@ Patterns use pure CSS (no images, no external deps). Colors use `color-mix(in ok
 
 ## Serialization: DB Storage
 
-`StoredTheme` is the canonical format for the database. It always contains **resolved CSS values** — so consumer apps never need `tailtheme` at all, just string formatting.
+`StoredTheme` is the canonical format for the database. It always contains **resolved CSS values** — so consumer apps never need `cocuywind` at all, just string formatting.
 
 ```typescript
-import { serializeTheme, deserializeTheme, storedThemeToCSS } from 'tailtheme'
+import { serializeTheme, deserializeTheme, storedThemeToCSS } from 'cocuywind'
 
 // Theme → StoredTheme (save to DB)
 const stored = serializeTheme(myTheme)
@@ -494,7 +494,7 @@ interface StoredTheme {
 ## CSS Generation
 
 ```typescript
-import { generateCSS, generateThemeVariables, storedThemeToCSS } from 'tailtheme'
+import { generateCSS, generateThemeVariables, storedThemeToCSS } from 'cocuywind'
 
 // Full CSS block — paste into globals.css or inject server-side
 const css = generateCSS(oceanTheme)
@@ -527,8 +527,8 @@ The `@theme inline` block makes all tokens available as Tailwind utility classes
 ```tsx
 // app/theme-editor/page.tsx
 'use client'
-import { ThemePicker, useTheme } from 'tailtheme/react'
-import { serializeTheme } from 'tailtheme'
+import { ThemePicker, useTheme } from 'cocuywind/react'
+import { serializeTheme } from 'cocuywind'
 
 export default function ThemeEditorPage() {
   const { theme, availableThemes } = useTheme()
@@ -558,7 +558,7 @@ export default function ThemeEditorPage() {
 ```astro
 ---
 // src/layouts/Base.astro
-import { storedThemeToCSS } from 'tailtheme'
+import { storedThemeToCSS } from 'cocuywind'
 
 const stored = await db.getTheme(Astro.params.restaurantId)
 const css = storedThemeToCSS(stored)
@@ -573,7 +573,7 @@ const css = storedThemeToCSS(stored)
 </html>
 ```
 
-The Astro app does not need `tailtheme` as a runtime dependency — only at build time. If you don't use `storedThemeToCSS` in Astro, you don't even need it there; a plain function that formats `stored.styles.light` into CSS vars is sufficient.
+The Astro app does not need `cocuywind` as a runtime dependency — only at build time. If you don't use `storedThemeToCSS` in Astro, you don't even need it there; a plain function that formats `stored.styles.light` into CSS vars is sufficient.
 
 ---
 
@@ -582,14 +582,14 @@ The Astro app does not need `tailtheme` as a runtime dependency — only at buil
 ### `ThemeProvider`
 
 ```tsx
-import { ThemeProvider } from 'tailtheme/react'
-import { themes, oceanTheme } from 'tailtheme'
+import { ThemeProvider } from 'cocuywind/react'
+import { themes, oceanTheme } from 'cocuywind'
 
 <ThemeProvider
   themes={themes}              // Theme[] — what's available to switch to
   defaultTheme="ocean"         // theme name or Theme object
   defaultMode="system"         // 'light' | 'dark' | 'system' (default: 'system')
-  persistKey="app-theme"       // localStorage key prefix (default: 'tailtheme'), null to disable
+  persistKey="app-theme"       // localStorage key prefix (default: 'cocuywind'), null to disable
 >
   {children}
 </ThemeProvider>
@@ -618,8 +618,8 @@ const {
 ### `ThemePicker`
 
 ```tsx
-import { ThemePicker, useTheme } from 'tailtheme/react'
-import { serializeTheme } from 'tailtheme'
+import { ThemePicker, useTheme } from 'cocuywind/react'
+import { serializeTheme } from 'cocuywind'
 
 const { theme, availableThemes } = useTheme()
 
@@ -647,7 +647,7 @@ const { theme, availableThemes } = useTheme()
 ## Color Lookup
 
 ```typescript
-import { TAILWIND_COLORS, resolveColor } from 'tailtheme'
+import { TAILWIND_COLORS, resolveColor } from 'cocuywind'
 
 // Direct lookup
 TAILWIND_COLORS['blue-500']  // → 'oklch(0.623 0.214 259.815)'
@@ -664,7 +664,7 @@ resolveColor('#3b82f6')                     // → '#3b82f6' (passthrough)
 
 ## TypeScript
 
-All types are exported from `tailtheme`:
+All types are exported from `cocuywind`:
 
 ```typescript
 import type {
@@ -679,7 +679,7 @@ import type {
   RawColor,
   StoredTheme,
   ResolvedTokens,
-} from 'tailtheme'
+} from 'cocuywind'
 ```
 
 ---
@@ -693,7 +693,7 @@ Extract a theme from any live shadcn/ui-based website and import it into your sy
 `browserSnippet` is a self-contained JS string you can paste into DevTools. It temporarily toggles `.dark` on `<html>`, reads computed CSS variables for both modes, then copies the result to your clipboard.
 
 ```typescript
-import { browserSnippet } from 'tailtheme'
+import { browserSnippet } from 'cocuywind'
 
 // Print it, then paste into DevTools console on the target site:
 console.log(browserSnippet)
@@ -710,7 +710,7 @@ Output is JSON with this shape:
 Pass it directly to `themeFromSnippetOutput()`:
 
 ```typescript
-import { themeFromSnippetOutput } from 'tailtheme'
+import { themeFromSnippetOutput } from 'cocuywind'
 
 const json = JSON.parse(clipboardText) // { light: {...}, dark: {...} }
 const stored = themeFromSnippetOutput(json, { name: 'vercel', label: 'Vercel' })
@@ -726,7 +726,7 @@ const theme = deserializeTheme(stored)
 `bookmarkletUrl` is the same snippet as a `javascript:` URL — drag it to your bookmarks bar and click it on any page to trigger extraction.
 
 ```typescript
-import { bookmarkletUrl } from 'tailtheme'
+import { bookmarkletUrl } from 'cocuywind'
 
 // In your dashboard UI:
 <a href={bookmarkletUrl} title="Drag me to your bookmarks bar">
@@ -739,7 +739,7 @@ import { bookmarkletUrl } from 'tailtheme'
 Copy the `:root { }` and `.dark { }` blocks from DevTools → Elements → Computed/Styles and pass them as a string:
 
 ```typescript
-import { themeFromCSS } from 'tailtheme'
+import { themeFromCSS } from 'cocuywind'
 
 const css = `
   :root {
@@ -767,7 +767,7 @@ If no dark block is found, light tokens are mirrored to dark.
 If you already have the CSS variables as a plain object (e.g. from your own DevTools script):
 
 ```typescript
-import { themeFromCSSVars } from 'tailtheme'
+import { themeFromCSSVars } from 'cocuywind'
 
 const stored = themeFromCSSVars({
   '--background': 'oklch(1 0 0)',
@@ -790,7 +790,7 @@ All theme data is available through tweakcn's public JSON API.
 ### Method 1 — Fetch by name (programmatic, Node ≥ 18 / browser)
 
 ```typescript
-import { fetchTweakCNTheme } from 'tailtheme'
+import { fetchTweakCNTheme } from 'cocuywind'
 
 // Fetch one theme by its slug:
 const stored = await fetchTweakCNTheme('catppuccin')
@@ -803,7 +803,7 @@ const stored2 = await fetchTweakCNTheme('catppuccin', { name: 'brand', label: 'B
 ### Method 2 — Fetch all available themes
 
 ```typescript
-import { fetchTweakCNRegistry, fetchAllTweakCNThemes } from 'tailtheme'
+import { fetchTweakCNRegistry, fetchAllTweakCNThemes } from 'cocuywind'
 
 // Just list what's available (lightweight — no individual theme data):
 const registry = await fetchTweakCNRegistry()
@@ -820,8 +820,8 @@ const all = await fetchAllTweakCNThemes()
 If you have the raw JSON from tweakcn's API (e.g. downloaded as a file):
 
 ```typescript
-import { themeFromTweakCNItem } from 'tailtheme'
-import type { TweakCNThemeItem } from 'tailtheme'
+import { themeFromTweakCNItem } from 'cocuywind'
+import type { TweakCNThemeItem } from 'cocuywind'
 
 const item: TweakCNThemeItem = {
   name: 'catppuccin',
@@ -843,7 +843,7 @@ Only the 19 shadcn/ui-compatible color tokens are extracted. `chart-*`, `sidebar
 `tweakcnSnippet` detects the current theme from the tweakcn.com URL and fetches it via their API:
 
 ```typescript
-import { tweakcnSnippet, tweakcnBookmarkletUrl } from 'tailtheme'
+import { tweakcnSnippet, tweakcnBookmarkletUrl } from 'cocuywind'
 
 // Paste into DevTools console while on tweakcn.com/?theme=catppuccin:
 console.log(tweakcnSnippet)
@@ -870,12 +870,12 @@ import {
   fetchAllTweakCNThemes,   // fetch all themes → Promise<StoredTheme[]>
   tweakcnSnippet,          // browser DevTools snippet (detects from URL)
   tweakcnBookmarkletUrl,   // javascript: bookmarklet URL
-} from 'tailtheme'
+} from 'cocuywind'
 
 import type {
   TweakCNThemeItem,        // shape of tweakcn's per-theme JSON
   TweakCNRegistryEntry,    // shape of a registry listing entry
-} from 'tailtheme'
+} from 'cocuywind'
 ```
 
 ---
@@ -889,7 +889,7 @@ import {
   themeFromSnippetOutput, // browserSnippet output → StoredTheme (light + dark)
   browserSnippet,         // JS string to paste into DevTools console
   bookmarkletUrl,         // javascript: URL for bookmark
-} from 'tailtheme'
+} from 'cocuywind'
 ```
 
 ---

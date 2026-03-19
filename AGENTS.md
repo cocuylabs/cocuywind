@@ -1,8 +1,8 @@
-# AGENTS.md — tailtheme
+# AGENTS.md — cocuywind
 
 ## Project Purpose
 
-`tailtheme` is a TypeScript library that standardizes theming across a multi-app pattern:
+`cocuywind` is a TypeScript library that standardizes theming across a multi-app pattern:
 
 ```
 Next.js Dashboard
@@ -53,8 +53,8 @@ pnpm dev            # tsup --watch
 }
 ```
 
-- `tailtheme` — core, zero runtime dependencies
-- `tailtheme/react` — React components + hooks, requires `react ≥ 18`
+- `cocuywind` — core, zero runtime dependencies
+- `cocuywind/react` — React components + hooks, requires `react ≥ 18`
 
 **IMPORTANT**: The `"types"` condition must come before `"import"` and `"require"` in `package.json` exports (esbuild requirement).
 
@@ -179,7 +179,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }
 
 ### storedThemeToCSS(stored: StoredTheme) — same output but from `StoredTheme`
 
-This is the **Astro path** — no Theme object needed. The consumer formats stored CSS strings directly. This means Astro apps never need `tailtheme` as a runtime dep.
+This is the **Astro path** — no Theme object needed. The consumer formats stored CSS strings directly. This means Astro apps never need `cocuywind` as a runtime dep.
 
 ---
 
@@ -426,7 +426,7 @@ Currently 129 tests across 9 files.
 
 1. **`StoredTheme.styles` always has resolved CSS strings** — never TailwindToken refs. This is enforced by `serializeTheme` calling `resolveTokens`.
 
-2. **Consumer apps never need `tailtheme` as a runtime dep** — `storedThemeToCSS(stored)` only does string formatting, no color resolution.
+2. **Consumer apps never need `cocuywind` as a runtime dep** — `storedThemeToCSS(stored)` only does string formatting, no color resolution.
 
 3. **`types` export condition before `import`/`require`** in `package.json` — esbuild error if reversed.
 
@@ -457,7 +457,7 @@ node -e "fetch('https://tweakcn.com/r/themes/new-theme.json').then(r=>r.json()).
 
 Or at runtime:
 ```typescript
-import { fetchTweakCNTheme } from 'tailtheme'
+import { fetchTweakCNTheme } from 'cocuywind'
 const stored = await fetchTweakCNTheme('new-theme')
 ```
 
@@ -476,7 +476,7 @@ export const newTheme = createTheme({
 ### Steal a theme from a live site
 
 ```typescript
-import { browserSnippet, themeFromSnippetOutput } from 'tailtheme'
+import { browserSnippet, themeFromSnippetOutput } from 'cocuywind'
 // 1. console.log(browserSnippet) — paste in target site's DevTools
 // 2. JSON copied to clipboard
 // 3. const stored = themeFromSnippetOutput(JSON.parse(clip), { name: 'stolen' })
@@ -485,7 +485,7 @@ import { browserSnippet, themeFromSnippetOutput } from 'tailtheme'
 ### Parse CSS pasted from tweakcn "Copy code"
 
 ```typescript
-import { themeFromCSS } from 'tailtheme'
+import { themeFromCSS } from 'cocuywind'
 // Works with @layer base { :root { } .dark { } } wrapper
 const stored = themeFromCSS(cssText, { name: 'catppuccin' })
 ```

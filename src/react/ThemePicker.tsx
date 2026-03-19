@@ -31,6 +31,8 @@ export interface ThemePickerProps {
   labels?: Record<string, Record<string, string>>
   /** Max height for the palette swatches area only — sections remain visible below */
   paletteMaxHeight?: string | number
+  /** Size (px) of the three palette dots in each swatch row */
+  paletteSwatchSize?: number
   /** Show the preset palette grid */
   showPalette?: boolean
   /** Show the custom palette controls */
@@ -129,8 +131,8 @@ function getSwatchColors(theme: Theme, mode: 'light' | 'dark' = 'light'): [strin
   return [resolveColor(t.background), resolveColor(t.primary), resolveColor(t.secondary)]
 }
 
-function ThemeSwatch({ theme, selected, onClick, previewMode = 'light', labelOverride }: {
-  theme: Theme; selected: boolean; onClick: () => void; previewMode?: 'light' | 'dark'; labelOverride?: string
+function ThemeSwatch({ theme, selected, onClick, previewMode = 'light', labelOverride, swatchSize = 14 }: {
+  theme: Theme; selected: boolean; onClick: () => void; previewMode?: 'light' | 'dark'; labelOverride?: string; swatchSize?: number
 }) {
   const [bg, pri, sec] = getSwatchColors(theme, previewMode)
   const label = labelOverride ?? theme.label
@@ -139,14 +141,23 @@ function ThemeSwatch({ theme, selected, onClick, previewMode = 'light', labelOve
       onClick={onClick}
       title={label}
       className={cn(
-        'flex w-full items-center gap-2 rounded-md border px-2 py-1 text-left text-xs transition-colors',
+        'flex w-full items-center gap-3 rounded-md border px-3 py-2 text-left text-sm transition-colors',
         selected ? 'border-ring bg-accent text-accent-foreground' : 'border-border hover:bg-muted/50'
       )}
     >
-      <span className="flex shrink-0 gap-1">
-        <span className="inline-block h-2.5 w-2.5 rounded-full border border-border" style={{ backgroundColor: bg }} />
-        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: pri }} />
-        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: sec }} />
+      <span className="flex shrink-0 gap-1.5">
+        <span
+          className="inline-block rounded-full border border-border"
+          style={{ backgroundColor: bg, width: swatchSize, height: swatchSize }}
+        />
+        <span
+          className="inline-block rounded-full"
+          style={{ backgroundColor: pri, width: swatchSize, height: swatchSize }}
+        />
+        <span
+          className="inline-block rounded-full"
+          style={{ backgroundColor: sec, width: swatchSize, height: swatchSize }}
+        />
       </span>
       <span className="truncate">{label}</span>
     </button>
@@ -162,6 +173,7 @@ export interface ThemePalettePickerProps {
   paletteMaxHeight?: string | number
   previewMode?: 'light' | 'dark'
   className?: string
+  swatchSize?: number
 }
 
 export function ThemePalettePicker({
@@ -173,6 +185,7 @@ export function ThemePalettePicker({
   paletteMaxHeight,
   previewMode = 'light',
   className,
+  swatchSize,
 }: ThemePalettePickerProps) {
   if (themes.length === 0) return null
   return (
@@ -186,6 +199,7 @@ export function ThemePalettePicker({
             onClick={() => onChange(t.name)}
             labelOverride={labels?.[locale]?.[t.name]}
             previewMode={previewMode}
+            swatchSize={swatchSize}
           />
         ))}
       </div>
@@ -215,7 +229,7 @@ export function ThemeCustomPalettePicker({
   onSecondaryChange,
   onNeutralChange,
   className,
-  title = 'Custom palette',
+  title,
   subtitle,
 }: ThemeCustomPalettePickerProps) {
   return (
@@ -592,6 +606,7 @@ export function ThemePicker({
   locale = 'en',
   labels,
   paletteMaxHeight,
+  paletteSwatchSize,
   showPalette = true,
   showCustomPalette = allowCustom,
 }: ThemePickerProps) {
@@ -662,6 +677,7 @@ export function ThemePicker({
           labels={labels}
           locale={locale}
           paletteMaxHeight={paletteMaxHeight}
+          swatchSize={paletteSwatchSize}
         />
       )}
 

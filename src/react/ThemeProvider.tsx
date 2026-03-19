@@ -42,7 +42,7 @@ export interface ThemeProviderProps {
   persistKey?: string | null
 }
 
-const DEFAULT_PERSIST_KEY = 'tailtheme'
+const DEFAULT_PERSIST_KEY = 'cocuywind'
 
 function resolveTheme(themeOrName: string | Theme, themes: Theme[]): Theme | undefined {
   if (typeof themeOrName === 'string') {
@@ -120,7 +120,7 @@ export function ThemeProvider({
     else                      root.style.removeProperty('--font-heading')
 
     // Inject font application rules
-    const styleId = 'tailtheme-font-rules'
+    const styleId = 'cocuywind-font-rules'
     let styleEl = document.getElementById(styleId) as HTMLStyleElement | null
     if (!styleEl) {
       styleEl = document.createElement('style')
@@ -132,7 +132,7 @@ export function ThemeProvider({
     styleEl.textContent = [bodyRule, headingRule].filter(Boolean).join('\n')
 
     // Load Google Fonts
-    const linkId = 'tailtheme-gfonts'
+    const linkId = 'cocuywind-gfonts'
     const families = [theme.fonts?.body, theme.fonts?.heading].filter((f): f is string => !!f)
     const gfontsUrl = families.length > 0 ? googleFontsUrl(families) : ''
     let linkEl = document.getElementById(linkId) as HTMLLinkElement | null
