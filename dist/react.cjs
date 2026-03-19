@@ -1320,29 +1320,26 @@ function ThemeCustomPalettePicker({
 }
 function ThemeFontsPicker({ value, onChange, className }) {
   const DEFAULT = "__default__";
-  return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: cn("space-y-3", className), children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h4", { className: "text-sm font-semibold", children: "Fonts" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "space-y-2", children: ["body", "heading"].map((fontType) => /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "grid grid-cols-[64px_1fr] items-center gap-3", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Label, { className: "text-xs text-muted-foreground", children: fontType }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(
-        Select,
-        {
-          value: value[fontType] ?? DEFAULT,
-          onValueChange: (v) => onChange({ ...value, [fontType]: v === DEFAULT ? void 0 : v }),
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectValue, { placeholder: fontType === "heading" ? "Same as body" : "System default" }) }),
-            /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(SelectContent, { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectGroup, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectItem, { value: DEFAULT, children: fontType === "heading" ? "Same as body" : "System default" }) }),
-              FONT_GROUPS.map((group) => /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(SelectGroup, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectLabel, { children: group.label }),
-                group.options.map((f) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectItem, { value: f.value, children: f.label }, f.value))
-              ] }, group.label))
-            ] })
-          ]
-        }
-      )
-    ] }, fontType)) })
-  ] });
+  return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: cn("space-y-3", className), children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "space-y-2", children: ["body", "heading"].map((fontType) => /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "grid grid-cols-[64px_1fr] items-center gap-3", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Label, { className: "text-xs text-muted-foreground capitalize", children: fontType }),
+    /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(
+      Select,
+      {
+        value: value[fontType] ?? DEFAULT,
+        onValueChange: (v) => onChange({ ...value, [fontType]: v === DEFAULT ? void 0 : v }),
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectValue, { placeholder: fontType === "heading" ? "Same as body" : "System default" }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(SelectContent, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectGroup, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectItem, { value: DEFAULT, children: fontType === "heading" ? "Same as body" : "System default" }) }),
+            FONT_GROUPS.map((group) => /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(SelectGroup, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectLabel, { children: group.label }),
+              group.options.map((f) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(SelectItem, { value: f.value, children: f.label }, f.value))
+            ] }, group.label))
+          ] })
+        ]
+      }
+    )
+  ] }, fontType)) }) });
 }
 function ThemePatternsPicker({ value, onChange, className }) {
   const activeType = value.type;
@@ -1393,19 +1390,16 @@ function ThemePatternsPicker({ value, onChange, className }) {
   ] });
 }
 function ThemeRadiusPicker({ value, onChange, className }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: cn("space-y-3", className), children: [
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h4", { className: "text-sm font-semibold", children: "Border Radius" }),
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "flex flex-wrap gap-2", children: RADIUS_PRESETS.map((r) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
-      Button,
-      {
-        variant: value === r.value ? "secondary" : "outline",
-        size: "xs",
-        onClick: () => onChange(r.value),
-        children: r.label
-      },
-      r.value
-    )) })
-  ] });
+  return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: cn("space-y-3", className), children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "flex flex-wrap gap-2", children: RADIUS_PRESETS.map((r) => /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+    Button,
+    {
+      variant: value === r.value ? "secondary" : "outline",
+      size: "xs",
+      onClick: () => onChange(r.value),
+      children: r.label
+    },
+    r.value
+  )) }) });
 }
 function ThemeBackgroundImagePicker({ value, onChange, className }) {
   return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: cn("space-y-3", className), children: [
