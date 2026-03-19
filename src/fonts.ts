@@ -21,10 +21,27 @@ export const FONTS = {
   MANROPE:        "'Manrope', system-ui, sans-serif",
 
   // ─── Serif Google Fonts ────────────────────────────────────────────────────
-  PLAYFAIR:       "'Playfair Display', Georgia, serif",
-  LORA:           "'Lora', Georgia, serif",
-  MERRIWEATHER:   "'Merriweather', Georgia, serif",
-  DM_SERIF:       "'DM Serif Display', Georgia, serif",
+  PLAYFAIR:            "'Playfair Display', Georgia, serif",
+  LORA:                "'Lora', Georgia, serif",
+  MERRIWEATHER:        "'Merriweather', Georgia, serif",
+  DM_SERIF:            "'DM Serif Display', Georgia, serif",
+  CORMORANT:           "'Cormorant Garamond', Georgia, serif",
+  BODONI_MODA:         "'Bodoni Moda', Georgia, serif",
+  CINZEL:              "'Cinzel', Georgia, serif",
+  FRAUNCES:            "'Fraunces', Georgia, serif",
+  INSTRUMENT_SERIF:    "'Instrument Serif', Georgia, serif",
+
+  // ─── Display / Edgy Google Fonts ──────────────────────────────────────────
+  BEBAS_NEUE:      "'Bebas Neue', system-ui, sans-serif",
+  SYNE:            "'Syne', system-ui, sans-serif",
+  UNBOUNDED:       "'Unbounded', system-ui, sans-serif",
+  ARCHIVO_BLACK:   "'Archivo Black', system-ui, sans-serif",
+  RIGHTEOUS:       "'Righteous', system-ui, sans-serif",
+
+  // ─── More Sans-serif Google Fonts ─────────────────────────────────────────
+  SPACE_GROTESK:   "'Space Grotesk', system-ui, sans-serif",
+  JOSEFIN_SANS:    "'Josefin Sans', system-ui, sans-serif",
+  RALEWAY:         "'Raleway', system-ui, sans-serif",
 
   // ─── Monospace Google Fonts ────────────────────────────────────────────────
   JETBRAINS_MONO:  "'JetBrains Mono', ui-monospace, monospace",
@@ -45,14 +62,27 @@ const GOOGLE_FONT_NAMES: Partial<Record<FontKey, string>> = {
   OUTFIT:         'Outfit:wght@400;500;600;700',
   DM_SANS:        'DM+Sans:wght@400;500;600;700',
   MANROPE:        'Manrope:wght@400;500;600;700',
-  PLAYFAIR:       'Playfair+Display:wght@400;600;700',
-  LORA:           'Lora:wght@400;500;600;700',
-  MERRIWEATHER:   'Merriweather:wght@300;400;700',
-  DM_SERIF:        'DM+Serif+Display:wght@400',
-  JETBRAINS_MONO:  'JetBrains+Mono:wght@400;500;700',
-  FIRA_CODE:       'Fira+Code:wght@400;500;700',
-  SOURCE_CODE_PRO: 'Source+Code+Pro:wght@400;500;700',
-  IBM_PLEX_MONO:   'IBM+Plex+Mono:wght@400;500;700',
+  PLAYFAIR:            'Playfair+Display:wght@400;600;700',
+  LORA:                'Lora:wght@400;500;600;700',
+  MERRIWEATHER:        'Merriweather:wght@300;400;700',
+  DM_SERIF:            'DM+Serif+Display:wght@400',
+  CORMORANT:           'Cormorant+Garamond:wght@400;500;600;700',
+  BODONI_MODA:         'Bodoni+Moda:opsz,wght@6..96,400;6..96,700',
+  CINZEL:              'Cinzel:wght@400;600;700',
+  FRAUNCES:            'Fraunces:opsz,wght@9..144,300;9..144,400;9..144,700',
+  INSTRUMENT_SERIF:    'Instrument+Serif:ital,wght@0,400;1,400',
+  BEBAS_NEUE:          'Bebas+Neue:wght@400',
+  SYNE:                'Syne:wght@400;600;700;800',
+  UNBOUNDED:           'Unbounded:wght@400;500;600;700',
+  ARCHIVO_BLACK:       'Archivo+Black:wght@400',
+  RIGHTEOUS:           'Righteous:wght@400',
+  SPACE_GROTESK:       'Space+Grotesk:wght@400;500;600;700',
+  JOSEFIN_SANS:        'Josefin+Sans:wght@400;600;700',
+  RALEWAY:             'Raleway:wght@400;500;600;700',
+  JETBRAINS_MONO:      'JetBrains+Mono:wght@400;500;700',
+  FIRA_CODE:           'Fira+Code:wght@400;500;700',
+  SOURCE_CODE_PRO:     'Source+Code+Pro:wght@400;500;700',
+  IBM_PLEX_MONO:       'IBM+Plex+Mono:wght@400;500;700',
 }
 
 /**

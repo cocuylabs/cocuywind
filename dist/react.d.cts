@@ -1,5 +1,7 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import React from 'react';
+import * as React from 'react';
+import React__default from 'react';
+import * as SelectPrimitive from '@radix-ui/react-select';
 
 type TailwindColor = 'slate' | 'gray' | 'zinc' | 'neutral' | 'stone' | 'red' | 'orange' | 'amber' | 'yellow' | 'lime' | 'green' | 'emerald' | 'teal' | 'cyan' | 'sky' | 'blue' | 'indigo' | 'violet' | 'purple' | 'fuchsia' | 'pink' | 'rose';
 type TailwindShade = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950;
@@ -87,9 +89,9 @@ interface ThemeContextValue {
     /** All available themes */
     availableThemes: Theme[];
 }
-declare const ThemeContext: React.Context<ThemeContextValue | null>;
+declare const ThemeContext: React__default.Context<ThemeContextValue | null>;
 interface ThemeProviderProps {
-    children: React.ReactNode;
+    children: React__default.ReactNode;
     /** All themes available to the picker */
     themes: Theme[];
     /** Default theme name or Theme object */
@@ -122,7 +124,86 @@ interface ThemePickerProps {
     labels?: Record<string, Record<string, string>>;
     /** Max height for the palette swatches area only — sections remain visible below */
     paletteMaxHeight?: string | number;
+    /** Show the preset palette grid */
+    showPalette?: boolean;
+    /** Show the custom palette controls */
+    showCustomPalette?: boolean;
 }
-declare function ThemePicker({ themes, value, onChange, allowCustom, sections, className, locale, labels, paletteMaxHeight, }: ThemePickerProps): react_jsx_runtime.JSX.Element;
+interface ThemePalettePickerProps {
+    themes: Theme[];
+    value: string | null;
+    onChange: (name: string) => void;
+    labels?: Record<string, Record<string, string>>;
+    locale?: 'en' | 'es' | 'pt';
+    paletteMaxHeight?: string | number;
+    previewMode?: 'light' | 'dark';
+    className?: string;
+}
+declare function ThemePalettePicker({ themes, value, onChange, labels, locale, paletteMaxHeight, previewMode, className, }: ThemePalettePickerProps): react_jsx_runtime.JSX.Element | null;
+interface ThemeCustomPalettePickerProps {
+    hasPreset: boolean;
+    primary: TailwindColor | null;
+    secondary: TailwindColor | null;
+    neutral: TailwindColor | 'none' | null;
+    onPrimaryChange: (value: TailwindColor | null) => void;
+    onSecondaryChange: (value: TailwindColor | null) => void;
+    onNeutralChange: (value: TailwindColor | 'none' | null) => void;
+    className?: string;
+    title?: string;
+    subtitle?: string;
+}
+declare function ThemeCustomPalettePicker({ hasPreset, primary, secondary, neutral, onPrimaryChange, onSecondaryChange, onNeutralChange, className, title, subtitle, }: ThemeCustomPalettePickerProps): react_jsx_runtime.JSX.Element;
+interface ThemeFontsPickerProps {
+    value: ThemeFonts;
+    onChange: (value: ThemeFonts) => void;
+    className?: string;
+}
+declare function ThemeFontsPicker({ value, onChange, className }: ThemeFontsPickerProps): react_jsx_runtime.JSX.Element;
+interface ThemePatternsPickerProps {
+    value: ThemePattern;
+    onChange: (value: ThemePattern) => void;
+    className?: string;
+}
+declare function ThemePatternsPicker({ value, onChange, className }: ThemePatternsPickerProps): react_jsx_runtime.JSX.Element;
+interface ThemeRadiusPickerProps {
+    value: string;
+    onChange: (value: string) => void;
+    className?: string;
+}
+declare function ThemeRadiusPicker({ value, onChange, className }: ThemeRadiusPickerProps): react_jsx_runtime.JSX.Element;
+interface ThemeBackgroundImagePickerProps {
+    value: string;
+    onChange: (value: string) => void;
+    className?: string;
+}
+declare function ThemeBackgroundImagePicker({ value, onChange, className }: ThemeBackgroundImagePickerProps): react_jsx_runtime.JSX.Element;
+declare function ThemePicker({ themes, value, onChange, allowCustom, sections, className, locale, labels, paletteMaxHeight, showPalette, showCustomPalette, }: ThemePickerProps): react_jsx_runtime.JSX.Element;
 
-export { type ColorMode, ThemeContext, type ThemeContextValue, ThemePicker, type ThemePickerProps, type ThemePickerSection, ThemeProvider, type ThemeProviderProps, useTheme };
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive';
+    size?: 'xs' | 'sm' | 'md' | 'icon';
+}
+declare const Button: React.ForwardRefExoticComponent<ButtonProps & React.RefAttributes<HTMLButtonElement>>;
+
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+}
+declare const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<HTMLInputElement>>;
+
+interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
+}
+declare const Label: React.ForwardRefExoticComponent<LabelProps & React.RefAttributes<HTMLLabelElement>>;
+
+declare const Select: React.FC<SelectPrimitive.SelectProps>;
+declare const SelectGroup: React.ForwardRefExoticComponent<SelectPrimitive.SelectGroupProps & React.RefAttributes<HTMLDivElement>>;
+declare const SelectValue: React.ForwardRefExoticComponent<SelectPrimitive.SelectValueProps & React.RefAttributes<HTMLSpanElement>>;
+declare const SelectTrigger: React.ForwardRefExoticComponent<Omit<SelectPrimitive.SelectTriggerProps & React.RefAttributes<HTMLButtonElement>, "ref"> & React.RefAttributes<HTMLButtonElement>>;
+declare const SelectContent: React.ForwardRefExoticComponent<Omit<SelectPrimitive.SelectContentProps & React.RefAttributes<HTMLDivElement>, "ref"> & React.RefAttributes<HTMLDivElement>>;
+declare const SelectLabel: React.ForwardRefExoticComponent<Omit<SelectPrimitive.SelectLabelProps & React.RefAttributes<HTMLDivElement>, "ref"> & React.RefAttributes<HTMLDivElement>>;
+declare const SelectItem: React.ForwardRefExoticComponent<Omit<SelectPrimitive.SelectItemProps & React.RefAttributes<HTMLDivElement>, "ref"> & React.RefAttributes<HTMLDivElement>>;
+declare const SelectSeparator: React.ForwardRefExoticComponent<Omit<SelectPrimitive.SelectSeparatorProps & React.RefAttributes<HTMLDivElement>, "ref"> & React.RefAttributes<HTMLDivElement>>;
+type SelectProps = React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root>;
+
+type ClassValue = string | null | undefined | false | Record<string, boolean>;
+declare function cn(...inputs: ClassValue[]): string;
+
+export { Button, type ButtonProps, type ClassValue, type ColorMode, Input, type InputProps, Label, type LabelProps, Select, SelectContent, SelectGroup, SelectItem, SelectLabel, type SelectProps, SelectSeparator, SelectTrigger, SelectValue, ThemeBackgroundImagePicker, type ThemeBackgroundImagePickerProps, ThemeContext, type ThemeContextValue, ThemeCustomPalettePicker, type ThemeCustomPalettePickerProps, ThemeFontsPicker, type ThemeFontsPickerProps, ThemePalettePicker, type ThemePalettePickerProps, ThemePatternsPicker, type ThemePatternsPickerProps, ThemePicker, type ThemePickerProps, type ThemePickerSection, ThemeProvider, type ThemeProviderProps, ThemeRadiusPicker, type ThemeRadiusPickerProps, cn, useTheme };

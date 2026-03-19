@@ -45,6 +45,9 @@
     "vite": "^5.4.21",
     "vitest": "^2.1.0"
   },
+  "dependencies": {
+    "@radix-ui/react-select": "^2.1.2"
+  },
   "peerDependencies": {
     "react": ">=18"
   },

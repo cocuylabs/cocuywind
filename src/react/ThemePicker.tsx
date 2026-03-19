@@ -4,6 +4,19 @@ import { createTheme } from '../factory.js'
 import { FONTS } from '../fonts.js'
 import { resolveColor } from '../colors.js'
 import { generatePattern } from '../patterns.js'
+import { Button } from './ui/button.js'
+import { Input } from './ui/input.js'
+import { Label } from './ui/label.js'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select.js'
+import { cn } from './ui/utils.js'
 
 export type ThemePickerSection = 'fonts' | 'patterns' | 'radius' | 'background'
 
@@ -18,6 +31,10 @@ export interface ThemePickerProps {
   labels?: Record<string, Record<string, string>>
   /** Max height for the palette swatches area only — sections remain visible below */
   paletteMaxHeight?: string | number
+  /** Show the preset palette grid */
+  showPalette?: boolean
+  /** Show the custom palette controls */
+  showCustomPalette?: boolean
 }
 
 const TAILWIND_COLORS: TailwindColor[] = [
@@ -59,23 +76,41 @@ const FONT_GROUPS = [
   {
     label: 'Sans-serif',
     options: [
-      { label: 'Inter',            value: FONTS.INTER },
-      { label: 'Geist',            value: FONTS.GEIST },
+      { label: 'Inter',             value: FONTS.INTER },
+      { label: 'Geist',             value: FONTS.GEIST },
       { label: 'Plus Jakarta Sans', value: FONTS.PLUS_JAKARTA },
-      { label: 'Nunito',           value: FONTS.NUNITO },
-      { label: 'Poppins',          value: FONTS.POPPINS },
-      { label: 'Outfit',           value: FONTS.OUTFIT },
-      { label: 'DM Sans',          value: FONTS.DM_SANS },
-      { label: 'Manrope',          value: FONTS.MANROPE },
+      { label: 'Space Grotesk',     value: FONTS.SPACE_GROTESK },
+      { label: 'Josefin Sans',      value: FONTS.JOSEFIN_SANS },
+      { label: 'Raleway',           value: FONTS.RALEWAY },
+      { label: 'Nunito',            value: FONTS.NUNITO },
+      { label: 'Poppins',           value: FONTS.POPPINS },
+      { label: 'Outfit',            value: FONTS.OUTFIT },
+      { label: 'DM Sans',           value: FONTS.DM_SANS },
+      { label: 'Manrope',           value: FONTS.MANROPE },
     ],
   },
   {
     label: 'Serif',
     options: [
-      { label: 'Playfair Display', value: FONTS.PLAYFAIR },
-      { label: 'Lora',             value: FONTS.LORA },
-      { label: 'Merriweather',     value: FONTS.MERRIWEATHER },
-      { label: 'DM Serif Display', value: FONTS.DM_SERIF },
+      { label: 'Cormorant Garamond', value: FONTS.CORMORANT },
+      { label: 'Bodoni Moda',        value: FONTS.BODONI_MODA },
+      { label: 'Cinzel',             value: FONTS.CINZEL },
+      { label: 'Fraunces',           value: FONTS.FRAUNCES },
+      { label: 'Instrument Serif',   value: FONTS.INSTRUMENT_SERIF },
+      { label: 'Playfair Display',   value: FONTS.PLAYFAIR },
+      { label: 'Lora',               value: FONTS.LORA },
+      { label: 'Merriweather',       value: FONTS.MERRIWEATHER },
+      { label: 'DM Serif Display',   value: FONTS.DM_SERIF },
+    ],
+  },
+  {
+    label: 'Display',
+    options: [
+      { label: 'Bebas Neue',    value: FONTS.BEBAS_NEUE },
+      { label: 'Syne',          value: FONTS.SYNE },
+      { label: 'Unbounded',     value: FONTS.UNBOUNDED },
+      { label: 'Archivo Black', value: FONTS.ARCHIVO_BLACK },
+      { label: 'Righteous',     value: FONTS.RIGHTEOUS },
     ],
   },
 ]
@@ -100,20 +135,376 @@ function ThemeSwatch({ theme, selected, onClick, previewMode = 'light', labelOve
   const [bg, pri, sec] = getSwatchColors(theme, previewMode)
   const label = labelOverride ?? theme.label
   return (
-    <button onClick={onClick} title={label} style={{
-      display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px',
-      borderRadius: 6, border: selected ? '2px solid var(--ring)' : '1px solid var(--border)',
-      background: selected ? 'var(--accent)' : 'transparent',
-      cursor: 'pointer', outline: 'none', color: 'var(--foreground)',
-      width: '100%', textAlign: 'left', minWidth: 0,
-    }}>
-      <span style={{ flexShrink: 0, display: 'flex', gap: 2 }}>
-        <span style={{ width: 10, height: 10, borderRadius: '50%', background: bg, border: '1px solid var(--border)', display: 'inline-block' }} />
-        <span style={{ width: 10, height: 10, borderRadius: '50%', background: pri, display: 'inline-block' }} />
-        <span style={{ width: 10, height: 10, borderRadius: '50%', background: sec, display: 'inline-block' }} />
+    <button
+      onClick={onClick}
+      title={label}
+      className={cn(
+        'flex w-full items-center gap-2 rounded-md border px-2 py-1 text-left text-xs transition-colors',
+        selected ? 'border-ring bg-accent text-accent-foreground' : 'border-border hover:bg-muted/50'
+      )}
+    >
+      <span className="flex shrink-0 gap-1">
+        <span className="inline-block h-2.5 w-2.5 rounded-full border border-border" style={{ backgroundColor: bg }} />
+        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: pri }} />
+        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: sec }} />
       </span>
-      <span style={{ fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
+      <span className="truncate">{label}</span>
     </button>
+  )
+}
+
+export interface ThemePalettePickerProps {
+  themes: Theme[]
+  value: string | null
+  onChange: (name: string) => void
+  labels?: Record<string, Record<string, string>>
+  locale?: 'en' | 'es' | 'pt'
+  paletteMaxHeight?: string | number
+  previewMode?: 'light' | 'dark'
+  className?: string
+}
+
+export function ThemePalettePicker({
+  themes,
+  value,
+  onChange,
+  labels,
+  locale = 'en',
+  paletteMaxHeight,
+  previewMode = 'light',
+  className,
+}: ThemePalettePickerProps) {
+  if (themes.length === 0) return null
+  return (
+    <div className={className} style={paletteMaxHeight ? { maxHeight: paletteMaxHeight, overflowY: 'auto' } : undefined}>
+      <div className="grid grid-cols-2 gap-2">
+        {themes.map(t => (
+          <ThemeSwatch
+            key={t.name}
+            theme={t}
+            selected={t.name === value}
+            onClick={() => onChange(t.name)}
+            labelOverride={labels?.[locale]?.[t.name]}
+            previewMode={previewMode}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export interface ThemeCustomPalettePickerProps {
+  hasPreset: boolean
+  primary: TailwindColor | null
+  secondary: TailwindColor | null
+  neutral: TailwindColor | 'none' | null
+  onPrimaryChange: (value: TailwindColor | null) => void
+  onSecondaryChange: (value: TailwindColor | null) => void
+  onNeutralChange: (value: TailwindColor | 'none' | null) => void
+  className?: string
+  title?: string
+  subtitle?: string
+}
+
+export function ThemeCustomPalettePicker({
+  hasPreset,
+  primary,
+  secondary,
+  neutral,
+  onPrimaryChange,
+  onSecondaryChange,
+  onNeutralChange,
+  className,
+  title = 'Custom palette',
+  subtitle,
+}: ThemeCustomPalettePickerProps) {
+  return (
+    <div className={cn('space-y-4', className)}>
+      <div className="flex items-baseline gap-2">
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{title}</span>
+        {subtitle && <span className="text-[11px] text-muted-foreground/70">{subtitle}</span>}
+      </div>
+
+      <section className="space-y-2">
+        <h4 className="text-xs font-semibold text-muted-foreground">Primary</h4>
+        <div className="flex flex-wrap items-center gap-2">
+          {hasPreset && (
+            <Button variant={primary === null ? 'secondary' : 'outline'} size="xs" onClick={() => onPrimaryChange(null)}>
+              Auto
+            </Button>
+          )}
+          {TAILWIND_COLORS.map(color => (
+            <button
+              key={color}
+              onClick={() => onPrimaryChange(color)}
+              title={color}
+              className={cn(
+                'h-6 w-6 rounded-full border transition-colors',
+                primary === color ? 'border-foreground ring-2 ring-ring' : 'border-border hover:border-muted-foreground'
+              )}
+              style={{ backgroundColor: resolveColor(`${color}-500`) }}
+            />
+          ))}
+        </div>
+        {primary === null && hasPreset && (
+          <p className="text-[11px] text-muted-foreground">Using preset</p>
+        )}
+      </section>
+
+      <section className="space-y-2">
+        <h4 className="text-xs font-semibold text-muted-foreground">Secondary</h4>
+        <div className="flex flex-wrap items-center gap-2">
+          {hasPreset ? (
+            <Button variant={secondary === null ? 'secondary' : 'outline'} size="xs" onClick={() => onSecondaryChange(null)}>
+              Auto
+            </Button>
+          ) : (
+            <button
+              onClick={() => onSecondaryChange(null)}
+              title="Auto (derived from primary)"
+              className={cn(
+                'h-6 w-6 rounded-full border transition-colors',
+                secondary === null ? 'border-foreground ring-2 ring-ring' : 'border-border hover:border-muted-foreground'
+              )}
+              style={{
+                backgroundImage: `conic-gradient(${TAILWIND_COLORS.slice(5, 10).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(', ')})`,
+              }}
+            />
+          )}
+          {TAILWIND_COLORS.map(color => (
+            <button
+              key={color}
+              onClick={() => onSecondaryChange(color)}
+              title={color}
+              className={cn(
+                'h-6 w-6 rounded-full border transition-colors',
+                secondary === color ? 'border-foreground ring-2 ring-ring' : 'border-border hover:border-muted-foreground'
+              )}
+              style={{ backgroundColor: resolveColor(`${color}-500`) }}
+            />
+          ))}
+        </div>
+        {secondary === null && (
+          <p className="text-[11px] text-muted-foreground">
+            {hasPreset ? 'Using preset' : 'Auto from primary'}
+          </p>
+        )}
+      </section>
+
+      <section className="space-y-2">
+        <h4 className="text-xs font-semibold text-muted-foreground">Neutral base</h4>
+        <div className="flex flex-wrap items-center gap-2">
+          {hasPreset
+            ? (
+              <Button variant={neutral === null ? 'secondary' : 'outline'} size="xs" onClick={() => onNeutralChange(null)}>
+                Auto
+              </Button>
+            ) : (
+              <Button
+                variant={(neutral === null || neutral === 'none') ? 'secondary' : 'outline'}
+                size="xs"
+                onClick={() => onNeutralChange('none')}
+              >
+                none
+              </Button>
+            )
+          }
+          {NEUTRAL_COLORS.map(color => (
+            <Button
+              key={color}
+              variant={neutral === color ? 'secondary' : 'outline'}
+              size="xs"
+              onClick={() => onNeutralChange(color)}
+            >
+              {color}
+            </Button>
+          ))}
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          {neutral === null
+            ? (hasPreset ? 'Using preset' : 'Primary family')
+            : neutral === 'none' ? 'Primary family'
+            : `${neutral} surfaces`}
+        </p>
+      </section>
+    </div>
+  )
+}
+
+export interface ThemeFontsPickerProps {
+  value: ThemeFonts
+  onChange: (value: ThemeFonts) => void
+  className?: string
+}
+
+export function ThemeFontsPicker({ value, onChange, className }: ThemeFontsPickerProps) {
+  const DEFAULT = '__default__'
+  return (
+    <div className={cn('space-y-3', className)}>
+      <h4 className="text-sm font-semibold">Fonts</h4>
+      <div className="space-y-2">
+        {(['body', 'heading'] as const).map(fontType => (
+          <div key={fontType} className="grid grid-cols-[64px_1fr] items-center gap-3">
+            <Label className="text-xs text-muted-foreground">{fontType}</Label>
+            <Select
+              value={value[fontType] ?? DEFAULT}
+              onValueChange={(v) => onChange({ ...value, [fontType]: v === DEFAULT ? undefined : v })}
+            >
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder={fontType === 'heading' ? 'Same as body' : 'System default'} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value={DEFAULT}>
+                    {fontType === 'heading' ? 'Same as body' : 'System default'}
+                  </SelectItem>
+                </SelectGroup>
+                {FONT_GROUPS.map(group => (
+                  <SelectGroup key={group.label}>
+                    <SelectLabel>{group.label}</SelectLabel>
+                    {group.options.map(f => (
+                      <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                    ))}
+                  </SelectGroup>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export interface ThemePatternsPickerProps {
+  value: ThemePattern
+  onChange: (value: ThemePattern) => void
+  className?: string
+}
+
+export function ThemePatternsPicker({ value, onChange, className }: ThemePatternsPickerProps) {
+  const activeType = value.type
+  return (
+    <div className={cn('space-y-3', className)}>
+      <h4 className="text-sm font-semibold">Pattern</h4>
+      <div className="flex flex-wrap gap-2">
+        {PATTERN_TYPES.map(pt => {
+          const active = activeType === pt
+          const ps = pt !== 'none' ? generatePattern({ type: pt, opacity: 0.18, size: 'sm' }) : null
+          return (
+            <button
+              key={pt}
+              onClick={() => onChange({ ...value, type: pt })}
+              title={PATTERN_LABELS[pt]}
+              className={cn(
+                'flex h-12 w-12 items-center justify-center rounded-md border bg-background text-[10px] text-muted-foreground transition-colors',
+                active ? 'border-foreground ring-2 ring-ring' : 'border-border hover:border-muted-foreground'
+              )}
+              style={{
+                backgroundImage: ps?.backgroundImage ?? 'none',
+                backgroundSize: ps?.backgroundSize ?? 'auto',
+                backgroundPosition: ps?.backgroundPosition ?? 'center',
+              }}
+            >
+              {pt === 'none' && <span>none</span>}
+            </button>
+          )
+        })}
+      </div>
+
+      {activeType !== 'none' && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <span className="w-16 text-xs text-muted-foreground">Size</span>
+            <div className="flex gap-2">
+              {(['sm', 'md', 'lg'] as const).map(s => (
+                <Button key={s} variant={(value.size ?? 'md') === s ? 'secondary' : 'outline'} size="xs" onClick={() => onChange({ ...value, size: s })}>
+                  {s.toUpperCase()}
+                </Button>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="w-16 text-xs text-muted-foreground">Density</span>
+            <div className="flex gap-2">
+              {PATTERN_OPACITY_PRESETS.map(o => (
+                <Button
+                  key={o.label}
+                  variant={(value.opacity ?? 0.12) === o.value ? 'secondary' : 'outline'}
+                  size="xs"
+                  onClick={() => onChange({ ...value, opacity: o.value })}
+                >
+                  {o.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <p className="text-xs text-muted-foreground">
+        {activeType === 'none' ? 'No pattern' : PATTERN_LABELS[activeType]}
+      </p>
+    </div>
+  )
+}
+
+export interface ThemeRadiusPickerProps {
+  value: string
+  onChange: (value: string) => void
+  className?: string
+}
+
+export function ThemeRadiusPicker({ value, onChange, className }: ThemeRadiusPickerProps) {
+  return (
+    <div className={cn('space-y-3', className)}>
+      <h4 className="text-sm font-semibold">Border Radius</h4>
+      <div className="flex flex-wrap gap-2">
+        {RADIUS_PRESETS.map(r => (
+          <Button
+            key={r.value}
+            variant={value === r.value ? 'secondary' : 'outline'}
+            size="xs"
+            onClick={() => onChange(r.value)}
+          >
+            {r.label}
+          </Button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export interface ThemeBackgroundImagePickerProps {
+  value: string
+  onChange: (value: string) => void
+  className?: string
+}
+
+export function ThemeBackgroundImagePicker({ value, onChange, className }: ThemeBackgroundImagePickerProps) {
+  return (
+    <div className={cn('space-y-3', className)}>
+      <h4 className="text-sm font-semibold">Background Image</h4>
+      <div className="flex flex-wrap gap-2">
+        <Input
+          value={value}
+          onChange={e => {
+            const raw = e.target.value.trim()
+            if (!raw) { onChange(''); return }
+            const val = /^https?:\/\/|^\//.test(raw) && !raw.startsWith('url(')
+              ? `url('${raw}')`
+              : raw
+            onChange(val)
+          }}
+          placeholder="https://… or url('…') or gradient CSS"
+          className="text-xs"
+        />
+        {value && (
+          <Button variant="outline" size="xs" onClick={() => onChange('')}>Clear</Button>
+        )}
+      </div>
+      <p className="text-xs text-muted-foreground">Pattern always overlays on top of background image.</p>
+    </div>
   )
 }
 
@@ -192,8 +583,17 @@ function buildTheme(
 }
 
 export function ThemePicker({
-  themes, value, onChange, allowCustom = false, sections = [],
-  className, locale = 'en', labels, paletteMaxHeight,
+  themes,
+  value,
+  onChange,
+  allowCustom = false,
+  sections = [],
+  className,
+  locale = 'en',
+  labels,
+  paletteMaxHeight,
+  showPalette = true,
+  showCustomPalette = allowCustom,
 }: ThemePickerProps) {
   // Restore picker state from metadata when editing a previously saved theme
   const v = value as Theme & {
@@ -243,259 +643,57 @@ export function ThemePicker({
     })
   }, [selectedPresetName, customPrimary, customSecondary, customNeutral, overrideRadius, overrideFonts, overridePattern, overrideBgImage])
 
-  const chip = (active: boolean): React.CSSProperties => ({
-    padding: '4px 10px', borderRadius: 6, cursor: 'pointer', fontSize: 12,
-    color: 'var(--foreground)',
-    border: active ? '2px solid var(--foreground)' : '1px solid var(--border)',
-    background: active ? 'var(--accent)' : 'transparent',
-  })
-
   const hasPreset = selectedPresetName !== null
 
   return (
-    <div className={className} style={{ fontFamily: 'system-ui, sans-serif', fontSize: 14, color: 'var(--foreground)' }}>
+    <div className={cn('space-y-4 text-sm text-foreground', className)}>
+      {showPalette && (
+        <ThemePalettePicker
+          themes={themes}
+          value={selectedPresetName}
+          onChange={(name) => {
+            setSelectedPresetName(name)
+            const selected = themes.find(t => t.name === name)
+            if (selected) setOverrideRadius(selected.radius ?? '0.5rem')
+            setCustomPrimary(null)
+            setCustomSecondary(null)
+            setCustomNeutral(null)
+          }}
+          labels={labels}
+          locale={locale}
+          paletteMaxHeight={paletteMaxHeight}
+        />
+      )}
 
-      {/* Palette — preset swatches */}
-      {themes.length > 0 && (
-        <div style={paletteMaxHeight ? { maxHeight: paletteMaxHeight, overflowY: 'auto' } : undefined}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 4 }}>
-            {themes.map(t => (
-              <ThemeSwatch
-                key={t.name}
-                theme={t}
-                selected={t.name === selectedPresetName}
-                onClick={() => {
-                  setSelectedPresetName(t.name)
-                  setOverrideRadius(t.radius ?? '0.5rem')
-                  setCustomPrimary(null)
-                  setCustomSecondary(null)
-                  setCustomNeutral(null)
-                }}
-                labelOverride={labels?.[locale]?.[t.name]}
-              />
-            ))}
-          </div>
+      {showCustomPalette && (
+        <div className={cn(showPalette ? 'border-t border-border pt-4' : '')}>
+          <ThemeCustomPalettePicker
+            hasPreset={hasPreset}
+            primary={customPrimary}
+            secondary={customSecondary}
+            neutral={customNeutral}
+            onPrimaryChange={setCustomPrimary}
+            onSecondaryChange={setCustomSecondary}
+            onNeutralChange={setCustomNeutral}
+            subtitle={hasPreset ? 'overrides on preset' : undefined}
+          />
         </div>
       )}
 
-      {/* Custom palette controls */}
-      {allowCustom && (
-        <div style={{
-          borderTop: themes.length > 0 ? '1px solid var(--border)' : undefined,
-          marginTop: themes.length > 0 ? 12 : 0,
-          paddingTop: themes.length > 0 ? 12 : 0,
-        }}>
-          <div style={{ marginBottom: 8 }}>
-            <span style={{ fontSize: 10, fontWeight: 600, opacity: 0.6, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-              Custom palette
-            </span>
-            {hasPreset && (
-              <span style={{ fontSize: 10, opacity: 0.45, marginLeft: 6 }}>overrides on preset</span>
-            )}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <section>
-              {/* Primary */}
-              <h4 style={{ margin: '0 0 6px', fontSize: 11, fontWeight: 600, opacity: 0.7 }}>Primary</h4>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, alignItems: 'center' }}>
-                {hasPreset && (
-                  <button onClick={() => setCustomPrimary(null)} style={chip(customPrimary === null)}>Auto</button>
-                )}
-                {TAILWIND_COLORS.map(color => (
-                  <button key={color} onClick={() => setCustomPrimary(color)} title={color} style={{
-                    width: 24, height: 24, borderRadius: '50%', cursor: 'pointer', outline: 'none',
-                    background: resolveColor(`${color}-500`),
-                    border: customPrimary === color ? '2px solid var(--foreground)' : '1px solid var(--border)',
-                  }} />
-                ))}
-              </div>
-              {customPrimary === null && hasPreset && (
-                <p style={{ margin: '4px 0 0', fontSize: 10, opacity: 0.45 }}>Using preset</p>
-              )}
-
-              {/* Secondary */}
-              <h4 style={{ margin: '10px 0 6px', fontSize: 11, fontWeight: 600, opacity: 0.7 }}>Secondary</h4>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, alignItems: 'center' }}>
-                {hasPreset ? (
-                  <button onClick={() => setCustomSecondary(null)} style={chip(customSecondary === null)}>Auto</button>
-                ) : (
-                  <button onClick={() => setCustomSecondary(null)} title="Auto (derived from primary)" style={{
-                    width: 24, height: 24, borderRadius: '50%', cursor: 'pointer', outline: 'none',
-                    background: `conic-gradient(${TAILWIND_COLORS.slice(5, 10).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(', ')})`,
-                    border: customSecondary === null ? '2px solid var(--foreground)' : '1px solid var(--border)',
-                  }} />
-                )}
-                {TAILWIND_COLORS.map(color => (
-                  <button key={color} onClick={() => setCustomSecondary(color)} title={color} style={{
-                    width: 24, height: 24, borderRadius: '50%', cursor: 'pointer', outline: 'none',
-                    background: resolveColor(`${color}-500`),
-                    border: customSecondary === color ? '2px solid var(--foreground)' : '1px solid var(--border)',
-                  }} />
-                ))}
-              </div>
-              {customSecondary === null && (
-                <p style={{ margin: '4px 0 0', fontSize: 10, opacity: 0.45 }}>
-                  {hasPreset ? 'Using preset' : 'Auto from primary'}
-                </p>
-              )}
-
-              {/* Neutral */}
-              <h4 style={{ margin: '10px 0 6px', fontSize: 11, fontWeight: 600, opacity: 0.7 }}>Neutral base</h4>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                {hasPreset
-                  ? <button onClick={() => setCustomNeutral(null)} style={chip(customNeutral === null)}>Auto</button>
-                  : <button onClick={() => setCustomNeutral('none')} style={chip(customNeutral === null || customNeutral === 'none')}>none</button>
-                }
-                {NEUTRAL_COLORS.map(color => (
-                  <button key={color} onClick={() => setCustomNeutral(color)} style={chip(customNeutral === color)}>{color}</button>
-                ))}
-              </div>
-              <p style={{ margin: '4px 0 0', fontSize: 10, opacity: 0.45 }}>
-                {customNeutral === null
-                  ? (hasPreset ? 'Using preset' : 'Primary family')
-                  : customNeutral === 'none' ? 'Primary family'
-                  : `${customNeutral} surfaces`}
-              </p>
-            </section>
-          </div>
-        </div>
-      )}
-
-      {/* Style sections */}
       {sections.length > 0 && (
-        <div style={{ borderTop: '1px solid var(--border)', marginTop: 16, paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
-
+        <div className="space-y-4 border-t border-border pt-4">
           {sections.includes('fonts') && (
-            <section>
-              <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, opacity: 0.7 }}>Fonts</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {(['body', 'heading'] as const).map(fontType => (
-                  <label key={fontType} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ width: 52, fontSize: 12, opacity: 0.7 }}>{fontType}</span>
-                    <select
-                      value={overrideFonts[fontType] ?? ''}
-                      onChange={e => setOverrideFonts(f => ({ ...f, [fontType]: e.target.value || undefined }))}
-                      style={{ flex: 1, padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)', fontSize: 12 }}
-                    >
-                      <option value="">{fontType === 'heading' ? 'Same as body' : 'System default'}</option>
-                      {FONT_GROUPS.map(group => (
-                        <optgroup key={group.label} label={group.label}>
-                          {group.options.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
-                        </optgroup>
-                      ))}
-                    </select>
-                  </label>
-                ))}
-              </div>
-            </section>
+            <ThemeFontsPicker value={overrideFonts} onChange={setOverrideFonts} />
           )}
-
           {sections.includes('patterns') && (
-            <section>
-              <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, opacity: 0.7 }}>Pattern</h4>
-              {/* Type grid */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {PATTERN_TYPES.map(pt => {
-                  const active = overridePattern.type === pt
-                  const ps = pt !== 'none' ? generatePattern({ type: pt, opacity: 0.18, size: 'sm' }) : null
-                  return (
-                    <button
-                      key={pt}
-                      onClick={() => setOverridePattern(p => ({ ...p, type: pt }))}
-                      title={PATTERN_LABELS[pt]}
-                      style={{
-                        width: 44, height: 44, borderRadius: 8, cursor: 'pointer', padding: 0,
-                        border: active ? '2px solid var(--foreground)' : '1px solid var(--border)',
-                        backgroundColor: 'var(--background)',
-                        backgroundImage: ps?.backgroundImage ?? 'none',
-                        backgroundSize: ps?.backgroundSize ?? 'auto',
-                        backgroundPosition: ps?.backgroundPosition ?? 'center',
-                        outline: active ? '2px solid var(--ring)' : 'none', outlineOffset: 1,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
-                      }}
-                    >
-                      {pt === 'none' && <span style={{ fontSize: 9, opacity: 0.5, color: 'var(--foreground)', pointerEvents: 'none' }}>none</span>}
-                    </button>
-                  )
-                })}
-              </div>
-
-              {/* Size + opacity controls — only shown when a pattern is active */}
-              {overridePattern.type !== 'none' && (
-                <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ width: 52, fontSize: 11, opacity: 0.6 }}>Size</span>
-                    <div style={{ display: 'flex', gap: 4 }}>
-                      {(['sm', 'md', 'lg'] as const).map(s => (
-                        <button key={s} onClick={() => setOverridePattern(p => ({ ...p, size: s }))} style={chip((overridePattern.size ?? 'md') === s)}>
-                          {s.toUpperCase()}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ width: 52, fontSize: 11, opacity: 0.6 }}>Density</span>
-                    <div style={{ display: 'flex', gap: 4 }}>
-                      {PATTERN_OPACITY_PRESETS.map(o => (
-                        <button key={o.label} onClick={() => setOverridePattern(p => ({ ...p, opacity: o.value }))} style={chip((overridePattern.opacity ?? 0.12) === o.value)}>
-                          {o.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <p style={{ margin: '6px 0 0', fontSize: 11, opacity: 0.5 }}>
-                {overridePattern.type === 'none' ? 'No pattern' : PATTERN_LABELS[overridePattern.type]}
-              </p>
-            </section>
+            <ThemePatternsPicker value={overridePattern} onChange={setOverridePattern} />
           )}
-
           {sections.includes('radius') && (
-            <section>
-              <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, opacity: 0.7 }}>Border Radius</h4>
-              <div style={{ display: 'flex', gap: 6 }}>
-                {RADIUS_PRESETS.map(r => (
-                  <button key={r.value} onClick={() => setOverrideRadius(r.value)} style={chip(overrideRadius === r.value)}>{r.label}</button>
-                ))}
-              </div>
-            </section>
+            <ThemeRadiusPicker value={overrideRadius} onChange={setOverrideRadius} />
           )}
-
           {sections.includes('background') && (
-            <section>
-              <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, opacity: 0.7 }}>Background Image</h4>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <input
-                  type="text"
-                  value={overrideBgImage}
-                  onChange={e => {
-                    const raw = e.target.value.trim()
-                    if (!raw) { setOverrideBgImage(''); return }
-                    // Wrap bare URLs in url('...')
-                    const val = /^https?:\/\/|^\//.test(raw) && !raw.startsWith('url(')
-                      ? `url('${raw}')`
-                      : raw
-                    setOverrideBgImage(val)
-                  }}
-                  placeholder="https://… or url('…') or gradient CSS"
-                  style={{
-                    flex: 1, padding: '6px 8px', borderRadius: 4, fontSize: 12,
-                    border: '1px solid var(--border)', background: 'var(--background)',
-                    color: 'var(--foreground)',
-                  }}
-                />
-                {overrideBgImage && (
-                  <button onClick={() => setOverrideBgImage('')} style={chip(false)}>Clear</button>
-                )}
-              </div>
-              <p style={{ margin: '6px 0 0', fontSize: 11, opacity: 0.5 }}>
-                Pattern always overlays on top of background image.
-              </p>
-            </section>
+            <ThemeBackgroundImagePicker value={overrideBgImage} onChange={setOverrideBgImage} />
           )}
-
         </div>
       )}
     </div>

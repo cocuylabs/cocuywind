@@ -465,6 +465,21 @@ var FONTS = {
   LORA: "'Lora', Georgia, serif",
   MERRIWEATHER: "'Merriweather', Georgia, serif",
   DM_SERIF: "'DM Serif Display', Georgia, serif",
+  CORMORANT: "'Cormorant Garamond', Georgia, serif",
+  BODONI_MODA: "'Bodoni Moda', Georgia, serif",
+  CINZEL: "'Cinzel', Georgia, serif",
+  FRAUNCES: "'Fraunces', Georgia, serif",
+  INSTRUMENT_SERIF: "'Instrument Serif', Georgia, serif",
+  // ─── Display / Edgy Google Fonts ──────────────────────────────────────────
+  BEBAS_NEUE: "'Bebas Neue', system-ui, sans-serif",
+  SYNE: "'Syne', system-ui, sans-serif",
+  UNBOUNDED: "'Unbounded', system-ui, sans-serif",
+  ARCHIVO_BLACK: "'Archivo Black', system-ui, sans-serif",
+  RIGHTEOUS: "'Righteous', system-ui, sans-serif",
+  // ─── More Sans-serif Google Fonts ─────────────────────────────────────────
+  SPACE_GROTESK: "'Space Grotesk', system-ui, sans-serif",
+  JOSEFIN_SANS: "'Josefin Sans', system-ui, sans-serif",
+  RALEWAY: "'Raleway', system-ui, sans-serif",
   // ─── Monospace Google Fonts ────────────────────────────────────────────────
   JETBRAINS_MONO: "'JetBrains Mono', ui-monospace, monospace",
   FIRA_CODE: "'Fira Code', ui-monospace, monospace",
@@ -484,6 +499,19 @@ var GOOGLE_FONT_NAMES = {
   LORA: "Lora:wght@400;500;600;700",
   MERRIWEATHER: "Merriweather:wght@300;400;700",
   DM_SERIF: "DM+Serif+Display:wght@400",
+  CORMORANT: "Cormorant+Garamond:wght@400;500;600;700",
+  BODONI_MODA: "Bodoni+Moda:opsz,wght@6..96,400;6..96,700",
+  CINZEL: "Cinzel:wght@400;600;700",
+  FRAUNCES: "Fraunces:opsz,wght@9..144,300;9..144,400;9..144,700",
+  INSTRUMENT_SERIF: "Instrument+Serif:ital,wght@0,400;1,400",
+  BEBAS_NEUE: "Bebas+Neue:wght@400",
+  SYNE: "Syne:wght@400;600;700;800",
+  UNBOUNDED: "Unbounded:wght@400;500;600;700",
+  ARCHIVO_BLACK: "Archivo+Black:wght@400",
+  RIGHTEOUS: "Righteous:wght@400",
+  SPACE_GROTESK: "Space+Grotesk:wght@400;500;600;700",
+  JOSEFIN_SANS: "Josefin+Sans:wght@400;600;700",
+  RALEWAY: "Raleway:wght@400;500;600;700",
   JETBRAINS_MONO: "JetBrains+Mono:wght@400;500;700",
   FIRA_CODE: "Fira+Code:wght@400;500;700",
   SOURCE_CODE_PRO: "Source+Code+Pro:wght@400;500;700",
@@ -716,7 +744,7 @@ function token(color, shade) {
 }
 function buildLightTokens(primary, neutral, secondary, overrides) {
   const surface = neutral ?? primary;
-  const base = {
+  const base2 = {
     background: token(surface, 50),
     foreground: token(surface, 950),
     card: token(surface, 100),
@@ -737,11 +765,11 @@ function buildLightTokens(primary, neutral, secondary, overrides) {
     input: token(surface, 200),
     ring: token(primary, LIGHT_PRIMARY_SHADE)
   };
-  return overrides ? { ...base, ...overrides } : base;
+  return overrides ? { ...base2, ...overrides } : base2;
 }
 function buildDarkTokens(primary, neutral, secondary, overrides) {
   const surface = neutral ?? primary;
-  const base = {
+  const base2 = {
     background: token(surface, 950),
     foreground: token(surface, 50),
     card: token(surface, 900),
@@ -763,13 +791,13 @@ function buildDarkTokens(primary, neutral, secondary, overrides) {
     input: token(surface, 800),
     ring: token(primary, DARK_PRIMARY_SHADE)
   };
-  return overrides ? { ...base, ...overrides } : base;
+  return overrides ? { ...base2, ...overrides } : base2;
 }
 function createTheme(config) {
   const { name, label, primary, neutral, secondary, radius, fonts, pattern, category, overrides, vividness } = config;
   const vividnessFactor = typeof vividness === "string" ? VIVIDNESS_PRESETS[vividness] : typeof vividness === "number" ? vividness : void 0;
   const vividnessPresetName = typeof vividness === "string" ? vividness : void 0;
-  const base = {
+  const base2 = {
     name,
     label,
     light: buildLightTokens(primary, neutral, secondary, overrides?.light),
@@ -788,13 +816,162 @@ function createTheme(config) {
     }
   };
   if (vividnessFactor !== void 0 && vividnessFactor !== 1) {
-    return adjustVividness(base, vividnessFactor);
+    return adjustVividness(base2, vividnessFactor);
   }
-  return base;
+  return base2;
 }
 
+// src/react/ui/button.tsx
+import * as React2 from "react";
+
+// src/react/ui/utils.ts
+function cn(...inputs) {
+  const classes = [];
+  for (const input of inputs) {
+    if (!input) continue;
+    if (typeof input === "string") {
+      classes.push(input);
+      continue;
+    }
+    for (const [key, value] of Object.entries(input)) {
+      if (value) classes.push(key);
+    }
+  }
+  return classes.join(" ");
+}
+
+// src/react/ui/button.tsx
+import { jsx as jsx2 } from "react/jsx-runtime";
+var base = "inline-flex items-center justify-center rounded-md text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ring-offset-background";
+var variants = {
+  default: "bg-primary text-primary-foreground hover:bg-primary/90",
+  secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+  outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+  ghost: "hover:bg-accent hover:text-accent-foreground",
+  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+};
+var sizes = {
+  xs: "h-7 px-2",
+  sm: "h-8 px-3",
+  md: "h-9 px-4",
+  icon: "h-9 w-9"
+};
+var Button = React2.forwardRef(
+  ({ className, variant = "default", size = "sm", ...props }, ref) => /* @__PURE__ */ jsx2(
+    "button",
+    {
+      ref,
+      className: cn(base, variants[variant], sizes[size], className),
+      ...props
+    }
+  )
+);
+Button.displayName = "Button";
+
+// src/react/ui/input.tsx
+import * as React3 from "react";
+import { jsx as jsx3 } from "react/jsx-runtime";
+var Input = React3.forwardRef(
+  ({ className, type, ...props }, ref) => /* @__PURE__ */ jsx3(
+    "input",
+    {
+      type,
+      ref,
+      className: cn(
+        "flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm text-foreground shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ring-offset-background",
+        className
+      ),
+      ...props
+    }
+  )
+);
+Input.displayName = "Input";
+
+// src/react/ui/label.tsx
+import * as React4 from "react";
+import { jsx as jsx4 } from "react/jsx-runtime";
+var Label = React4.forwardRef(
+  ({ className, ...props }, ref) => /* @__PURE__ */ jsx4(
+    "label",
+    {
+      ref,
+      className: cn("text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className),
+      ...props
+    }
+  )
+);
+Label.displayName = "Label";
+
+// src/react/ui/select.tsx
+import * as React5 from "react";
+import * as SelectPrimitive from "@radix-ui/react-select";
+import { jsx as jsx5, jsxs as jsxs2 } from "react/jsx-runtime";
+var Select = SelectPrimitive.Root;
+var SelectGroup = SelectPrimitive.Group;
+var SelectValue = SelectPrimitive.Value;
+var SelectTrigger = React5.forwardRef(({ className, children, ...props }, ref) => /* @__PURE__ */ jsxs2(
+  SelectPrimitive.Trigger,
+  {
+    ref,
+    className: cn(
+      "flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ring-offset-background",
+      className
+    ),
+    ...props,
+    children: [
+      children,
+      /* @__PURE__ */ jsx5(SelectPrimitive.Icon, { className: "ml-2 text-muted-foreground", children: /* @__PURE__ */ jsx5("svg", { width: "12", height: "12", viewBox: "0 0 20 20", fill: "currentColor", "aria-hidden": "true", children: /* @__PURE__ */ jsx5("path", { d: "M5.5 7.5 10 12l4.5-4.5-1.5-1.5L10 9 7 6z" }) }) })
+    ]
+  }
+));
+SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
+var SelectContent = React5.forwardRef(({ className, children, position = "popper", ...props }, ref) => /* @__PURE__ */ jsx5(SelectPrimitive.Portal, { children: /* @__PURE__ */ jsx5(
+  SelectPrimitive.Content,
+  {
+    ref,
+    position,
+    className: cn(
+      "z-50 min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md animate-in fade-in-80",
+      className
+    ),
+    ...props,
+    children: /* @__PURE__ */ jsx5(
+      SelectPrimitive.Viewport,
+      {
+        className: cn("p-1", position === "popper" && "w-full min-w-[var(--radix-select-trigger-width)]"),
+        children
+      }
+    )
+  }
+) }));
+SelectContent.displayName = SelectPrimitive.Content.displayName;
+var SelectLabel = React5.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx5(
+  SelectPrimitive.Label,
+  {
+    ref,
+    className: cn("px-2 py-1.5 text-xs font-semibold text-muted-foreground", className),
+    ...props
+  }
+));
+SelectLabel.displayName = SelectPrimitive.Label.displayName;
+var SelectItem = React5.forwardRef(({ className, children, ...props }, ref) => /* @__PURE__ */ jsx5(
+  SelectPrimitive.Item,
+  {
+    ref,
+    className: cn(
+      "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-xs outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      className
+    ),
+    ...props,
+    children: /* @__PURE__ */ jsx5(SelectPrimitive.ItemText, { children })
+  }
+));
+SelectItem.displayName = SelectPrimitive.Item.displayName;
+var SelectSeparator = React5.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx5(SelectPrimitive.Separator, { ref, className: cn("-mx-1 my-1 h-px bg-border", className), ...props }));
+SelectSeparator.displayName = SelectPrimitive.Separator.displayName;
+
 // src/react/ThemePicker.tsx
-import { jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
+import { jsx as jsx6, jsxs as jsxs3 } from "react/jsx-runtime";
 var TAILWIND_COLORS2 = [
   "slate",
   "gray",
@@ -875,6 +1052,9 @@ var FONT_GROUPS = [
       { label: "Inter", value: FONTS.INTER },
       { label: "Geist", value: FONTS.GEIST },
       { label: "Plus Jakarta Sans", value: FONTS.PLUS_JAKARTA },
+      { label: "Space Grotesk", value: FONTS.SPACE_GROTESK },
+      { label: "Josefin Sans", value: FONTS.JOSEFIN_SANS },
+      { label: "Raleway", value: FONTS.RALEWAY },
       { label: "Nunito", value: FONTS.NUNITO },
       { label: "Poppins", value: FONTS.POPPINS },
       { label: "Outfit", value: FONTS.OUTFIT },
@@ -885,10 +1065,25 @@ var FONT_GROUPS = [
   {
     label: "Serif",
     options: [
+      { label: "Cormorant Garamond", value: FONTS.CORMORANT },
+      { label: "Bodoni Moda", value: FONTS.BODONI_MODA },
+      { label: "Cinzel", value: FONTS.CINZEL },
+      { label: "Fraunces", value: FONTS.FRAUNCES },
+      { label: "Instrument Serif", value: FONTS.INSTRUMENT_SERIF },
       { label: "Playfair Display", value: FONTS.PLAYFAIR },
       { label: "Lora", value: FONTS.LORA },
       { label: "Merriweather", value: FONTS.MERRIWEATHER },
       { label: "DM Serif Display", value: FONTS.DM_SERIF }
+    ]
+  },
+  {
+    label: "Display",
+    options: [
+      { label: "Bebas Neue", value: FONTS.BEBAS_NEUE },
+      { label: "Syne", value: FONTS.SYNE },
+      { label: "Unbounded", value: FONTS.UNBOUNDED },
+      { label: "Archivo Black", value: FONTS.ARCHIVO_BLACK },
+      { label: "Righteous", value: FONTS.RIGHTEOUS }
     ]
   }
 ];
@@ -913,27 +1108,259 @@ function getSwatchColors(theme, mode = "light") {
 function ThemeSwatch({ theme, selected, onClick, previewMode = "light", labelOverride }) {
   const [bg, pri, sec] = getSwatchColors(theme, previewMode);
   const label = labelOverride ?? theme.label;
-  return /* @__PURE__ */ jsxs2("button", { onClick, title: label, style: {
-    display: "flex",
-    alignItems: "center",
-    gap: 6,
-    padding: "6px 8px",
-    borderRadius: 6,
-    border: selected ? "2px solid var(--ring)" : "1px solid var(--border)",
-    background: selected ? "var(--accent)" : "transparent",
-    cursor: "pointer",
-    outline: "none",
-    color: "var(--foreground)",
-    width: "100%",
-    textAlign: "left",
-    minWidth: 0
-  }, children: [
-    /* @__PURE__ */ jsxs2("span", { style: { flexShrink: 0, display: "flex", gap: 2 }, children: [
-      /* @__PURE__ */ jsx2("span", { style: { width: 10, height: 10, borderRadius: "50%", background: bg, border: "1px solid var(--border)", display: "inline-block" } }),
-      /* @__PURE__ */ jsx2("span", { style: { width: 10, height: 10, borderRadius: "50%", background: pri, display: "inline-block" } }),
-      /* @__PURE__ */ jsx2("span", { style: { width: 10, height: 10, borderRadius: "50%", background: sec, display: "inline-block" } })
+  return /* @__PURE__ */ jsxs3(
+    "button",
+    {
+      onClick,
+      title: label,
+      className: cn(
+        "flex w-full items-center gap-2 rounded-md border px-2 py-1 text-left text-xs transition-colors",
+        selected ? "border-ring bg-accent text-accent-foreground" : "border-border hover:bg-muted/50"
+      ),
+      children: [
+        /* @__PURE__ */ jsxs3("span", { className: "flex shrink-0 gap-1", children: [
+          /* @__PURE__ */ jsx6("span", { className: "inline-block h-2.5 w-2.5 rounded-full border border-border", style: { backgroundColor: bg } }),
+          /* @__PURE__ */ jsx6("span", { className: "inline-block h-2.5 w-2.5 rounded-full", style: { backgroundColor: pri } }),
+          /* @__PURE__ */ jsx6("span", { className: "inline-block h-2.5 w-2.5 rounded-full", style: { backgroundColor: sec } })
+        ] }),
+        /* @__PURE__ */ jsx6("span", { className: "truncate", children: label })
+      ]
+    }
+  );
+}
+function ThemePalettePicker({
+  themes,
+  value,
+  onChange,
+  labels,
+  locale = "en",
+  paletteMaxHeight,
+  previewMode = "light",
+  className
+}) {
+  if (themes.length === 0) return null;
+  return /* @__PURE__ */ jsx6("div", { className, style: paletteMaxHeight ? { maxHeight: paletteMaxHeight, overflowY: "auto" } : void 0, children: /* @__PURE__ */ jsx6("div", { className: "grid grid-cols-2 gap-2", children: themes.map((t) => /* @__PURE__ */ jsx6(
+    ThemeSwatch,
+    {
+      theme: t,
+      selected: t.name === value,
+      onClick: () => onChange(t.name),
+      labelOverride: labels?.[locale]?.[t.name],
+      previewMode
+    },
+    t.name
+  )) }) });
+}
+function ThemeCustomPalettePicker({
+  hasPreset,
+  primary,
+  secondary,
+  neutral,
+  onPrimaryChange,
+  onSecondaryChange,
+  onNeutralChange,
+  className,
+  title = "Custom palette",
+  subtitle
+}) {
+  return /* @__PURE__ */ jsxs3("div", { className: cn("space-y-4", className), children: [
+    /* @__PURE__ */ jsxs3("div", { className: "flex items-baseline gap-2", children: [
+      /* @__PURE__ */ jsx6("span", { className: "text-[11px] font-semibold uppercase tracking-wide text-muted-foreground", children: title }),
+      subtitle && /* @__PURE__ */ jsx6("span", { className: "text-[11px] text-muted-foreground/70", children: subtitle })
     ] }),
-    /* @__PURE__ */ jsx2("span", { style: { fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }, children: label })
+    /* @__PURE__ */ jsxs3("section", { className: "space-y-2", children: [
+      /* @__PURE__ */ jsx6("h4", { className: "text-xs font-semibold text-muted-foreground", children: "Primary" }),
+      /* @__PURE__ */ jsxs3("div", { className: "flex flex-wrap items-center gap-2", children: [
+        hasPreset && /* @__PURE__ */ jsx6(Button, { variant: primary === null ? "secondary" : "outline", size: "xs", onClick: () => onPrimaryChange(null), children: "Auto" }),
+        TAILWIND_COLORS2.map((color) => /* @__PURE__ */ jsx6(
+          "button",
+          {
+            onClick: () => onPrimaryChange(color),
+            title: color,
+            className: cn(
+              "h-6 w-6 rounded-full border transition-colors",
+              primary === color ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
+            ),
+            style: { backgroundColor: resolveColor(`${color}-500`) }
+          },
+          color
+        ))
+      ] }),
+      primary === null && hasPreset && /* @__PURE__ */ jsx6("p", { className: "text-[11px] text-muted-foreground", children: "Using preset" })
+    ] }),
+    /* @__PURE__ */ jsxs3("section", { className: "space-y-2", children: [
+      /* @__PURE__ */ jsx6("h4", { className: "text-xs font-semibold text-muted-foreground", children: "Secondary" }),
+      /* @__PURE__ */ jsxs3("div", { className: "flex flex-wrap items-center gap-2", children: [
+        hasPreset ? /* @__PURE__ */ jsx6(Button, { variant: secondary === null ? "secondary" : "outline", size: "xs", onClick: () => onSecondaryChange(null), children: "Auto" }) : /* @__PURE__ */ jsx6(
+          "button",
+          {
+            onClick: () => onSecondaryChange(null),
+            title: "Auto (derived from primary)",
+            className: cn(
+              "h-6 w-6 rounded-full border transition-colors",
+              secondary === null ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
+            ),
+            style: {
+              backgroundImage: `conic-gradient(${TAILWIND_COLORS2.slice(5, 10).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(", ")})`
+            }
+          }
+        ),
+        TAILWIND_COLORS2.map((color) => /* @__PURE__ */ jsx6(
+          "button",
+          {
+            onClick: () => onSecondaryChange(color),
+            title: color,
+            className: cn(
+              "h-6 w-6 rounded-full border transition-colors",
+              secondary === color ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
+            ),
+            style: { backgroundColor: resolveColor(`${color}-500`) }
+          },
+          color
+        ))
+      ] }),
+      secondary === null && /* @__PURE__ */ jsx6("p", { className: "text-[11px] text-muted-foreground", children: hasPreset ? "Using preset" : "Auto from primary" })
+    ] }),
+    /* @__PURE__ */ jsxs3("section", { className: "space-y-2", children: [
+      /* @__PURE__ */ jsx6("h4", { className: "text-xs font-semibold text-muted-foreground", children: "Neutral base" }),
+      /* @__PURE__ */ jsxs3("div", { className: "flex flex-wrap items-center gap-2", children: [
+        hasPreset ? /* @__PURE__ */ jsx6(Button, { variant: neutral === null ? "secondary" : "outline", size: "xs", onClick: () => onNeutralChange(null), children: "Auto" }) : /* @__PURE__ */ jsx6(
+          Button,
+          {
+            variant: neutral === null || neutral === "none" ? "secondary" : "outline",
+            size: "xs",
+            onClick: () => onNeutralChange("none"),
+            children: "none"
+          }
+        ),
+        NEUTRAL_COLORS.map((color) => /* @__PURE__ */ jsx6(
+          Button,
+          {
+            variant: neutral === color ? "secondary" : "outline",
+            size: "xs",
+            onClick: () => onNeutralChange(color),
+            children: color
+          },
+          color
+        ))
+      ] }),
+      /* @__PURE__ */ jsx6("p", { className: "text-[11px] text-muted-foreground", children: neutral === null ? hasPreset ? "Using preset" : "Primary family" : neutral === "none" ? "Primary family" : `${neutral} surfaces` })
+    ] })
+  ] });
+}
+function ThemeFontsPicker({ value, onChange, className }) {
+  const DEFAULT = "__default__";
+  return /* @__PURE__ */ jsxs3("div", { className: cn("space-y-3", className), children: [
+    /* @__PURE__ */ jsx6("h4", { className: "text-sm font-semibold", children: "Fonts" }),
+    /* @__PURE__ */ jsx6("div", { className: "space-y-2", children: ["body", "heading"].map((fontType) => /* @__PURE__ */ jsxs3("div", { className: "grid grid-cols-[64px_1fr] items-center gap-3", children: [
+      /* @__PURE__ */ jsx6(Label, { className: "text-xs text-muted-foreground", children: fontType }),
+      /* @__PURE__ */ jsxs3(
+        Select,
+        {
+          value: value[fontType] ?? DEFAULT,
+          onValueChange: (v) => onChange({ ...value, [fontType]: v === DEFAULT ? void 0 : v }),
+          children: [
+            /* @__PURE__ */ jsx6(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsx6(SelectValue, { placeholder: fontType === "heading" ? "Same as body" : "System default" }) }),
+            /* @__PURE__ */ jsxs3(SelectContent, { children: [
+              /* @__PURE__ */ jsx6(SelectGroup, { children: /* @__PURE__ */ jsx6(SelectItem, { value: DEFAULT, children: fontType === "heading" ? "Same as body" : "System default" }) }),
+              FONT_GROUPS.map((group) => /* @__PURE__ */ jsxs3(SelectGroup, { children: [
+                /* @__PURE__ */ jsx6(SelectLabel, { children: group.label }),
+                group.options.map((f) => /* @__PURE__ */ jsx6(SelectItem, { value: f.value, children: f.label }, f.value))
+              ] }, group.label))
+            ] })
+          ]
+        }
+      )
+    ] }, fontType)) })
+  ] });
+}
+function ThemePatternsPicker({ value, onChange, className }) {
+  const activeType = value.type;
+  return /* @__PURE__ */ jsxs3("div", { className: cn("space-y-3", className), children: [
+    /* @__PURE__ */ jsx6("h4", { className: "text-sm font-semibold", children: "Pattern" }),
+    /* @__PURE__ */ jsx6("div", { className: "flex flex-wrap gap-2", children: PATTERN_TYPES.map((pt) => {
+      const active = activeType === pt;
+      const ps = pt !== "none" ? generatePattern({ type: pt, opacity: 0.18, size: "sm" }) : null;
+      return /* @__PURE__ */ jsx6(
+        "button",
+        {
+          onClick: () => onChange({ ...value, type: pt }),
+          title: PATTERN_LABELS[pt],
+          className: cn(
+            "flex h-12 w-12 items-center justify-center rounded-md border bg-background text-[10px] text-muted-foreground transition-colors",
+            active ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
+          ),
+          style: {
+            backgroundImage: ps?.backgroundImage ?? "none",
+            backgroundSize: ps?.backgroundSize ?? "auto",
+            backgroundPosition: ps?.backgroundPosition ?? "center"
+          },
+          children: pt === "none" && /* @__PURE__ */ jsx6("span", { children: "none" })
+        },
+        pt
+      );
+    }) }),
+    activeType !== "none" && /* @__PURE__ */ jsxs3("div", { className: "space-y-2", children: [
+      /* @__PURE__ */ jsxs3("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsx6("span", { className: "w-16 text-xs text-muted-foreground", children: "Size" }),
+        /* @__PURE__ */ jsx6("div", { className: "flex gap-2", children: ["sm", "md", "lg"].map((s) => /* @__PURE__ */ jsx6(Button, { variant: (value.size ?? "md") === s ? "secondary" : "outline", size: "xs", onClick: () => onChange({ ...value, size: s }), children: s.toUpperCase() }, s)) })
+      ] }),
+      /* @__PURE__ */ jsxs3("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsx6("span", { className: "w-16 text-xs text-muted-foreground", children: "Density" }),
+        /* @__PURE__ */ jsx6("div", { className: "flex gap-2", children: PATTERN_OPACITY_PRESETS.map((o) => /* @__PURE__ */ jsx6(
+          Button,
+          {
+            variant: (value.opacity ?? 0.12) === o.value ? "secondary" : "outline",
+            size: "xs",
+            onClick: () => onChange({ ...value, opacity: o.value }),
+            children: o.label
+          },
+          o.label
+        )) })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsx6("p", { className: "text-xs text-muted-foreground", children: activeType === "none" ? "No pattern" : PATTERN_LABELS[activeType] })
+  ] });
+}
+function ThemeRadiusPicker({ value, onChange, className }) {
+  return /* @__PURE__ */ jsxs3("div", { className: cn("space-y-3", className), children: [
+    /* @__PURE__ */ jsx6("h4", { className: "text-sm font-semibold", children: "Border Radius" }),
+    /* @__PURE__ */ jsx6("div", { className: "flex flex-wrap gap-2", children: RADIUS_PRESETS.map((r) => /* @__PURE__ */ jsx6(
+      Button,
+      {
+        variant: value === r.value ? "secondary" : "outline",
+        size: "xs",
+        onClick: () => onChange(r.value),
+        children: r.label
+      },
+      r.value
+    )) })
+  ] });
+}
+function ThemeBackgroundImagePicker({ value, onChange, className }) {
+  return /* @__PURE__ */ jsxs3("div", { className: cn("space-y-3", className), children: [
+    /* @__PURE__ */ jsx6("h4", { className: "text-sm font-semibold", children: "Background Image" }),
+    /* @__PURE__ */ jsxs3("div", { className: "flex flex-wrap gap-2", children: [
+      /* @__PURE__ */ jsx6(
+        Input,
+        {
+          value,
+          onChange: (e) => {
+            const raw2 = e.target.value.trim();
+            if (!raw2) {
+              onChange("");
+              return;
+            }
+            const val = /^https?:\/\/|^\//.test(raw2) && !raw2.startsWith("url(") ? `url('${raw2}')` : raw2;
+            onChange(val);
+          },
+          placeholder: "https://\u2026 or url('\u2026') or gradient CSS",
+          className: "text-xs"
+        }
+      ),
+      value && /* @__PURE__ */ jsx6(Button, { variant: "outline", size: "xs", onClick: () => onChange(""), children: "Clear" })
+    ] }),
+    /* @__PURE__ */ jsx6("p", { className: "text-xs text-muted-foreground", children: "Pattern always overlays on top of background image." })
   ] });
 }
 function buildTheme(themes, selectedPresetName, customPrimary, customSecondary, customNeutral) {
@@ -1011,7 +1438,9 @@ function ThemePicker({
   className,
   locale = "en",
   labels,
-  paletteMaxHeight
+  paletteMaxHeight,
+  showPalette = true,
+  showCustomPalette = allowCustom
 }) {
   const v = value;
   const [selectedPresetName, setSelectedPresetName] = useState2(() => {
@@ -1039,205 +1468,79 @@ function ThemePicker({
   const [overridePattern, setOverridePattern] = useState2(value.pattern ?? { type: "none" });
   const [overrideBgImage, setOverrideBgImage] = useState2(value.backgroundImage ?? "");
   useEffect2(() => {
-    const base = buildTheme(themes, selectedPresetName, customPrimary, customSecondary, customNeutral);
-    if (!base) return;
+    const base2 = buildTheme(themes, selectedPresetName, customPrimary, customSecondary, customNeutral);
+    if (!base2) return;
     onChange({
-      ...base,
+      ...base2,
       radius: overrideRadius,
       fonts: Object.keys(overrideFonts).length > 0 ? overrideFonts : void 0,
       pattern: overridePattern.type !== "none" ? overridePattern : void 0,
       backgroundImage: overrideBgImage || void 0
     });
   }, [selectedPresetName, customPrimary, customSecondary, customNeutral, overrideRadius, overrideFonts, overridePattern, overrideBgImage]);
-  const chip = (active) => ({
-    padding: "4px 10px",
-    borderRadius: 6,
-    cursor: "pointer",
-    fontSize: 12,
-    color: "var(--foreground)",
-    border: active ? "2px solid var(--foreground)" : "1px solid var(--border)",
-    background: active ? "var(--accent)" : "transparent"
-  });
   const hasPreset = selectedPresetName !== null;
-  return /* @__PURE__ */ jsxs2("div", { className, style: { fontFamily: "system-ui, sans-serif", fontSize: 14, color: "var(--foreground)" }, children: [
-    themes.length > 0 && /* @__PURE__ */ jsx2("div", { style: paletteMaxHeight ? { maxHeight: paletteMaxHeight, overflowY: "auto" } : void 0, children: /* @__PURE__ */ jsx2("div", { style: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 4 }, children: themes.map((t) => /* @__PURE__ */ jsx2(
-      ThemeSwatch,
+  return /* @__PURE__ */ jsxs3("div", { className: cn("space-y-4 text-sm text-foreground", className), children: [
+    showPalette && /* @__PURE__ */ jsx6(
+      ThemePalettePicker,
       {
-        theme: t,
-        selected: t.name === selectedPresetName,
-        onClick: () => {
-          setSelectedPresetName(t.name);
-          setOverrideRadius(t.radius ?? "0.5rem");
+        themes,
+        value: selectedPresetName,
+        onChange: (name) => {
+          setSelectedPresetName(name);
+          const selected = themes.find((t) => t.name === name);
+          if (selected) setOverrideRadius(selected.radius ?? "0.5rem");
           setCustomPrimary(null);
           setCustomSecondary(null);
           setCustomNeutral(null);
         },
-        labelOverride: labels?.[locale]?.[t.name]
-      },
-      t.name
-    )) }) }),
-    allowCustom && /* @__PURE__ */ jsxs2("div", { style: {
-      borderTop: themes.length > 0 ? "1px solid var(--border)" : void 0,
-      marginTop: themes.length > 0 ? 12 : 0,
-      paddingTop: themes.length > 0 ? 12 : 0
-    }, children: [
-      /* @__PURE__ */ jsxs2("div", { style: { marginBottom: 8 }, children: [
-        /* @__PURE__ */ jsx2("span", { style: { fontSize: 10, fontWeight: 600, opacity: 0.6, letterSpacing: "0.05em", textTransform: "uppercase" }, children: "Custom palette" }),
-        hasPreset && /* @__PURE__ */ jsx2("span", { style: { fontSize: 10, opacity: 0.45, marginLeft: 6 }, children: "overrides on preset" })
-      ] }),
-      /* @__PURE__ */ jsx2("div", { style: { display: "flex", flexDirection: "column", gap: 10 }, children: /* @__PURE__ */ jsxs2("section", { children: [
-        /* @__PURE__ */ jsx2("h4", { style: { margin: "0 0 6px", fontSize: 11, fontWeight: 600, opacity: 0.7 }, children: "Primary" }),
-        /* @__PURE__ */ jsxs2("div", { style: { display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center" }, children: [
-          hasPreset && /* @__PURE__ */ jsx2("button", { onClick: () => setCustomPrimary(null), style: chip(customPrimary === null), children: "Auto" }),
-          TAILWIND_COLORS2.map((color) => /* @__PURE__ */ jsx2("button", { onClick: () => setCustomPrimary(color), title: color, style: {
-            width: 24,
-            height: 24,
-            borderRadius: "50%",
-            cursor: "pointer",
-            outline: "none",
-            background: resolveColor(`${color}-500`),
-            border: customPrimary === color ? "2px solid var(--foreground)" : "1px solid var(--border)"
-          } }, color))
-        ] }),
-        customPrimary === null && hasPreset && /* @__PURE__ */ jsx2("p", { style: { margin: "4px 0 0", fontSize: 10, opacity: 0.45 }, children: "Using preset" }),
-        /* @__PURE__ */ jsx2("h4", { style: { margin: "10px 0 6px", fontSize: 11, fontWeight: 600, opacity: 0.7 }, children: "Secondary" }),
-        /* @__PURE__ */ jsxs2("div", { style: { display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center" }, children: [
-          hasPreset ? /* @__PURE__ */ jsx2("button", { onClick: () => setCustomSecondary(null), style: chip(customSecondary === null), children: "Auto" }) : /* @__PURE__ */ jsx2("button", { onClick: () => setCustomSecondary(null), title: "Auto (derived from primary)", style: {
-            width: 24,
-            height: 24,
-            borderRadius: "50%",
-            cursor: "pointer",
-            outline: "none",
-            background: `conic-gradient(${TAILWIND_COLORS2.slice(5, 10).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(", ")})`,
-            border: customSecondary === null ? "2px solid var(--foreground)" : "1px solid var(--border)"
-          } }),
-          TAILWIND_COLORS2.map((color) => /* @__PURE__ */ jsx2("button", { onClick: () => setCustomSecondary(color), title: color, style: {
-            width: 24,
-            height: 24,
-            borderRadius: "50%",
-            cursor: "pointer",
-            outline: "none",
-            background: resolveColor(`${color}-500`),
-            border: customSecondary === color ? "2px solid var(--foreground)" : "1px solid var(--border)"
-          } }, color))
-        ] }),
-        customSecondary === null && /* @__PURE__ */ jsx2("p", { style: { margin: "4px 0 0", fontSize: 10, opacity: 0.45 }, children: hasPreset ? "Using preset" : "Auto from primary" }),
-        /* @__PURE__ */ jsx2("h4", { style: { margin: "10px 0 6px", fontSize: 11, fontWeight: 600, opacity: 0.7 }, children: "Neutral base" }),
-        /* @__PURE__ */ jsxs2("div", { style: { display: "flex", flexWrap: "wrap", gap: 4 }, children: [
-          hasPreset ? /* @__PURE__ */ jsx2("button", { onClick: () => setCustomNeutral(null), style: chip(customNeutral === null), children: "Auto" }) : /* @__PURE__ */ jsx2("button", { onClick: () => setCustomNeutral("none"), style: chip(customNeutral === null || customNeutral === "none"), children: "none" }),
-          NEUTRAL_COLORS.map((color) => /* @__PURE__ */ jsx2("button", { onClick: () => setCustomNeutral(color), style: chip(customNeutral === color), children: color }, color))
-        ] }),
-        /* @__PURE__ */ jsx2("p", { style: { margin: "4px 0 0", fontSize: 10, opacity: 0.45 }, children: customNeutral === null ? hasPreset ? "Using preset" : "Primary family" : customNeutral === "none" ? "Primary family" : `${customNeutral} surfaces` })
-      ] }) })
-    ] }),
-    sections.length > 0 && /* @__PURE__ */ jsxs2("div", { style: { borderTop: "1px solid var(--border)", marginTop: 16, paddingTop: 16, display: "flex", flexDirection: "column", gap: 16 }, children: [
-      sections.includes("fonts") && /* @__PURE__ */ jsxs2("section", { children: [
-        /* @__PURE__ */ jsx2("h4", { style: { margin: "0 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Fonts" }),
-        /* @__PURE__ */ jsx2("div", { style: { display: "flex", flexDirection: "column", gap: 8 }, children: ["body", "heading"].map((fontType) => /* @__PURE__ */ jsxs2("label", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-          /* @__PURE__ */ jsx2("span", { style: { width: 52, fontSize: 12, opacity: 0.7 }, children: fontType }),
-          /* @__PURE__ */ jsxs2(
-            "select",
-            {
-              value: overrideFonts[fontType] ?? "",
-              onChange: (e) => setOverrideFonts((f) => ({ ...f, [fontType]: e.target.value || void 0 })),
-              style: { flex: 1, padding: "4px 8px", borderRadius: 4, border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", fontSize: 12 },
-              children: [
-                /* @__PURE__ */ jsx2("option", { value: "", children: fontType === "heading" ? "Same as body" : "System default" }),
-                FONT_GROUPS.map((group) => /* @__PURE__ */ jsx2("optgroup", { label: group.label, children: group.options.map((f) => /* @__PURE__ */ jsx2("option", { value: f.value, children: f.label }, f.value)) }, group.label))
-              ]
-            }
-          )
-        ] }, fontType)) })
-      ] }),
-      sections.includes("patterns") && /* @__PURE__ */ jsxs2("section", { children: [
-        /* @__PURE__ */ jsx2("h4", { style: { margin: "0 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Pattern" }),
-        /* @__PURE__ */ jsx2("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 }, children: PATTERN_TYPES.map((pt) => {
-          const active = overridePattern.type === pt;
-          const ps = pt !== "none" ? generatePattern({ type: pt, opacity: 0.18, size: "sm" }) : null;
-          return /* @__PURE__ */ jsx2(
-            "button",
-            {
-              onClick: () => setOverridePattern((p) => ({ ...p, type: pt })),
-              title: PATTERN_LABELS[pt],
-              style: {
-                width: 44,
-                height: 44,
-                borderRadius: 8,
-                cursor: "pointer",
-                padding: 0,
-                border: active ? "2px solid var(--foreground)" : "1px solid var(--border)",
-                backgroundColor: "var(--background)",
-                backgroundImage: ps?.backgroundImage ?? "none",
-                backgroundSize: ps?.backgroundSize ?? "auto",
-                backgroundPosition: ps?.backgroundPosition ?? "center",
-                outline: active ? "2px solid var(--ring)" : "none",
-                outlineOffset: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                overflow: "hidden"
-              },
-              children: pt === "none" && /* @__PURE__ */ jsx2("span", { style: { fontSize: 9, opacity: 0.5, color: "var(--foreground)", pointerEvents: "none" }, children: "none" })
-            },
-            pt
-          );
-        }) }),
-        overridePattern.type !== "none" && /* @__PURE__ */ jsxs2("div", { style: { marginTop: 10, display: "flex", flexDirection: "column", gap: 8 }, children: [
-          /* @__PURE__ */ jsxs2("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-            /* @__PURE__ */ jsx2("span", { style: { width: 52, fontSize: 11, opacity: 0.6 }, children: "Size" }),
-            /* @__PURE__ */ jsx2("div", { style: { display: "flex", gap: 4 }, children: ["sm", "md", "lg"].map((s) => /* @__PURE__ */ jsx2("button", { onClick: () => setOverridePattern((p) => ({ ...p, size: s })), style: chip((overridePattern.size ?? "md") === s), children: s.toUpperCase() }, s)) })
-          ] }),
-          /* @__PURE__ */ jsxs2("div", { style: { display: "flex", alignItems: "center", gap: 8 }, children: [
-            /* @__PURE__ */ jsx2("span", { style: { width: 52, fontSize: 11, opacity: 0.6 }, children: "Density" }),
-            /* @__PURE__ */ jsx2("div", { style: { display: "flex", gap: 4 }, children: PATTERN_OPACITY_PRESETS.map((o) => /* @__PURE__ */ jsx2("button", { onClick: () => setOverridePattern((p) => ({ ...p, opacity: o.value })), style: chip((overridePattern.opacity ?? 0.12) === o.value), children: o.label }, o.label)) })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsx2("p", { style: { margin: "6px 0 0", fontSize: 11, opacity: 0.5 }, children: overridePattern.type === "none" ? "No pattern" : PATTERN_LABELS[overridePattern.type] })
-      ] }),
-      sections.includes("radius") && /* @__PURE__ */ jsxs2("section", { children: [
-        /* @__PURE__ */ jsx2("h4", { style: { margin: "0 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Border Radius" }),
-        /* @__PURE__ */ jsx2("div", { style: { display: "flex", gap: 6 }, children: RADIUS_PRESETS.map((r) => /* @__PURE__ */ jsx2("button", { onClick: () => setOverrideRadius(r.value), style: chip(overrideRadius === r.value), children: r.label }, r.value)) })
-      ] }),
-      sections.includes("background") && /* @__PURE__ */ jsxs2("section", { children: [
-        /* @__PURE__ */ jsx2("h4", { style: { margin: "0 0 8px", fontSize: 13, fontWeight: 600, opacity: 0.7 }, children: "Background Image" }),
-        /* @__PURE__ */ jsxs2("div", { style: { display: "flex", gap: 6 }, children: [
-          /* @__PURE__ */ jsx2(
-            "input",
-            {
-              type: "text",
-              value: overrideBgImage,
-              onChange: (e) => {
-                const raw2 = e.target.value.trim();
-                if (!raw2) {
-                  setOverrideBgImage("");
-                  return;
-                }
-                const val = /^https?:\/\/|^\//.test(raw2) && !raw2.startsWith("url(") ? `url('${raw2}')` : raw2;
-                setOverrideBgImage(val);
-              },
-              placeholder: "https://\u2026 or url('\u2026') or gradient CSS",
-              style: {
-                flex: 1,
-                padding: "6px 8px",
-                borderRadius: 4,
-                fontSize: 12,
-                border: "1px solid var(--border)",
-                background: "var(--background)",
-                color: "var(--foreground)"
-              }
-            }
-          ),
-          overrideBgImage && /* @__PURE__ */ jsx2("button", { onClick: () => setOverrideBgImage(""), style: chip(false), children: "Clear" })
-        ] }),
-        /* @__PURE__ */ jsx2("p", { style: { margin: "6px 0 0", fontSize: 11, opacity: 0.5 }, children: "Pattern always overlays on top of background image." })
-      ] })
+        labels,
+        locale,
+        paletteMaxHeight
+      }
+    ),
+    showCustomPalette && /* @__PURE__ */ jsx6("div", { className: cn(showPalette ? "border-t border-border pt-4" : ""), children: /* @__PURE__ */ jsx6(
+      ThemeCustomPalettePicker,
+      {
+        hasPreset,
+        primary: customPrimary,
+        secondary: customSecondary,
+        neutral: customNeutral,
+        onPrimaryChange: setCustomPrimary,
+        onSecondaryChange: setCustomSecondary,
+        onNeutralChange: setCustomNeutral,
+        subtitle: hasPreset ? "overrides on preset" : void 0
+      }
+    ) }),
+    sections.length > 0 && /* @__PURE__ */ jsxs3("div", { className: "space-y-4 border-t border-border pt-4", children: [
+      sections.includes("fonts") && /* @__PURE__ */ jsx6(ThemeFontsPicker, { value: overrideFonts, onChange: setOverrideFonts }),
+      sections.includes("patterns") && /* @__PURE__ */ jsx6(ThemePatternsPicker, { value: overridePattern, onChange: setOverridePattern }),
+      sections.includes("radius") && /* @__PURE__ */ jsx6(ThemeRadiusPicker, { value: overrideRadius, onChange: setOverrideRadius }),
+      sections.includes("background") && /* @__PURE__ */ jsx6(ThemeBackgroundImagePicker, { value: overrideBgImage, onChange: setOverrideBgImage })
     ] })
   ] });
 }
 export {
+  Button,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+  ThemeBackgroundImagePicker,
   ThemeContext,
+  ThemeCustomPalettePicker,
+  ThemeFontsPicker,
+  ThemePalettePicker,
+  ThemePatternsPicker,
   ThemePicker,
   ThemeProvider,
+  ThemeRadiusPicker,
+  cn,
   useTheme
 };
 //# sourceMappingURL=react.mjs.map
