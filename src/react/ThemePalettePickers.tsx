@@ -35,7 +35,7 @@ function ThemeSwatch({ theme, selected, onClick, previewMode = 'light', labelOve
           style={{ backgroundColor: pri, width: (swatchSize * 0.9), height: (swatchSize * 1.2) }}
         />
         <span
-          className="inline-block rounded-r-full border border-border"
+          className="inline-block border border-border rounded-r-full"
           style={{ backgroundColor: sec, width: swatchSize, height: (swatchSize * 1.2) }}
         />
       </span>
@@ -216,16 +216,12 @@ export function ThemeCustomPalettePicker({
               size="xs"
               onClick={() => onNeutralChange(color)}
             >
-              {color}
+              <span className="capitalize bg-muted rounded-md px-1 py-1 text-xs">
+                {color}
+              </span>
             </Button>
           ))}
         </div>
-        <p className="text-[11px] text-muted-foreground">
-          {neutral === null
-            ? (hasPreset ? t('ui.usingPreset', 'Using preset') : t('ui.primaryFamily', 'Primary family'))
-            : neutral === 'none' ? t('ui.primaryFamily', 'Primary family')
-            : `${neutral} ${t('ui.surfacesSuffix', 'surfaces')}`}
-        </p>
       </section>
     </div>
   )

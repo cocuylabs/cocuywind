@@ -27,10 +27,11 @@ function getSize(s: 'sm' | 'md' | 'lg' | undefined, key: keyof typeof SIZE_MAP.m
 export function generatePattern(config: ThemePattern): PatternStyle {
   const size = config.size ?? 'md'
   const opacity = config.opacity ?? 0.12
-  const color = config.color ? resolveColor(config.color) : 'currentColor'
+  // Default to foreground so patterns remain visible on dark backgrounds.
+  const color = config.color ? resolveColor(config.color) : 'var(--foreground)'
 
   const colorWithOpacity = wrapWithOpacity(color, opacity)
-
+ 
   switch (config.type) {
     case 'none':
       return { backgroundImage: 'none', backgroundSize: 'auto' }

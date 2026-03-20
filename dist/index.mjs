@@ -290,7 +290,7 @@ function getSize(s, key) {
 function generatePattern(config) {
   const size = config.size ?? "md";
   const opacity = config.opacity ?? 0.12;
-  const color = config.color ? resolveColor(config.color) : "currentColor";
+  const color = config.color ? resolveColor(config.color) : "var(--foreground)";
   const colorWithOpacity = wrapWithOpacity(color, opacity);
   switch (config.type) {
     case "none":

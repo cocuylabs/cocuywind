@@ -347,7 +347,7 @@ function getSize(s, key) {
 function generatePattern(config) {
   const size = config.size ?? "md";
   const opacity = config.opacity ?? 0.12;
-  const color = config.color ? resolveColor(config.color) : "currentColor";
+  const color = config.color ? resolveColor(config.color) : "var(--foreground)";
   const colorWithOpacity = wrapWithOpacity(color, opacity);
   switch (config.type) {
     case "none":
@@ -942,7 +942,7 @@ var DEFAULT_LABELS = {
     "ui.opacity.subtle": "Subtle",
     "ui.opacity.normal": "Normal",
     "ui.opacity.bold": "Bold",
-    "ui.neutral.none": "none",
+    "ui.neutral.none": "None",
     "ui.filter.all": "All",
     "ui.filter.curated": "Featured",
     "ui.filter.basic": "Basic",
@@ -971,16 +971,16 @@ var DEFAULT_LABELS = {
     "ui.font.body": "cuerpo",
     "ui.font.heading": "t\xEDtulos",
     "ui.font.sameAsBody": "Igual que cuerpo",
-    "ui.font.systemDefault": "Sistema por defecto",
-    "ui.font.systemDefaultSans": "Sistema por defecto (sans-serif)",
-    "ui.font.systemSerif": "Sistema serif",
+    "ui.font.systemDefault": "Por defecto del sistema",
+    "ui.font.systemDefaultSans": "Por defecto del sistema (sans-serif)",
+    "ui.font.systemSerif": "Serif del sistema",
     "ui.size.sm": "SM",
     "ui.size.md": "MD",
     "ui.size.lg": "LG",
     "ui.opacity.subtle": "Sutil",
     "ui.opacity.normal": "Normal",
     "ui.opacity.bold": "Fuerte",
-    "ui.neutral.none": "ninguno",
+    "ui.neutral.none": "Ninguno",
     "ui.filter.all": "Todos",
     "ui.filter.curated": "Destacados",
     "ui.filter.basic": "B\xE1sicos",
@@ -1018,7 +1018,7 @@ var DEFAULT_LABELS = {
     "ui.opacity.subtle": "Suave",
     "ui.opacity.normal": "Normal",
     "ui.opacity.bold": "Forte",
-    "ui.neutral.none": "nenhum",
+    "ui.neutral.none": "Nenhum",
     "ui.filter.all": "Todos",
     "ui.filter.curated": "Destaques",
     "ui.filter.basic": "B\xE1sicos",
@@ -1069,7 +1069,7 @@ function ThemeSwatch({ theme, selected, onClick, previewMode = "light", labelOve
           /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
             "span",
             {
-              className: "inline-block rounded-r-full border border-border",
+              className: "inline-block border border-border rounded-r-full",
               style: { backgroundColor: sec, width: swatchSize, height: swatchSize * 1.2 }
             }
           )
@@ -1196,12 +1196,11 @@ function ThemeCustomPalettePicker({
             variant: neutral === color ? "secondary" : "outline",
             size: "xs",
             onClick: () => onNeutralChange(color),
-            children: color
+            children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "capitalize bg-muted rounded-md px-1 py-1 text-xs", children: color })
           },
           color
         ))
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("p", { className: "text-[11px] text-muted-foreground", children: neutral === null ? hasPreset ? t("ui.usingPreset", "Using preset") : t("ui.primaryFamily", "Primary family") : neutral === "none" ? t("ui.primaryFamily", "Primary family") : `${neutral} ${t("ui.surfacesSuffix", "surfaces")}` })
+      ] })
     ] })
   ] });
 }

@@ -61,7 +61,7 @@ export function ThemeFontsPicker({ value, onChange, className, labels, locale = 
                     {group.options.map(f => (
                       <SelectItem key={f.value} value={f.value}>
                         {f.label === 'System default (sans-serif)' ? t('ui.font.systemDefaultSans', f.label) :
-                         f.label === 'System serif' ? t('ui.font.systemSerif', f.label) : f.label}
+                          f.label === 'System serif' ? t('ui.font.systemSerif', f.label) : f.label}
                       </SelectItem>
                     ))}
                   </SelectGroup>
@@ -87,6 +87,7 @@ export function ThemePatternsPicker({ value, onChange, className, labels, locale
   const t = (key: string, fallback: string) => translate(labels, locale, key, fallback)
   const lang = (locale === 'es' || locale === 'pt' || locale === 'en') ? locale : 'en'
   const activeType = value.type
+
   return (
     <div className={cn('space-y-3', className)}>
       <h4 className="text-sm font-semibold">{t('ui.pattern', 'Pattern')}</h4>
@@ -139,7 +140,7 @@ export function ThemePatternsPicker({ value, onChange, className, labels, locale
                 >
                   {o.label === 'Subtle' ? t('ui.opacity.subtle', o.label)
                     : o.label === 'Normal' ? t('ui.opacity.normal', o.label)
-                    : t('ui.opacity.bold', o.label)}
+                      : t('ui.opacity.bold', o.label)}
                 </Button>
               ))}
             </div>
