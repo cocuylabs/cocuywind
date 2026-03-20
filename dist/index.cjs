@@ -629,6 +629,9 @@ function googleFontsUrl(families) {
 }
 
 // src/generate.ts
+function toScale(fontSize) {
+  return fontSize ? fontSize.replace("em", "") : void 0;
+}
 var TOKEN_TO_CSS_VAR = {
   background: "--background",
   foreground: "--foreground",
@@ -669,8 +672,19 @@ function generateCSS(theme) {
     lines.push(`  ${cssVar}: ${value};`);
   }
   lines.push(`  --radius: ${radius};`);
-  if (fonts.body) lines.push(`  --font-body: ${fonts.body};`);
-  if (fonts.heading) lines.push(`  --font-heading: ${fonts.heading};`);
+  if (fonts.body) {
+    lines.push(`  --font-body: ${fonts.body};`);
+    lines.push(`  --font-sans: var(--font-body);`);
+    const bodyAdj = FONT_ADJUSTMENTS[fonts.body];
+    if (bodyAdj?.fontSize) lines.push(`  --font-body-scale: ${toScale(bodyAdj.fontSize)};`);
+    if (bodyAdj?.letterSpacing) lines.push(`  --font-body-tracking: ${bodyAdj.letterSpacing};`);
+  }
+  if (fonts.heading) {
+    lines.push(`  --font-heading: ${fonts.heading};`);
+    const headAdj = FONT_ADJUSTMENTS[fonts.heading];
+    if (headAdj?.fontSize) lines.push(`  --font-heading-scale: ${toScale(headAdj.fontSize)};`);
+    if (headAdj?.letterSpacing) lines.push(`  --font-heading-tracking: ${headAdj.letterSpacing};`);
+  }
   if (theme.pattern && theme.pattern.type !== "none") {
     const pattern = theme.pattern.tint ? {
       ...theme.pattern,
@@ -689,22 +703,8 @@ function generateCSS(theme) {
   }
   lines.push(`  --bg-image: ${theme.backgroundImage ?? "none"};`);
   lines.push("}", "");
-  if (fonts.body) {
-    const adj = FONT_ADJUSTMENTS[fonts.body] ?? {};
-    const extra = [
-      adj.fontSize ? `font-size: ${adj.fontSize};` : "",
-      adj.letterSpacing ? `letter-spacing: ${adj.letterSpacing};` : ""
-    ].filter(Boolean).join(" ");
-    lines.push(`:root { font-family: var(--font-body);${extra ? " " + extra : ""} }`, "");
-  }
-  if (fonts.heading) {
-    const adj = FONT_ADJUSTMENTS[fonts.heading] ?? {};
-    const extra = [
-      adj.fontSize ? `font-size: ${adj.fontSize};` : "",
-      adj.letterSpacing ? `letter-spacing: ${adj.letterSpacing};` : ""
-    ].filter(Boolean).join(" ");
-    lines.push(`h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading);${extra ? " " + extra : ""} }`, "");
-  }
+  if (fonts.body) lines.push(`:root { font-family: var(--font-body); }`, "");
+  lines.push(`h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading, inherit); }`, "");
   lines.push(".dark {");
   for (const [cssVar, value] of Object.entries(darkVars)) {
     lines.push(`  ${cssVar}: ${value};`);
@@ -734,8 +734,19 @@ function storedThemeToCSS(stored) {
     lines.push(`  --${kebab(key)}: ${value};`);
   }
   lines.push(`  --radius: ${radius};`);
-  if (fonts?.body) lines.push(`  --font-body: ${fonts.body};`);
-  if (fonts?.heading) lines.push(`  --font-heading: ${fonts.heading};`);
+  if (fonts?.body) {
+    lines.push(`  --font-body: ${fonts.body};`);
+    lines.push(`  --font-sans: var(--font-body);`);
+    const bodyAdj = FONT_ADJUSTMENTS[fonts.body];
+    if (bodyAdj?.fontSize) lines.push(`  --font-body-scale: ${toScale(bodyAdj.fontSize)};`);
+    if (bodyAdj?.letterSpacing) lines.push(`  --font-body-tracking: ${bodyAdj.letterSpacing};`);
+  }
+  if (fonts?.heading) {
+    lines.push(`  --font-heading: ${fonts.heading};`);
+    const headAdj = FONT_ADJUSTMENTS[fonts.heading];
+    if (headAdj?.fontSize) lines.push(`  --font-heading-scale: ${toScale(headAdj.fontSize)};`);
+    if (headAdj?.letterSpacing) lines.push(`  --font-heading-tracking: ${headAdj.letterSpacing};`);
+  }
   if (pattern && pattern.type !== "none") {
     const patternConfig = pattern.tint ? {
       ...pattern,
@@ -754,22 +765,8 @@ function storedThemeToCSS(stored) {
   }
   lines.push(`  --bg-image: ${stored.backgroundImage ?? "none"};`);
   lines.push("}", "");
-  if (fonts?.body) {
-    const adj = FONT_ADJUSTMENTS[fonts.body] ?? {};
-    const extra = [
-      adj.fontSize ? `font-size: ${adj.fontSize};` : "",
-      adj.letterSpacing ? `letter-spacing: ${adj.letterSpacing};` : ""
-    ].filter(Boolean).join(" ");
-    lines.push(`:root { font-family: var(--font-body);${extra ? " " + extra : ""} }`, "");
-  }
-  if (fonts?.heading) {
-    const adj = FONT_ADJUSTMENTS[fonts.heading] ?? {};
-    const extra = [
-      adj.fontSize ? `font-size: ${adj.fontSize};` : "",
-      adj.letterSpacing ? `letter-spacing: ${adj.letterSpacing};` : ""
-    ].filter(Boolean).join(" ");
-    lines.push(`h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading);${extra ? " " + extra : ""} }`, "");
-  }
+  if (fonts?.body) lines.push(`:root { font-family: var(--font-body); }`, "");
+  lines.push(`h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading, inherit); }`, "");
   lines.push(".dark {");
   for (const [key, value] of Object.entries(styles.dark)) {
     lines.push(`  --${kebab(key)}: ${value};`);

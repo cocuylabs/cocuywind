@@ -9,7 +9,7 @@ import React, {
 import type { Theme } from '../types.js'
 import { raw } from '../types.js'
 import { generateThemeVariables } from '../generate.js'
-import { googleFontsUrl } from '../fonts.js'
+import { googleFontsUrl, FONT_ADJUSTMENTS } from '../fonts.js'
 import { generatePattern } from '../patterns.js'
 
 export type ColorMode = 'light' | 'dark' | 'system'
@@ -115,10 +115,32 @@ export function ThemeProvider({
     root.style.setProperty('--radius', theme.radius ?? '0.5rem')
 
     // Apply font vars (clear when theme has no fonts)
-    if (theme.fonts?.body)    root.style.setProperty('--font-body', theme.fonts.body)
-    else                      root.style.removeProperty('--font-body')
-    if (theme.fonts?.heading) root.style.setProperty('--font-heading', theme.fonts.heading)
-    else                      root.style.removeProperty('--font-heading')
+    if (theme.fonts?.body) {
+      root.style.setProperty('--font-body', theme.fonts.body)
+      root.style.setProperty('--font-sans', theme.fonts.body)
+      const bodyAdj = FONT_ADJUSTMENTS[theme.fonts.body]
+      if (bodyAdj?.fontSize)      root.style.setProperty('--font-body-scale', bodyAdj.fontSize.replace('em', ''))
+      else                        root.style.removeProperty('--font-body-scale')
+      if (bodyAdj?.letterSpacing) root.style.setProperty('--font-body-tracking', bodyAdj.letterSpacing)
+      else                        root.style.removeProperty('--font-body-tracking')
+    } else {
+      root.style.removeProperty('--font-body')
+      root.style.removeProperty('--font-sans')
+      root.style.removeProperty('--font-body-scale')
+      root.style.removeProperty('--font-body-tracking')
+    }
+    if (theme.fonts?.heading) {
+      root.style.setProperty('--font-heading', theme.fonts.heading)
+      const headAdj = FONT_ADJUSTMENTS[theme.fonts.heading]
+      if (headAdj?.fontSize)      root.style.setProperty('--font-heading-scale', headAdj.fontSize.replace('em', ''))
+      else                        root.style.removeProperty('--font-heading-scale')
+      if (headAdj?.letterSpacing) root.style.setProperty('--font-heading-tracking', headAdj.letterSpacing)
+      else                        root.style.removeProperty('--font-heading-tracking')
+    } else {
+      root.style.removeProperty('--font-heading')
+      root.style.removeProperty('--font-heading-scale')
+      root.style.removeProperty('--font-heading-tracking')
+    }
 
     // Inject font application rules
     const styleId = 'cocuywind-font-rules'
@@ -128,8 +150,10 @@ export function ThemeProvider({
       styleEl.id = styleId
       document.head.appendChild(styleEl)
     }
-    const bodyRule    = theme.fonts?.body    ? `body,  :root { font-family: var(--font-body); }` : ''
-    const headingRule = theme.fonts?.heading ? `h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }` : ''
+    const bodyRule    = theme.fonts?.body ? `body, :root { font-family: var(--font-body); }` : ''
+    // Always emit heading rule with inherit fallback so --font-heading can be
+    // updated via CSS var (e.g. live preview) even without a stored heading font.
+    const headingRule = `h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading, inherit); }`
     styleEl.textContent = [bodyRule, headingRule].filter(Boolean).join('\n')
 
     // Load Google Fonts

@@ -49,7 +49,7 @@ describe('generateCSS', () => {
     expect(css).toContain("--font-body: 'Inter', system-ui, sans-serif")
     expect(css).toContain("--font-heading: 'Playfair Display', Georgia, serif")
     expect(css).toContain(':root { font-family: var(--font-body); }')
-    expect(css).toContain('h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }')
+    expect(css).toContain('h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading, inherit); }')
   })
 
   it('maps CSS vars to Tailwind @theme vars', () => {

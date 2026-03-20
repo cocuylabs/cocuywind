@@ -57,7 +57,7 @@ export function ThemeFontsPicker({ value, onChange, className, labels, locale = 
   return (
     <div className={cn('space-y-3', className)}>
       <div className="space-y-2">
-        {(['body', 'heading'] as const).map(fontType => (
+        {(['heading', 'body'] as const).map(fontType => (
           <div key={fontType} className="grid grid-cols-[64px_1fr] items-center gap-3">
             <Label className="text-xs text-muted-foreground capitalize">
               {fontType === 'heading' ? t('ui.font.heading', 'heading') : t('ui.font.body', 'body')}

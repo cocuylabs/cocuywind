@@ -613,10 +613,32 @@ function ThemeProvider({
       root.style.setProperty(prop, value2);
     }
     root.style.setProperty("--radius", theme.radius ?? "0.5rem");
-    if (theme.fonts?.body) root.style.setProperty("--font-body", theme.fonts.body);
-    else root.style.removeProperty("--font-body");
-    if (theme.fonts?.heading) root.style.setProperty("--font-heading", theme.fonts.heading);
-    else root.style.removeProperty("--font-heading");
+    if (theme.fonts?.body) {
+      root.style.setProperty("--font-body", theme.fonts.body);
+      root.style.setProperty("--font-sans", theme.fonts.body);
+      const bodyAdj = FONT_ADJUSTMENTS[theme.fonts.body];
+      if (bodyAdj?.fontSize) root.style.setProperty("--font-body-scale", bodyAdj.fontSize.replace("em", ""));
+      else root.style.removeProperty("--font-body-scale");
+      if (bodyAdj?.letterSpacing) root.style.setProperty("--font-body-tracking", bodyAdj.letterSpacing);
+      else root.style.removeProperty("--font-body-tracking");
+    } else {
+      root.style.removeProperty("--font-body");
+      root.style.removeProperty("--font-sans");
+      root.style.removeProperty("--font-body-scale");
+      root.style.removeProperty("--font-body-tracking");
+    }
+    if (theme.fonts?.heading) {
+      root.style.setProperty("--font-heading", theme.fonts.heading);
+      const headAdj = FONT_ADJUSTMENTS[theme.fonts.heading];
+      if (headAdj?.fontSize) root.style.setProperty("--font-heading-scale", headAdj.fontSize.replace("em", ""));
+      else root.style.removeProperty("--font-heading-scale");
+      if (headAdj?.letterSpacing) root.style.setProperty("--font-heading-tracking", headAdj.letterSpacing);
+      else root.style.removeProperty("--font-heading-tracking");
+    } else {
+      root.style.removeProperty("--font-heading");
+      root.style.removeProperty("--font-heading-scale");
+      root.style.removeProperty("--font-heading-tracking");
+    }
     const styleId = "cocuywind-font-rules";
     let styleEl = document.getElementById(styleId);
     if (!styleEl) {
@@ -624,8 +646,8 @@ function ThemeProvider({
       styleEl.id = styleId;
       document.head.appendChild(styleEl);
     }
-    const bodyRule = theme.fonts?.body ? `body,  :root { font-family: var(--font-body); }` : "";
-    const headingRule = theme.fonts?.heading ? `h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }` : "";
+    const bodyRule = theme.fonts?.body ? `body, :root { font-family: var(--font-body); }` : "";
+    const headingRule = `h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading, inherit); }`;
     styleEl.textContent = [bodyRule, headingRule].filter(Boolean).join("\n");
     const linkId = "cocuywind-gfonts";
     const families = [theme.fonts?.body, theme.fonts?.heading].filter((f) => !!f);
@@ -1361,7 +1383,7 @@ function ThemeFontsPicker({ value, onChange, className, labels, locale = "en" })
     }
     if (linkEl.href !== url) linkEl.href = url;
   }, []);
-  return /* @__PURE__ */ jsx7("div", { className: cn("space-y-3", className), children: /* @__PURE__ */ jsx7("div", { className: "space-y-2", children: ["body", "heading"].map((fontType) => /* @__PURE__ */ jsxs4("div", { className: "grid grid-cols-[64px_1fr] items-center gap-3", children: [
+  return /* @__PURE__ */ jsx7("div", { className: cn("space-y-3", className), children: /* @__PURE__ */ jsx7("div", { className: "space-y-2", children: ["heading", "body"].map((fontType) => /* @__PURE__ */ jsxs4("div", { className: "grid grid-cols-[64px_1fr] items-center gap-3", children: [
     /* @__PURE__ */ jsx7(Label, { className: "text-xs text-muted-foreground capitalize", children: fontType === "heading" ? t("ui.font.heading", "heading") : t("ui.font.body", "body") }),
     /* @__PURE__ */ jsxs4(
       Select,

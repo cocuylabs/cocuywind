@@ -110,7 +110,7 @@ If no preset is active (pure custom mode), the pickers build a full theme from s
 | Section key | Default | Effect |
 |---|---|---|
 | `'radius'` | 0.5rem | Sets `--radius`; component variants derive `sm/md/lg/xl` from it |
-| `'fonts'` | System | `body` → `--font-body` on `:root`; `heading` → `--font-heading` on `h1–h6`. 3 system stacks (sans, serif, mono) + 16 Google Fonts (8 sans-serif, 4 serif, 4 monospace). |
+| `'fonts'` | System | `body` → `--font-body` on `:root`; `heading` → `--font-heading` on `h1–h6`. 3 system stacks + 29 Google Fonts (11 sans-serif, 9 serif, 5 display, 4 monospace). Fonts with unusual proportions emit `--font-heading-scale` / `--font-heading-tracking` CSS vars for optical correction. |
 | `'patterns'` | None | Sets `--pattern-image`, `--pattern-size`, `--pattern-position` CSS vars. Exposes size (SM/MD/LG) and density (Subtle/Normal/Bold) controls when a pattern is active. |
 | `'background'` | None | Text input for a CSS `background-image` value. Bare URLs are auto-wrapped in `url('…')`. Sets `--bg-image`. **cocuywind does not manage upload** — your panel handles upload/storage, then the user pastes the URL here. Pattern always overlays on top. |
 
@@ -242,7 +242,10 @@ if (!result.valid) {
 Calling `storedThemeToCSS(stored)` produces CSS that:
 - Sets all 19 color tokens as CSS vars in `:root` and `.dark`
 - Sets `--radius`, `--font-body`, `--font-heading`, `--pattern-image`, `--pattern-size`, `--bg-image` in `:root`
-- Emits font application rules (`body { font-family: var(--font-body) }`, `h1–h6 { font-family: var(--font-heading) }`)
+- Also sets `--font-sans: var(--font-body)` (when body font is set) for Tailwind v4 `var(--font-sans)` consumers
+- Also sets `--font-body-scale`, `--font-body-tracking`, `--font-heading-scale`, `--font-heading-tracking` when the font needs optical correction (see `FONT_ADJUSTMENTS`)
+- Emits `:root { font-family: var(--font-body); }` only when a body font is set
+- Always emits `h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading, inherit); }` (the `inherit` fallback means headings inherit body font when no heading font is set)
 - Does **not** emit a body background rule — you own that (see below)
 
 ### Astro (recommended pattern)
@@ -355,10 +358,10 @@ function storedThemeToCSS(stored) {
     }).join('\n')
 
   const r = stored.radius ?? '0.5rem'
-  const fontBody    = stored.fonts?.body    ? `  --font-body: ${stored.fonts.body};`       : ''
+  const fontBody    = stored.fonts?.body    ? `  --font-body: ${stored.fonts.body};\n  --font-sans: var(--font-body);` : ''
   const fontHeading = stored.fonts?.heading ? `  --font-heading: ${stored.fonts.heading};` : ''
-  const bodyRule    = stored.fonts?.body    ? `body { font-family: var(--font-body); }`    : ''
-  const headingRule = stored.fonts?.heading ? `h1,h2,h3,h4,h5,h6 { font-family: var(--font-heading); }` : ''
+  const bodyRule    = stored.fonts?.body    ? `:root { font-family: var(--font-body); }`   : ''
+  const headingRule = `h1,h2,h3,h4,h5,h6 { font-family: var(--font-heading, inherit); }` // always emitted
 
   // Pattern vars (always emitted so CSS fallbacks work)
   const patternImage    = stored.pattern?.type && stored.pattern.type !== 'none'
@@ -378,6 +381,8 @@ function storedThemeToCSS(stored) {
 ```
 
 > **Note:** Pattern CSS generation (SVG noise, conic-gradient checkerboard, etc.) requires the full library. For pattern support without a dep, use `storedThemeToCSS` from `cocuywind` directly.
+
+> **Note:** The font adjustment CSS vars (`--font-heading-scale`, `--font-body-scale`, `--font-heading-tracking`, `--font-body-tracking`) require looking up `FONT_ADJUSTMENTS` from the library — they are not reproducible without it. The inline helper above omits them.
 
 ### Rules
 - Treat `stored.styles.light` and `stored.styles.dark` as opaque bags of CSS var values — do not read individual token keys for business logic.
@@ -408,7 +413,7 @@ interface StoredTheme {
                        // 'checkerboard' | 'triangles' | 'hexagons' | 'noise'
     size?:    string   // 'sm' | 'md' | 'lg'
     color?:   string   // CSS color or TailwindToken
-    opacity?: number   // 0–1, default 0.12
+    opacity?: number   // 0–1, default 0.08
   }
   /**
    * CSS background-image value — e.g. "url('https://...')".

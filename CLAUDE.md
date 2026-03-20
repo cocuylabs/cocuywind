@@ -73,7 +73,7 @@ src/
 ├── generate.ts          # generateCSS, storedThemeToCSS, resolveTokens
 ├── factory.ts           # createTheme, extendTheme, defineTheme
 ├── serialize.ts         # serializeTheme, deserializeTheme (re-exports storedThemeToCSS)
-├── fonts.ts             # FONTS constants (14 entries), googleFontsUrl
+├── fonts.ts             # FONTS constants (32 entries), FONT_ADJUSTMENTS, googleFontsUrl
 ├── patterns.ts          # 12 CSS background pattern generators
 ├── steal.ts             # Generic theme stealing (CSS text, vars object, browser snippet)
 ├── steal-tweakcn.ts     # TweakCN-specific stealing (public JSON API)
@@ -171,11 +171,16 @@ Keys are **camelCase** in TypeScript. `generate.ts` maps them to `--kebab-case` 
   --primary: oklch(0.623 0.214 259.815);
   /* ... all 19 color vars ... */
   --radius: 0.5rem;
-  --font-body: 'Inter', system-ui, sans-serif;
-  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;   /* when body font is set */
+  --font-sans: var(--font-body);                 /* always when body font is set */
+  --font-heading: 'Playfair Display', Georgia, serif; /* when heading font is set */
+  --font-body-scale: 1.15;                       /* unitless, only when font has adjustment */
+  --font-body-tracking: 0.02em;                  /* only when font has adjustment */
+  --font-heading-scale: 1.2;                     /* unitless, only when font has adjustment */
+  --font-heading-tracking: 0.06em;               /* only when font has adjustment */
 }
-:root { font-family: var(--font-body); }
-h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }
+:root { font-family: var(--font-body); }         /* only when body font is set */
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading, inherit); } /* always emitted */
 .dark {
   --background: oklch(0.145 0 0);
   /* ... dark overrides ... */
@@ -422,11 +427,28 @@ import { themeLabelsEs, themeLabelsPt } from 'cocuywind'
 - `body` — the UI/text font, applied to `:root`. Omit for system-ui.
 - `heading` — optional display font for h1–h6. Omit to inherit body font for headings.
 
-`FONTS` constant has 14 entries (2 system + 8 sans-serif Google Fonts + 4 serif Google Fonts). Mono fonts are not part of the theming system.
+`FONTS` constant has 32 entries:
+- 3 system fonts (SYSTEM_SANS, SYSTEM_SERIF, SYSTEM_MONO)
+- 11 sans-serif Google Fonts (Inter, Geist, Plus Jakarta Sans, Nunito, Poppins, Outfit, DM Sans, Manrope, Space Grotesk, Josefin Sans, Raleway)
+- 9 serif Google Fonts (Playfair Display, Lora, Merriweather, DM Serif Display, Cormorant Garamond, Bodoni Moda, Cinzel, Fraunces, Instrument Serif)
+- 5 display Google Fonts (Bebas Neue, Syne, Unbounded, Archivo Black, Righteous)
+- 4 monospace Google Fonts (JetBrains Mono, Fira Code, Source Code Pro, IBM Plex Mono)
+
+`FONT_ADJUSTMENTS` is a `Partial<Record<string, FontAdjustment>>` keyed by font family string (the full CSS string). Only fonts that need optical correction are listed. `FontAdjustment` has `fontSize?: string` (e.g. `'1.15em'`) and `letterSpacing?: string` (e.g. `'0.04em'`). Exported from `src/index.ts` for consumer use.
 
 `googleFontsUrl(families: string[])` takes an array of font-family strings from `FONTS` and returns a Google Fonts CDN URL with appropriate weight ranges.
 
-**CSS output:** `--font-body` and `--font-heading` vars are emitted in `:root`. Application rules (`:root { font-family: var(--font-body) }` and `h1–h6 { font-family: var(--font-heading) }`) are included automatically. In `@theme inline`, `--font-sans` is mapped to `var(--font-body)` so the Tailwind `font-sans` utility keeps working.
+**CSS output:** `--font-body` and `--font-heading` vars are emitted in `:root` when set. `--font-sans: var(--font-body)` is also emitted (always when body font is set) for Tailwind v4 `var(--font-sans)` consumers. When a font has an entry in `FONT_ADJUSTMENTS`, the corresponding `--font-body-scale`, `--font-body-tracking`, `--font-heading-scale`, and/or `--font-heading-tracking` vars are emitted as unitless/em values for consumer use. The `:root { font-family: var(--font-body) }` rule is only emitted when a body font is set. The `h1–h6` heading rule is **always** emitted as `h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading, inherit); }` — the `inherit` fallback ensures correct behavior when no heading font is set, and the rule always exists so live preview via CSS var postMessage works. In `@theme inline`, `--font-sans` is mapped to `var(--font-body)` so the Tailwind `font-sans` utility keeps working.
+
+**Scale vars are not applied inside the font rules** — baking `font-size` into an unlayered rule would override Tailwind utility classes (`text-3xl`, etc.). Consumers use them in `@layer base` or inline styles:
+```css
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-size: calc(1em * var(--font-heading-scale, 1));
+    letter-spacing: var(--font-heading-tracking, normal);
+  }
+}
+```
 
 **Stealing:** `--font-sans` from stolen themes maps to `body`; `--font-serif` maps to `heading`.
 
@@ -443,7 +465,7 @@ Currently 153 tests across 10 files.
 | `factory.test.ts` | createTheme shade logic (with/without neutral), extendTheme, defineTheme |
 | `generate.test.ts` | generateCSS output, font vars + application rules, storedThemeToCSS, resolveTokens |
 | `serialize.test.ts` | serializeTheme, deserializeTheme roundtrip |
-| `fonts.test.ts` | FONTS constants (14 entries), googleFontsUrl URL building |
+| `fonts.test.ts` | FONTS constants (32 entries), FONT_ADJUSTMENTS, googleFontsUrl URL building |
 | `patterns.test.ts` | All 12 pattern types, size variants |
 | `themes.test.ts` | Theme count (27 builtin, 37 tweakcn, 64 total), unique names |
 | `steal.test.ts` | themeFromCSSVars, themeFromCSS, themeFromSnippetOutput, font-sans→body mapping |
