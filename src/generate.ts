@@ -2,6 +2,7 @@ import { resolveColor } from './colors.js'
 import type { Theme, ThemeTokens, StoredTheme, ResolvedTokens } from './types.js'
 import { raw } from './types.js'
 import { generatePattern } from './patterns.js'
+import { FONT_ADJUSTMENTS } from './fonts.js'
 
 /** Maps camelCase token names to CSS custom property names */
 const TOKEN_TO_CSS_VAR: Record<keyof ThemeTokens, string> = {
@@ -95,8 +96,22 @@ export function generateCSS(theme: Theme): string {
   lines.push('}', '')
 
   // ─── Font application rules ───────────────────────────────────────────────
-  if (fonts.body)    lines.push(`:root { font-family: var(--font-body); }`, '')
-  if (fonts.heading) lines.push(`h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }`, '')
+  if (fonts.body) {
+    const adj = FONT_ADJUSTMENTS[fonts.body] ?? {}
+    const extra = [
+      adj.fontSize    ? `font-size: ${adj.fontSize};`       : '',
+      adj.letterSpacing ? `letter-spacing: ${adj.letterSpacing};` : '',
+    ].filter(Boolean).join(' ')
+    lines.push(`:root { font-family: var(--font-body);${extra ? ' ' + extra : ''} }`, '')
+  }
+  if (fonts.heading) {
+    const adj = FONT_ADJUSTMENTS[fonts.heading] ?? {}
+    const extra = [
+      adj.fontSize    ? `font-size: ${adj.fontSize};`       : '',
+      adj.letterSpacing ? `letter-spacing: ${adj.letterSpacing};` : '',
+    ].filter(Boolean).join(' ')
+    lines.push(`h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading);${extra ? ' ' + extra : ''} }`, '')
+  }
 
   // ─── .dark (dark mode overrides) ─────────────────────────────────────────
   lines.push('.dark {')
@@ -175,8 +190,22 @@ export function storedThemeToCSS(stored: StoredTheme): string {
   lines.push('}', '')
 
   // ─── Font application rules ───────────────────────────────────────────────
-  if (fonts?.body)    lines.push(`:root { font-family: var(--font-body); }`, '')
-  if (fonts?.heading) lines.push(`h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }`, '')
+  if (fonts?.body) {
+    const adj = FONT_ADJUSTMENTS[fonts.body] ?? {}
+    const extra = [
+      adj.fontSize      ? `font-size: ${adj.fontSize};`         : '',
+      adj.letterSpacing ? `letter-spacing: ${adj.letterSpacing};` : '',
+    ].filter(Boolean).join(' ')
+    lines.push(`:root { font-family: var(--font-body);${extra ? ' ' + extra : ''} }`, '')
+  }
+  if (fonts?.heading) {
+    const adj = FONT_ADJUSTMENTS[fonts.heading] ?? {}
+    const extra = [
+      adj.fontSize      ? `font-size: ${adj.fontSize};`         : '',
+      adj.letterSpacing ? `letter-spacing: ${adj.letterSpacing};` : '',
+    ].filter(Boolean).join(' ')
+    lines.push(`h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading);${extra ? ' ' + extra : ''} }`, '')
+  }
 
   // ─── .dark ───────────────────────────────────────────────────────────────
   lines.push('.dark {')

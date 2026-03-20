@@ -481,6 +481,32 @@ declare const FONTS: {
     readonly IBM_PLEX_MONO: "'IBM Plex Mono', ui-monospace, monospace";
 };
 type FontKey = keyof typeof FONTS;
+interface FontAdjustment {
+    /**
+     * Relative font-size correction (e.g. `'1.15em'`).
+     * Apply to the element's `font-size` so the face reads at the same visual
+     * size as a "normal" font at the same point size.
+     */
+    fontSize?: string;
+    /**
+     * Letter-spacing recommendation (e.g. `'0.04em'`).
+     * Apply to `letter-spacing` for fonts that need open or tight tracking.
+     */
+    letterSpacing?: string;
+}
+/**
+ * Per-font optical adjustments — recommended fontSize and letterSpacing
+ * corrections for fonts that render unusually large/small or need tracking.
+ *
+ * Fonts not listed here need no adjustment. Apply these wherever you render
+ * text in the chosen font (headings, body copy, UI labels) to get consistent
+ * visual sizing across the FONTS palette.
+ *
+ * @example
+ * const adj = FONT_ADJUSTMENTS[theme.fonts?.heading ?? ''] ?? {}
+ * // → { fontSize: '1.15em', letterSpacing: undefined }
+ */
+declare const FONT_ADJUSTMENTS: Partial<Record<string, FontAdjustment>>;
 /**
  * Build a Google Fonts URL for the given font family strings.
  *
@@ -1491,4 +1517,4 @@ declare const communityThemes: Theme[];
 /** All themes — 10 curated built-in + 17 Tailwind basic + 10 Claude + 37 tweakcn */
 declare const themes: Theme[];
 
-export { type ColorToken, type CreateThemeConfig, FONTS, type FontFamily, type FontKey, type PatternStyle, type PatternType, type RawColor, type ResolvedTokens, type StealMeta, type StoredTheme, TAILWIND_COLORS, type TailwindColor, type TailwindShade, type TailwindToken, type Theme, type ThemeFonts, type ThemePattern, type ThemeTokens, type ThemeValidationResult, type TweakCNRegistryEntry, type TweakCNThemeItem, VIVIDNESS_PRESETS, type VividnessPreset, adjustVividness, amberMinimalTheme, amberTheme, amethystHazeTheme, boldTechTheme, bookmarkletUrl, browserSnippet, bubblegumTheme, builtinThemes, caffeineTheme, candyTheme, candylandTheme, catppuccinTheme, claudeTheme, claudeThemes, claymorphismTheme, cleanSlateTheme, communityThemes, cosmicNightTheme, createTheme, cyberpunkTheme, defaultTheme, defineTheme, deserializeTheme, doom64Theme, elegantLuxuryTheme, extendTheme, fetchAllTweakCNThemes, fetchTweakCNRegistry, fetchTweakCNTheme, forestTheme, generateCSS, generatePattern, generateThemeVariables, googleFontsUrl, graphiteTheme, indigoTheme, kodamaGroveTheme, midnightBloomTheme, midnightTheme, mochaMousseTheme, modernMinimalTheme, natureTheme, neoBrutalismTheme, northernLightsTheme, notebookTheme, oceanBreezeTheme, oceanTheme, pastelDreamsTheme, perpetuityTheme, quantumRoseTheme, raw, resolveColor, resolveTokens, retroArcadeTheme, roseTheme, serializeTheme, solarDuskTheme, starryNightTheme, storedThemeToCSS, sunsetHorizonTheme, sunsetTheme, supabaseTheme, t3ChatTheme, tailwindBasicThemes, tangerineTheme, tealTheme, themeCategoryLabels_en as themeCategoryLabelsEn, themeCategoryLabels_es as themeCategoryLabelsEs, themeCategoryLabels_pt as themeCategoryLabelsPt, themeFromCSS, themeFromCSSVars, themeFromSnippetOutput, themeFromTweakCNItem, themeLabels_en as themeLabelsEn, themeLabels_es as themeLabelsEs, themeLabels_pt as themeLabelsPt, themes, tweakcnBookmarkletUrl, tweakcnSnippet, tweakcnThemes, twitterTheme, validateStoredTheme, vintagePaperTheme, violetBloomTheme };
+export { type ColorToken, type CreateThemeConfig, FONTS, FONT_ADJUSTMENTS, type FontAdjustment, type FontFamily, type FontKey, type PatternStyle, type PatternType, type RawColor, type ResolvedTokens, type StealMeta, type StoredTheme, TAILWIND_COLORS, type TailwindColor, type TailwindShade, type TailwindToken, type Theme, type ThemeFonts, type ThemePattern, type ThemeTokens, type ThemeValidationResult, type TweakCNRegistryEntry, type TweakCNThemeItem, VIVIDNESS_PRESETS, type VividnessPreset, adjustVividness, amberMinimalTheme, amberTheme, amethystHazeTheme, boldTechTheme, bookmarkletUrl, browserSnippet, bubblegumTheme, builtinThemes, caffeineTheme, candyTheme, candylandTheme, catppuccinTheme, claudeTheme, claudeThemes, claymorphismTheme, cleanSlateTheme, communityThemes, cosmicNightTheme, createTheme, cyberpunkTheme, defaultTheme, defineTheme, deserializeTheme, doom64Theme, elegantLuxuryTheme, extendTheme, fetchAllTweakCNThemes, fetchTweakCNRegistry, fetchTweakCNTheme, forestTheme, generateCSS, generatePattern, generateThemeVariables, googleFontsUrl, graphiteTheme, indigoTheme, kodamaGroveTheme, midnightBloomTheme, midnightTheme, mochaMousseTheme, modernMinimalTheme, natureTheme, neoBrutalismTheme, northernLightsTheme, notebookTheme, oceanBreezeTheme, oceanTheme, pastelDreamsTheme, perpetuityTheme, quantumRoseTheme, raw, resolveColor, resolveTokens, retroArcadeTheme, roseTheme, serializeTheme, solarDuskTheme, starryNightTheme, storedThemeToCSS, sunsetHorizonTheme, sunsetTheme, supabaseTheme, t3ChatTheme, tailwindBasicThemes, tangerineTheme, tealTheme, themeCategoryLabels_en as themeCategoryLabelsEn, themeCategoryLabels_es as themeCategoryLabelsEs, themeCategoryLabels_pt as themeCategoryLabelsPt, themeFromCSS, themeFromCSSVars, themeFromSnippetOutput, themeFromTweakCNItem, themeLabels_en as themeLabelsEn, themeLabels_es as themeLabelsEs, themeLabels_pt as themeLabelsPt, themes, tweakcnBookmarkletUrl, tweakcnSnippet, tweakcnThemes, twitterTheme, validateStoredTheme, vintagePaperTheme, violetBloomTheme };

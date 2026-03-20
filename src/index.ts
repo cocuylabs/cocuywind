@@ -60,8 +60,8 @@ export {
 export type { TweakCNThemeItem, TweakCNRegistryEntry } from './steal-tweakcn.js'
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────
-export { FONTS, googleFontsUrl } from './fonts.js'
-export type { FontFamily, FontKey } from './fonts.js'
+export { FONTS, FONT_ADJUSTMENTS, googleFontsUrl } from './fonts.js'
+export type { FontFamily, FontKey, FontAdjustment } from './fonts.js'
 
 // ─── Patterns ─────────────────────────────────────────────────────────────────
 export { generatePattern } from './patterns.js'

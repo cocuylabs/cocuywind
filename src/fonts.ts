@@ -85,6 +85,49 @@ const GOOGLE_FONT_NAMES: Partial<Record<FontKey, string>> = {
   IBM_PLEX_MONO:       'IBM+Plex+Mono:wght@400;500;700',
 }
 
+export interface FontAdjustment {
+  /**
+   * Relative font-size correction (e.g. `'1.15em'`).
+   * Apply to the element's `font-size` so the face reads at the same visual
+   * size as a "normal" font at the same point size.
+   */
+  fontSize?: string
+  /**
+   * Letter-spacing recommendation (e.g. `'0.04em'`).
+   * Apply to `letter-spacing` for fonts that need open or tight tracking.
+   */
+  letterSpacing?: string
+}
+
+/**
+ * Per-font optical adjustments — recommended fontSize and letterSpacing
+ * corrections for fonts that render unusually large/small or need tracking.
+ *
+ * Fonts not listed here need no adjustment. Apply these wherever you render
+ * text in the chosen font (headings, body copy, UI labels) to get consistent
+ * visual sizing across the FONTS palette.
+ *
+ * @example
+ * const adj = FONT_ADJUSTMENTS[theme.fonts?.heading ?? ''] ?? {}
+ * // → { fontSize: '1.15em', letterSpacing: undefined }
+ */
+export const FONT_ADJUSTMENTS: Partial<Record<string, FontAdjustment>> = {
+  // ── Serif — small x-height or high-contrast strokes need a size bump ──────
+  [FONTS.CORMORANT]:        { fontSize: '1.15em' },
+  [FONTS.BODONI_MODA]:      { fontSize: '1.1em',  letterSpacing: '0.02em' },
+  [FONTS.INSTRUMENT_SERIF]: { fontSize: '1.05em' },
+  [FONTS.FRAUNCES]:         { fontSize: '1.05em' },
+  // ── Cinzel — all-caps Roman; open tracking feels more natural ────────────
+  [FONTS.CINZEL]:           { letterSpacing: '0.06em' },
+  // ── Sans-serif — geometric/narrow faces benefit from a touch of tracking ─
+  [FONTS.JOSEFIN_SANS]:     { letterSpacing: '0.04em' },
+  [FONTS.RALEWAY]:          { letterSpacing: '0.02em' },
+  // ── Display — extreme width / condensed cases ────────────────────────────
+  [FONTS.BEBAS_NEUE]:       { fontSize: '1.2em',  letterSpacing: '0.06em' },
+  [FONTS.UNBOUNDED]:        { fontSize: '0.82em' },
+  [FONTS.ARCHIVO_BLACK]:    { fontSize: '0.95em' },
+}
+
 /**
  * Build a Google Fonts URL for the given font family strings.
  *

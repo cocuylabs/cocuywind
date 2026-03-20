@@ -467,37 +467,6 @@ function wrapWithOpacity(color, opacity) {
   return `color-mix(in oklch, ${color} ${pct}%, transparent)`;
 }
 
-// src/generate.ts
-var TOKEN_TO_CSS_VAR = {
-  background: "--background",
-  foreground: "--foreground",
-  card: "--card",
-  cardForeground: "--card-foreground",
-  popover: "--popover",
-  popoverForeground: "--popover-foreground",
-  primary: "--primary",
-  primaryForeground: "--primary-foreground",
-  secondary: "--secondary",
-  secondaryForeground: "--secondary-foreground",
-  muted: "--muted",
-  mutedForeground: "--muted-foreground",
-  accent: "--accent",
-  accentForeground: "--accent-foreground",
-  destructive: "--destructive",
-  destructiveForeground: "--destructive-foreground",
-  border: "--border",
-  input: "--input",
-  ring: "--ring"
-};
-var TOKEN_KEYS = Object.keys(TOKEN_TO_CSS_VAR);
-function generateThemeVariables(tokens) {
-  const result = {};
-  for (const key of TOKEN_KEYS) {
-    result[TOKEN_TO_CSS_VAR[key]] = resolveColor(tokens[key]);
-  }
-  return result;
-}
-
 // src/fonts.ts
 var FONTS = {
   // ─── System fonts ─────────────────────────────────────────────────────────
@@ -570,6 +539,22 @@ var GOOGLE_FONT_NAMES = {
   SOURCE_CODE_PRO: "Source+Code+Pro:wght@400;500;700",
   IBM_PLEX_MONO: "IBM+Plex+Mono:wght@400;500;700"
 };
+var FONT_ADJUSTMENTS = {
+  // ── Serif — small x-height or high-contrast strokes need a size bump ──────
+  [FONTS.CORMORANT]: { fontSize: "1.15em" },
+  [FONTS.BODONI_MODA]: { fontSize: "1.1em", letterSpacing: "0.02em" },
+  [FONTS.INSTRUMENT_SERIF]: { fontSize: "1.05em" },
+  [FONTS.FRAUNCES]: { fontSize: "1.05em" },
+  // ── Cinzel — all-caps Roman; open tracking feels more natural ────────────
+  [FONTS.CINZEL]: { letterSpacing: "0.06em" },
+  // ── Sans-serif — geometric/narrow faces benefit from a touch of tracking ─
+  [FONTS.JOSEFIN_SANS]: { letterSpacing: "0.04em" },
+  [FONTS.RALEWAY]: { letterSpacing: "0.02em" },
+  // ── Display — extreme width / condensed cases ────────────────────────────
+  [FONTS.BEBAS_NEUE]: { fontSize: "1.2em", letterSpacing: "0.06em" },
+  [FONTS.UNBOUNDED]: { fontSize: "0.82em" },
+  [FONTS.ARCHIVO_BLACK]: { fontSize: "0.95em" }
+};
 function googleFontsUrl(families) {
   const fontKeys = Object.keys(GOOGLE_FONT_NAMES);
   const params = [];
@@ -587,6 +572,37 @@ function googleFontsUrl(families) {
   }
   if (params.length === 0) return "";
   return `https://fonts.googleapis.com/css2?${params.join("&")}&display=swap`;
+}
+
+// src/generate.ts
+var TOKEN_TO_CSS_VAR = {
+  background: "--background",
+  foreground: "--foreground",
+  card: "--card",
+  cardForeground: "--card-foreground",
+  popover: "--popover",
+  popoverForeground: "--popover-foreground",
+  primary: "--primary",
+  primaryForeground: "--primary-foreground",
+  secondary: "--secondary",
+  secondaryForeground: "--secondary-foreground",
+  muted: "--muted",
+  mutedForeground: "--muted-foreground",
+  accent: "--accent",
+  accentForeground: "--accent-foreground",
+  destructive: "--destructive",
+  destructiveForeground: "--destructive-foreground",
+  border: "--border",
+  input: "--input",
+  ring: "--ring"
+};
+var TOKEN_KEYS = Object.keys(TOKEN_TO_CSS_VAR);
+function generateThemeVariables(tokens) {
+  const result = {};
+  for (const key of TOKEN_KEYS) {
+    result[TOKEN_TO_CSS_VAR[key]] = resolveColor(tokens[key]);
+  }
+  return result;
 }
 
 // src/react/ThemeProvider.tsx
@@ -868,29 +884,6 @@ var RADIUS_PRESETS = [
   { label: "XL", value: "1rem" },
   { label: "Full", value: "9999px" }
 ];
-var FONT_PICKER_ADJUSTMENTS = {
-  // ── Serif — small x-height or high-contrast strokes need a size bump ──────
-  [FONTS.CORMORANT]: { fontSize: "1.15em" },
-  // tiny x-height
-  [FONTS.BODONI_MODA]: { fontSize: "1.1em", letterSpacing: "0.02em" },
-  // hairline strokes
-  [FONTS.INSTRUMENT_SERIF]: { fontSize: "1.05em" },
-  [FONTS.FRAUNCES]: { fontSize: "1.05em" },
-  // ── Cinzel — all-caps Roman; open tracking feels more natural ────────────
-  [FONTS.CINZEL]: { letterSpacing: "0.06em" },
-  // ── Sans-serif — geometric/narrow faces benefit from a touch of tracking ─
-  [FONTS.JOSEFIN_SANS]: { letterSpacing: "0.04em" },
-  // geometric, thin strokes
-  [FONTS.RALEWAY]: { letterSpacing: "0.02em" },
-  // elegant, narrow
-  // ── Display — extreme width / condensed cases ────────────────────────────
-  [FONTS.BEBAS_NEUE]: { fontSize: "1.2em", letterSpacing: "0.06em" },
-  // condensed all-caps
-  [FONTS.UNBOUNDED]: { fontSize: "0.82em" },
-  // very wide / expanded
-  [FONTS.ARCHIVO_BLACK]: { fontSize: "0.95em" }
-  // heavy weight reads large
-};
 var FONT_GROUPS = [
   {
     label: "System",
@@ -1365,7 +1358,8 @@ var SelectContent = React5.forwardRef(({ className, children, position = "popper
     children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
       SelectPrimitive.Viewport,
       {
-        className: cn("p-1 max-h-[var(--radix-select-content-available-height)] overflow-y-auto", position === "popper" && "w-full min-w-[var(--radix-select-trigger-width)]"),
+        className: cn("p-1 overflow-y-auto", position === "popper" && "w-full min-w-[var(--radix-select-trigger-width)]"),
+        style: { maxHeight: "var(--radix-select-content-available-height)" },
         children
       }
     )
@@ -1425,12 +1419,12 @@ function ThemeFontsPicker({ value, onChange, className, labels, locale = "en" })
         value: value[fontType] ?? DEFAULT,
         onValueChange: (v) => onChange({ ...value, [fontType]: v === DEFAULT ? void 0 : v }),
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectTrigger, { className: "h-8 text-xs", style: { fontFamily: value[fontType] ?? void 0, ...FONT_PICKER_ADJUSTMENTS[value[fontType] ?? ""] }, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectValue, { placeholder: fontType === "heading" ? t("ui.font.sameAsBody", "Same as body") : t("ui.font.systemDefault", "System default") }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectTrigger, { className: "h-8 text-xs", style: { fontFamily: value[fontType] ?? void 0, ...FONT_ADJUSTMENTS[value[fontType] ?? ""] }, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectValue, { placeholder: fontType === "heading" ? t("ui.font.sameAsBody", "Same as body") : t("ui.font.systemDefault", "System default") }) }),
           /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(SelectContent, { children: [
             /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectGroup, { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectItem, { value: DEFAULT, children: fontType === "heading" ? t("ui.font.sameAsBody", "Same as body") : t("ui.font.systemDefault", "System default") }) }),
             FONT_GROUPS.map((group) => /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(SelectGroup, { children: [
               /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectLabel, { children: group.label }),
-              group.options.map((f) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectItem, { value: f.value, style: { fontFamily: f.value, ...FONT_PICKER_ADJUSTMENTS[f.value] }, children: f.label === "System default (sans-serif)" ? t("ui.font.systemDefaultSans", f.label) : f.label === "System serif" ? t("ui.font.systemSerif", f.label) : f.label }, f.value))
+              group.options.map((f) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectItem, { value: f.value, style: { fontFamily: f.value, ...FONT_ADJUSTMENTS[f.value] }, children: f.label === "System default (sans-serif)" ? t("ui.font.systemDefaultSans", f.label) : f.label === "System serif" ? t("ui.font.systemSerif", f.label) : f.label }, f.value))
             ] }, group.label))
           ] })
         ]
