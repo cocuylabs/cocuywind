@@ -101,23 +101,30 @@ export interface FontAdjustment {
  * // → { fontSize: '1.15em', letterSpacing: undefined }
  */
 export const FONT_ADJUSTMENTS: Partial<Record<string, FontAdjustment>> = {
-  // ── Serif — small x-height or high-contrast strokes need a size bump ──────
-  [FONTS.CORMORANT]:        { fontSize: '1.15em' },
-  [FONTS.BODONI_MODA]:      { fontSize: '1.1em',  letterSpacing: '0.02em' },
-  [FONTS.INSTRUMENT_SERIF]: { fontSize: '1.05em' },
-  [FONTS.FRAUNCES]:         { fontSize: '1.05em' },
-  [FONTS.DM_SERIF]:         { fontSize: '1.05em' },
-  // ── Cinzel — all-caps Roman; open tracking feels more natural ────────────
-  [FONTS.CINZEL]:           { letterSpacing: '0.06em' },
+  // ── Serif — small x-height / high-contrast strokes need a size bump ───────
+  [FONTS.CORMORANT]:        { fontSize: '1.15em',  letterSpacing: '0.01em' },
+  [FONTS.BODONI_MODA]:      { fontSize: '1.1em',   letterSpacing: '0.03em' },
+  [FONTS.INSTRUMENT_SERIF]: { fontSize: '1.05em',  letterSpacing: '0.01em' },
+  [FONTS.FRAUNCES]:         { fontSize: '1.05em',  letterSpacing: '0.01em' },
+  [FONTS.DM_SERIF]:         { fontSize: '1.05em',  letterSpacing: '0.01em' },
+  [FONTS.PLAYFAIR]:         { fontSize: '1.05em',  letterSpacing: '0.01em' },
+  [FONTS.MERRIWEATHER]:     { fontSize: '1.05em',  letterSpacing: '0.01em' },
+  [FONTS.LORA]:             { fontSize: '1.025em', letterSpacing: '0.01em' },
+  // ── Cinzel — all-caps Roman; generous tracking reads more elegantly ───────
+  [FONTS.CINZEL]:           { letterSpacing: '0.1em' },
   // ── Sans-serif — geometric/narrow faces benefit from a touch of tracking ─
-  [FONTS.JOSEFIN_SANS]:     { letterSpacing: '0.04em' },
-  [FONTS.RALEWAY]:          { letterSpacing: '0.02em' },
-  // ── Display — extreme width / condensed cases ────────────────────────────
-  [FONTS.MERRIWEATHER]:     { fontSize: '1.025em' },
-  [FONTS.PLAYFAIR]:         { fontSize: '1.025em' },
-  [FONTS.BEBAS_NEUE]:       { fontSize: '1.2em',  letterSpacing: '0.06em' },
-  [FONTS.UNBOUNDED]:        { fontSize: '0.82em' },
-  [FONTS.ARCHIVO_BLACK]:    { fontSize: '0.95em' },
+  [FONTS.JOSEFIN_SANS]:     { fontSize: '1.025em', letterSpacing: '0.05em' },
+  [FONTS.RALEWAY]:          { letterSpacing: '0.03em' },
+  [FONTS.SPACE_GROTESK]:    { letterSpacing: '0.01em' },
+  [FONTS.NUNITO]:           { fontSize: '1.025em', letterSpacing: '0.01em' },
+  // ── Display — condensed / wide / heavy faces ─────────────────────────────
+  [FONTS.SYNE]:             { letterSpacing: '0.03em' },
+  [FONTS.RIGHTEOUS]:        { letterSpacing: '0.02em' },
+  // Bebas Neue renders optically large (tall caps, minimal descenders) — scale
+  // down slightly and use moderate tracking rather than the aggressive 1.2/0.06
+  [FONTS.BEBAS_NEUE]:       { fontSize: '0.95em', letterSpacing: '0.04em' },
+  [FONTS.UNBOUNDED]:        { fontSize: '0.82em', letterSpacing: '0.01em' },
+  [FONTS.ARCHIVO_BLACK]:    { fontSize: '0.95em', letterSpacing: '0.02em' },
 }
 
 /**
