@@ -696,6 +696,685 @@ function useTheme() {
 // src/react/ThemePicker.tsx
 import { useState as useState2, useEffect as useEffect2 } from "react";
 
+// src/react/ui/button.tsx
+import * as React2 from "react";
+
+// src/react/ui/utils.ts
+function cn(...inputs) {
+  const classes = [];
+  for (const input of inputs) {
+    if (!input) continue;
+    if (typeof input === "string") {
+      classes.push(input);
+      continue;
+    }
+    for (const [key, value] of Object.entries(input)) {
+      if (value) classes.push(key);
+    }
+  }
+  return classes.join(" ");
+}
+
+// src/react/ui/button.tsx
+import { jsx as jsx2 } from "react/jsx-runtime";
+var base = "inline-flex items-center justify-center rounded-md text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ring-offset-background";
+var variants = {
+  default: "bg-primary text-primary-foreground hover:bg-primary/90",
+  secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+  outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+  ghost: "hover:bg-accent hover:text-accent-foreground",
+  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+};
+var sizes = {
+  xs: "h-7 px-2",
+  sm: "h-8 px-3",
+  md: "h-9 px-4",
+  icon: "h-9 w-9"
+};
+var Button = React2.forwardRef(
+  ({ className, variant = "default", size = "sm", ...props }, ref) => /* @__PURE__ */ jsx2(
+    "button",
+    {
+      ref,
+      className: cn(base, variants[variant], sizes[size], className),
+      ...props
+    }
+  )
+);
+Button.displayName = "Button";
+
+// src/react/theme-picker-constants.ts
+var TAILWIND_COLORS2 = [
+  "slate",
+  "gray",
+  "zinc",
+  "neutral",
+  "stone",
+  "red",
+  "orange",
+  "amber",
+  "yellow",
+  "lime",
+  "green",
+  "emerald",
+  "teal",
+  "cyan",
+  "sky",
+  "blue",
+  "indigo",
+  "violet",
+  "purple",
+  "fuchsia",
+  "pink",
+  "rose"
+];
+var NEUTRAL_COLORS = ["slate", "gray", "zinc", "neutral", "stone"];
+var PATTERN_TYPES = [
+  "none",
+  "dots",
+  "grid",
+  "cross",
+  "diagonal-lines",
+  "horizontal-lines",
+  "vertical-lines",
+  "zigzag",
+  "checkerboard",
+  "triangles",
+  "hexagons",
+  "noise"
+];
+var PATTERN_LABELS = {
+  "none": "None",
+  "dots": "Dots",
+  "grid": "Grid",
+  "cross": "Cross",
+  "diagonal-lines": "Diagonal",
+  "horizontal-lines": "H-Lines",
+  "vertical-lines": "V-Lines",
+  "zigzag": "Zigzag",
+  "checkerboard": "Checker",
+  "triangles": "Triangles",
+  "hexagons": "Hexagons",
+  "noise": "Noise"
+};
+var PATTERN_OPACITY_PRESETS = [
+  { label: "Subtle", value: 0.06 },
+  { label: "Normal", value: 0.12 },
+  { label: "Bold", value: 0.25 }
+];
+var RADIUS_PRESETS = [
+  { label: "None", value: "0rem" },
+  { label: "SM", value: "0.25rem" },
+  { label: "MD", value: "0.5rem" },
+  { label: "LG", value: "0.75rem" },
+  { label: "XL", value: "1rem" },
+  { label: "Full", value: "9999px" }
+];
+var FONT_GROUPS = [
+  {
+    label: "System",
+    options: [
+      { label: "System default (sans-serif)", value: FONTS.SYSTEM_SANS },
+      { label: "System serif", value: FONTS.SYSTEM_SERIF }
+    ]
+  },
+  {
+    label: "Sans-serif",
+    options: [
+      { label: "Inter", value: FONTS.INTER },
+      { label: "Geist", value: FONTS.GEIST },
+      { label: "Plus Jakarta Sans", value: FONTS.PLUS_JAKARTA },
+      { label: "Space Grotesk", value: FONTS.SPACE_GROTESK },
+      { label: "Josefin Sans", value: FONTS.JOSEFIN_SANS },
+      { label: "Raleway", value: FONTS.RALEWAY },
+      { label: "Nunito", value: FONTS.NUNITO },
+      { label: "Poppins", value: FONTS.POPPINS },
+      { label: "Outfit", value: FONTS.OUTFIT },
+      { label: "DM Sans", value: FONTS.DM_SANS },
+      { label: "Manrope", value: FONTS.MANROPE }
+    ]
+  },
+  {
+    label: "Serif",
+    options: [
+      { label: "Cormorant Garamond", value: FONTS.CORMORANT },
+      { label: "Bodoni Moda", value: FONTS.BODONI_MODA },
+      { label: "Cinzel", value: FONTS.CINZEL },
+      { label: "Fraunces", value: FONTS.FRAUNCES },
+      { label: "Instrument Serif", value: FONTS.INSTRUMENT_SERIF },
+      { label: "Playfair Display", value: FONTS.PLAYFAIR },
+      { label: "Lora", value: FONTS.LORA },
+      { label: "Merriweather", value: FONTS.MERRIWEATHER },
+      { label: "DM Serif Display", value: FONTS.DM_SERIF }
+    ]
+  },
+  {
+    label: "Display",
+    options: [
+      { label: "Bebas Neue", value: FONTS.BEBAS_NEUE },
+      { label: "Syne", value: FONTS.SYNE },
+      { label: "Unbounded", value: FONTS.UNBOUNDED },
+      { label: "Archivo Black", value: FONTS.ARCHIVO_BLACK },
+      { label: "Righteous", value: FONTS.RIGHTEOUS }
+    ]
+  }
+];
+
+// src/react/theme-picker-labels.ts
+var DEFAULT_LABELS = {
+  en: {
+    "ui.primary": "Primary",
+    "ui.secondary": "Secondary",
+    "ui.neutralBase": "Neutral base",
+    "ui.auto": "Auto",
+    "ui.usingPreset": "Using preset",
+    "ui.autoFromPrimary": "Auto from primary",
+    "ui.primaryFamily": "Primary family",
+    "ui.surfacesSuffix": "surfaces",
+    "ui.pattern": "Pattern",
+    "ui.pattern.none": "No pattern",
+    "ui.pattern.size": "Size",
+    "ui.pattern.density": "Density",
+    "ui.backgroundImage": "Background Image",
+    "ui.backgroundPlaceholder": "https://\u2026 or url('\u2026') or gradient CSS",
+    "ui.clear": "Clear",
+    "ui.patternOverlayHint": "Pattern always overlays on top of background image.",
+    "ui.overrideOnPreset": "overrides on preset",
+    "ui.font.body": "body",
+    "ui.font.heading": "heading",
+    "ui.font.sameAsBody": "Same as body",
+    "ui.font.systemDefault": "System default",
+    "ui.font.systemDefaultSans": "System default (sans-serif)",
+    "ui.font.systemSerif": "System serif",
+    "ui.size.sm": "SM",
+    "ui.size.md": "MD",
+    "ui.size.lg": "LG",
+    "ui.opacity.subtle": "Subtle",
+    "ui.opacity.normal": "Normal",
+    "ui.opacity.bold": "Bold",
+    "ui.neutral.none": "none",
+    "ui.filter.all": "All",
+    "ui.filter.curated": "Featured",
+    "ui.filter.basic": "Basic",
+    "ui.filter.claude": "Studio",
+    "ui.filter.tweakcn": "Signature",
+    "ui.filter.community": "Community"
+  },
+  es: {
+    "ui.primary": "Primario",
+    "ui.secondary": "Secundario",
+    "ui.neutralBase": "Base neutral",
+    "ui.auto": "Auto",
+    "ui.usingPreset": "Usando preset",
+    "ui.autoFromPrimary": "Auto desde primario",
+    "ui.primaryFamily": "Familia primaria",
+    "ui.surfacesSuffix": "superficies",
+    "ui.pattern": "Patr\xF3n",
+    "ui.pattern.none": "Sin patr\xF3n",
+    "ui.pattern.size": "Tama\xF1o",
+    "ui.pattern.density": "Densidad",
+    "ui.backgroundImage": "Imagen de fondo",
+    "ui.backgroundPlaceholder": "https://\u2026 o url('\u2026') o CSS de gradiente",
+    "ui.clear": "Borrar",
+    "ui.patternOverlayHint": "El patr\xF3n siempre se superpone a la imagen de fondo.",
+    "ui.overrideOnPreset": "sobrescribe el preset",
+    "ui.font.body": "cuerpo",
+    "ui.font.heading": "t\xEDtulos",
+    "ui.font.sameAsBody": "Igual que cuerpo",
+    "ui.font.systemDefault": "Sistema por defecto",
+    "ui.font.systemDefaultSans": "Sistema por defecto (sans-serif)",
+    "ui.font.systemSerif": "Sistema serif",
+    "ui.size.sm": "SM",
+    "ui.size.md": "MD",
+    "ui.size.lg": "LG",
+    "ui.opacity.subtle": "Sutil",
+    "ui.opacity.normal": "Normal",
+    "ui.opacity.bold": "Fuerte",
+    "ui.neutral.none": "ninguno",
+    "ui.filter.all": "Todos",
+    "ui.filter.curated": "Destacados",
+    "ui.filter.basic": "B\xE1sicos",
+    "ui.filter.claude": "Studio",
+    "ui.filter.tweakcn": "Signature",
+    "ui.filter.community": "Comunidad"
+  },
+  pt: {
+    "ui.primary": "Prim\xE1rio",
+    "ui.secondary": "Secund\xE1rio",
+    "ui.neutralBase": "Base neutra",
+    "ui.auto": "Auto",
+    "ui.usingPreset": "Usando preset",
+    "ui.autoFromPrimary": "Auto do prim\xE1rio",
+    "ui.primaryFamily": "Fam\xEDlia prim\xE1ria",
+    "ui.surfacesSuffix": "superf\xEDcies",
+    "ui.pattern": "Padr\xE3o",
+    "ui.pattern.none": "Sem padr\xE3o",
+    "ui.pattern.size": "Tamanho",
+    "ui.pattern.density": "Densidade",
+    "ui.backgroundImage": "Imagem de fundo",
+    "ui.backgroundPlaceholder": "https://\u2026 ou url('\u2026') ou CSS de gradiente",
+    "ui.clear": "Limpar",
+    "ui.patternOverlayHint": "O padr\xE3o sempre sobrep\xF5e a imagem de fundo.",
+    "ui.overrideOnPreset": "sobrescreve o preset",
+    "ui.font.body": "corpo",
+    "ui.font.heading": "t\xEDtulos",
+    "ui.font.sameAsBody": "Igual ao corpo",
+    "ui.font.systemDefault": "Sistema padr\xE3o",
+    "ui.font.systemDefaultSans": "Sistema padr\xE3o (sans-serif)",
+    "ui.font.systemSerif": "Sistema serif",
+    "ui.size.sm": "SM",
+    "ui.size.md": "MD",
+    "ui.size.lg": "LG",
+    "ui.opacity.subtle": "Suave",
+    "ui.opacity.normal": "Normal",
+    "ui.opacity.bold": "Forte",
+    "ui.neutral.none": "nenhum",
+    "ui.filter.all": "Todos",
+    "ui.filter.curated": "Destaques",
+    "ui.filter.basic": "B\xE1sicos",
+    "ui.filter.claude": "Studio",
+    "ui.filter.tweakcn": "Signature",
+    "ui.filter.community": "Comunidade"
+  }
+};
+function translate(labels, locale, key, fallback) {
+  const lang = locale === "es" || locale === "pt" || locale === "en" ? locale : "en";
+  return labels?.[lang]?.[key] ?? DEFAULT_LABELS[lang][key] ?? fallback;
+}
+
+// src/react/ThemePalettePickers.tsx
+import { jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
+function getSwatchColors(theme, mode = "light") {
+  const t = mode === "dark" ? theme.dark : theme.light;
+  return [resolveColor(t.background), resolveColor(t.primary), resolveColor(t.secondary)];
+}
+function ThemeSwatch({ theme, selected, onClick, previewMode = "light", labelOverride, swatchSize = 12 }) {
+  const [bg, pri, sec] = getSwatchColors(theme, previewMode);
+  const label = labelOverride ?? theme.label;
+  return /* @__PURE__ */ jsxs2(
+    "button",
+    {
+      onClick,
+      title: label,
+      className: cn(
+        "flex w-full items-center rounded-md border px-3 py-2 text-left text-sm transition-colors",
+        selected ? "border-ring bg-accent text-accent-foreground" : "border-border hover:bg-muted/50"
+      ),
+      children: [
+        /* @__PURE__ */ jsxs2("span", { className: "flex shrink-0 pr-2", children: [
+          /* @__PURE__ */ jsx3(
+            "span",
+            {
+              className: "inline-block border border-border rounded-l-full",
+              style: { backgroundColor: bg, width: swatchSize, height: swatchSize * 1.2 }
+            }
+          ),
+          /* @__PURE__ */ jsx3(
+            "span",
+            {
+              className: "inline-block border border-border border-r-0 border-l-0",
+              style: { backgroundColor: pri, width: swatchSize * 0.9, height: swatchSize * 1.2 }
+            }
+          ),
+          /* @__PURE__ */ jsx3(
+            "span",
+            {
+              className: "inline-block rounded-r-full border border-border",
+              style: { backgroundColor: sec, width: swatchSize, height: swatchSize * 1.2 }
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsx3("span", { className: "truncate", children: label })
+      ]
+    }
+  );
+}
+function ThemePalettePicker({
+  themes,
+  value,
+  onChange,
+  labels,
+  locale = "en",
+  paletteMaxHeight,
+  previewMode = "light",
+  className,
+  swatchSize
+}) {
+  if (themes.length === 0) return null;
+  const lang = locale === "es" || locale === "pt" || locale === "en" ? locale : "en";
+  return /* @__PURE__ */ jsx3("div", { className, style: paletteMaxHeight ? { maxHeight: paletteMaxHeight, overflowY: "auto" } : void 0, children: /* @__PURE__ */ jsx3("div", { className: "grid grid-cols-2 gap-2", children: themes.map((t) => /* @__PURE__ */ jsx3(
+    ThemeSwatch,
+    {
+      theme: t,
+      selected: t.name === value,
+      onClick: () => onChange(t.name),
+      labelOverride: labels?.[lang]?.[t.name],
+      previewMode,
+      swatchSize
+    },
+    t.name
+  )) }) });
+}
+function ThemeCustomPalettePicker({
+  hasPreset,
+  primary,
+  secondary,
+  neutral,
+  onPrimaryChange,
+  onSecondaryChange,
+  onNeutralChange,
+  className,
+  title,
+  subtitle,
+  labels,
+  locale = "en"
+}) {
+  const t = (key, fallback) => translate(labels, locale, key, fallback);
+  return /* @__PURE__ */ jsxs2("div", { className: cn("space-y-4", className), children: [
+    /* @__PURE__ */ jsxs2("div", { className: "flex items-baseline gap-2", children: [
+      /* @__PURE__ */ jsx3("span", { className: "text-[11px] font-semibold uppercase tracking-wide text-muted-foreground", children: title }),
+      subtitle && /* @__PURE__ */ jsx3("span", { className: "text-[11px] text-muted-foreground/70", children: subtitle })
+    ] }),
+    /* @__PURE__ */ jsxs2("section", { className: "space-y-2", children: [
+      /* @__PURE__ */ jsx3("h4", { className: "text-xs font-semibold text-muted-foreground", children: t("ui.primary", "Primary") }),
+      /* @__PURE__ */ jsxs2("div", { className: "flex flex-wrap items-center gap-2", children: [
+        hasPreset && /* @__PURE__ */ jsx3(Button, { variant: primary === null ? "secondary" : "outline", size: "xs", onClick: () => onPrimaryChange(null), children: t("ui.auto", "Auto") }),
+        TAILWIND_COLORS2.map((color) => /* @__PURE__ */ jsx3(
+          "button",
+          {
+            onClick: () => onPrimaryChange(color),
+            title: color,
+            className: cn(
+              "h-6 w-6 rounded-full border transition-colors",
+              primary === color ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
+            ),
+            style: { backgroundColor: resolveColor(`${color}-500`) }
+          },
+          color
+        ))
+      ] }),
+      primary === null && hasPreset && /* @__PURE__ */ jsx3("p", { className: "text-[11px] text-muted-foreground", children: t("ui.usingPreset", "Using preset") })
+    ] }),
+    /* @__PURE__ */ jsxs2("section", { className: "space-y-2", children: [
+      /* @__PURE__ */ jsx3("h4", { className: "text-xs font-semibold text-muted-foreground", children: t("ui.secondary", "Secondary") }),
+      /* @__PURE__ */ jsxs2("div", { className: "flex flex-wrap items-center gap-2", children: [
+        hasPreset ? /* @__PURE__ */ jsx3(Button, { variant: secondary === null ? "secondary" : "outline", size: "xs", onClick: () => onSecondaryChange(null), children: t("ui.auto", "Auto") }) : /* @__PURE__ */ jsx3(
+          "button",
+          {
+            onClick: () => onSecondaryChange(null),
+            title: "Auto (derived from primary)",
+            className: cn(
+              "h-6 w-6 rounded-full border transition-colors",
+              secondary === null ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
+            ),
+            style: {
+              backgroundImage: `conic-gradient(${TAILWIND_COLORS2.slice(5, 10).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(", ")})`
+            }
+          }
+        ),
+        TAILWIND_COLORS2.map((color) => /* @__PURE__ */ jsx3(
+          "button",
+          {
+            onClick: () => onSecondaryChange(color),
+            title: color,
+            className: cn(
+              "h-6 w-6 rounded-full border transition-colors",
+              secondary === color ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
+            ),
+            style: { backgroundColor: resolveColor(`${color}-500`) }
+          },
+          color
+        ))
+      ] }),
+      secondary === null && /* @__PURE__ */ jsx3("p", { className: "text-[11px] text-muted-foreground", children: hasPreset ? t("ui.usingPreset", "Using preset") : t("ui.autoFromPrimary", "Auto from primary") })
+    ] }),
+    /* @__PURE__ */ jsxs2("section", { className: "space-y-2", children: [
+      /* @__PURE__ */ jsx3("h4", { className: "text-xs font-semibold text-muted-foreground", children: t("ui.neutralBase", "Neutral base") }),
+      /* @__PURE__ */ jsxs2("div", { className: "flex flex-wrap items-center gap-2", children: [
+        hasPreset ? /* @__PURE__ */ jsx3(Button, { variant: neutral === null ? "secondary" : "outline", size: "xs", onClick: () => onNeutralChange(null), children: t("ui.auto", "Auto") }) : /* @__PURE__ */ jsx3(
+          Button,
+          {
+            variant: neutral === null || neutral === "none" ? "secondary" : "outline",
+            size: "xs",
+            onClick: () => onNeutralChange("none"),
+            children: t("ui.neutral.none", "none")
+          }
+        ),
+        NEUTRAL_COLORS.map((color) => /* @__PURE__ */ jsx3(
+          Button,
+          {
+            variant: neutral === color ? "secondary" : "outline",
+            size: "xs",
+            onClick: () => onNeutralChange(color),
+            children: color
+          },
+          color
+        ))
+      ] }),
+      /* @__PURE__ */ jsx3("p", { className: "text-[11px] text-muted-foreground", children: neutral === null ? hasPreset ? t("ui.usingPreset", "Using preset") : t("ui.primaryFamily", "Primary family") : neutral === "none" ? t("ui.primaryFamily", "Primary family") : `${neutral} ${t("ui.surfacesSuffix", "surfaces")}` })
+    ] })
+  ] });
+}
+
+// src/react/ui/input.tsx
+import * as React3 from "react";
+import { jsx as jsx4 } from "react/jsx-runtime";
+var Input = React3.forwardRef(
+  ({ className, type, ...props }, ref) => /* @__PURE__ */ jsx4(
+    "input",
+    {
+      type,
+      ref,
+      className: cn(
+        "flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm text-foreground shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ring-offset-background",
+        className
+      ),
+      ...props
+    }
+  )
+);
+Input.displayName = "Input";
+
+// src/react/ui/label.tsx
+import * as React4 from "react";
+import { jsx as jsx5 } from "react/jsx-runtime";
+var Label = React4.forwardRef(
+  ({ className, ...props }, ref) => /* @__PURE__ */ jsx5(
+    "label",
+    {
+      ref,
+      className: cn("text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className),
+      ...props
+    }
+  )
+);
+Label.displayName = "Label";
+
+// src/react/ui/select.tsx
+import * as React5 from "react";
+import * as SelectPrimitive from "@radix-ui/react-select";
+import { jsx as jsx6, jsxs as jsxs3 } from "react/jsx-runtime";
+var Select = SelectPrimitive.Root;
+var SelectGroup = SelectPrimitive.Group;
+var SelectValue = SelectPrimitive.Value;
+var SelectTrigger = React5.forwardRef(({ className, children, ...props }, ref) => /* @__PURE__ */ jsxs3(
+  SelectPrimitive.Trigger,
+  {
+    ref,
+    className: cn(
+      "flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ring-offset-background",
+      className
+    ),
+    ...props,
+    children: [
+      children,
+      /* @__PURE__ */ jsx6(SelectPrimitive.Icon, { className: "ml-2 text-muted-foreground", children: /* @__PURE__ */ jsx6("svg", { width: "12", height: "12", viewBox: "0 0 20 20", fill: "currentColor", "aria-hidden": "true", children: /* @__PURE__ */ jsx6("path", { d: "M5.5 7.5 10 12l4.5-4.5-1.5-1.5L10 9 7 6z" }) }) })
+    ]
+  }
+));
+SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
+var SelectContent = React5.forwardRef(({ className, children, position = "popper", ...props }, ref) => /* @__PURE__ */ jsx6(SelectPrimitive.Portal, { children: /* @__PURE__ */ jsx6(
+  SelectPrimitive.Content,
+  {
+    ref,
+    position,
+    className: cn(
+      "z-50 min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md animate-in fade-in-80",
+      className
+    ),
+    ...props,
+    children: /* @__PURE__ */ jsx6(
+      SelectPrimitive.Viewport,
+      {
+        className: cn("p-1", position === "popper" && "w-full min-w-[var(--radix-select-trigger-width)]"),
+        children
+      }
+    )
+  }
+) }));
+SelectContent.displayName = SelectPrimitive.Content.displayName;
+var SelectLabel = React5.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx6(
+  SelectPrimitive.Label,
+  {
+    ref,
+    className: cn("px-2 py-1.5 text-xs font-semibold text-muted-foreground", className),
+    ...props
+  }
+));
+SelectLabel.displayName = SelectPrimitive.Label.displayName;
+var SelectItem = React5.forwardRef(({ className, children, ...props }, ref) => /* @__PURE__ */ jsx6(
+  SelectPrimitive.Item,
+  {
+    ref,
+    className: cn(
+      "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-xs outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      className
+    ),
+    ...props,
+    children: /* @__PURE__ */ jsx6(SelectPrimitive.ItemText, { children })
+  }
+));
+SelectItem.displayName = SelectPrimitive.Item.displayName;
+var SelectSeparator = React5.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx6(SelectPrimitive.Separator, { ref, className: cn("-mx-1 my-1 h-px bg-border", className), ...props }));
+SelectSeparator.displayName = SelectPrimitive.Separator.displayName;
+
+// src/react/ThemeStylePickers.tsx
+import { jsx as jsx7, jsxs as jsxs4 } from "react/jsx-runtime";
+function ThemeFontsPicker({ value, onChange, className, labels, locale = "en" }) {
+  const t = (key, fallback) => translate(labels, locale, key, fallback);
+  const DEFAULT = "__default__";
+  return /* @__PURE__ */ jsx7("div", { className: cn("space-y-3", className), children: /* @__PURE__ */ jsx7("div", { className: "space-y-2", children: ["body", "heading"].map((fontType) => /* @__PURE__ */ jsxs4("div", { className: "grid grid-cols-[64px_1fr] items-center gap-3", children: [
+    /* @__PURE__ */ jsx7(Label, { className: "text-xs text-muted-foreground capitalize", children: fontType === "heading" ? t("ui.font.heading", "heading") : t("ui.font.body", "body") }),
+    /* @__PURE__ */ jsxs4(
+      Select,
+      {
+        value: value[fontType] ?? DEFAULT,
+        onValueChange: (v) => onChange({ ...value, [fontType]: v === DEFAULT ? void 0 : v }),
+        children: [
+          /* @__PURE__ */ jsx7(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsx7(SelectValue, { placeholder: fontType === "heading" ? t("ui.font.sameAsBody", "Same as body") : t("ui.font.systemDefault", "System default") }) }),
+          /* @__PURE__ */ jsxs4(SelectContent, { children: [
+            /* @__PURE__ */ jsx7(SelectGroup, { children: /* @__PURE__ */ jsx7(SelectItem, { value: DEFAULT, children: fontType === "heading" ? t("ui.font.sameAsBody", "Same as body") : t("ui.font.systemDefault", "System default") }) }),
+            FONT_GROUPS.map((group) => /* @__PURE__ */ jsxs4(SelectGroup, { children: [
+              /* @__PURE__ */ jsx7(SelectLabel, { children: group.label }),
+              group.options.map((f) => /* @__PURE__ */ jsx7(SelectItem, { value: f.value, children: f.label === "System default (sans-serif)" ? t("ui.font.systemDefaultSans", f.label) : f.label === "System serif" ? t("ui.font.systemSerif", f.label) : f.label }, f.value))
+            ] }, group.label))
+          ] })
+        ]
+      }
+    )
+  ] }, fontType)) }) });
+}
+function ThemePatternsPicker({ value, onChange, className, labels, locale = "en" }) {
+  const t = (key, fallback) => translate(labels, locale, key, fallback);
+  const lang = locale === "es" || locale === "pt" || locale === "en" ? locale : "en";
+  const activeType = value.type;
+  return /* @__PURE__ */ jsxs4("div", { className: cn("space-y-3", className), children: [
+    /* @__PURE__ */ jsx7("h4", { className: "text-sm font-semibold", children: t("ui.pattern", "Pattern") }),
+    /* @__PURE__ */ jsx7("div", { className: "flex flex-wrap gap-2", children: PATTERN_TYPES.map((pt) => {
+      const active = activeType === pt;
+      const ps = pt !== "none" ? generatePattern({ type: pt, opacity: 0.18, size: "sm" }) : null;
+      return /* @__PURE__ */ jsx7(
+        "button",
+        {
+          onClick: () => onChange({ ...value, type: pt }),
+          title: PATTERN_LABELS[pt],
+          className: cn(
+            "flex h-12 w-12 items-center justify-center rounded-md border bg-background text-[10px] text-muted-foreground transition-colors",
+            active ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
+          ),
+          style: {
+            backgroundImage: ps?.backgroundImage ?? "none",
+            backgroundSize: ps?.backgroundSize ?? "auto",
+            backgroundPosition: ps?.backgroundPosition ?? "center"
+          },
+          children: pt === "none" && /* @__PURE__ */ jsx7("span", { children: t("ui.neutral.none", "none") })
+        },
+        pt
+      );
+    }) }),
+    activeType !== "none" && /* @__PURE__ */ jsxs4("div", { className: "space-y-2", children: [
+      /* @__PURE__ */ jsxs4("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsx7("span", { className: "w-16 text-xs text-muted-foreground", children: t("ui.pattern.size", "Size") }),
+        /* @__PURE__ */ jsx7("div", { className: "flex gap-2", children: ["sm", "md", "lg"].map((s) => /* @__PURE__ */ jsx7(Button, { variant: (value.size ?? "md") === s ? "secondary" : "outline", size: "xs", onClick: () => onChange({ ...value, size: s }), children: s === "sm" ? t("ui.size.sm", "SM") : s === "md" ? t("ui.size.md", "MD") : t("ui.size.lg", "LG") }, s)) })
+      ] }),
+      /* @__PURE__ */ jsxs4("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsx7("span", { className: "w-16 text-xs text-muted-foreground", children: t("ui.pattern.density", "Density") }),
+        /* @__PURE__ */ jsx7("div", { className: "flex gap-2", children: PATTERN_OPACITY_PRESETS.map((o) => /* @__PURE__ */ jsx7(
+          Button,
+          {
+            variant: (value.opacity ?? 0.12) === o.value ? "secondary" : "outline",
+            size: "xs",
+            onClick: () => onChange({ ...value, opacity: o.value }),
+            children: o.label === "Subtle" ? t("ui.opacity.subtle", o.label) : o.label === "Normal" ? t("ui.opacity.normal", o.label) : t("ui.opacity.bold", o.label)
+          },
+          o.label
+        )) })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsx7("p", { className: "text-xs text-muted-foreground", children: activeType === "none" ? t("ui.pattern.none", "No pattern") : labels?.[lang]?.[`ui.pattern.${activeType}`] ?? PATTERN_LABELS[activeType] })
+  ] });
+}
+function ThemeRadiusPicker({ value, onChange, className, labels, locale = "en" }) {
+  const t = (key, fallback) => translate(labels, locale, key, fallback);
+  return /* @__PURE__ */ jsx7("div", { className: cn("space-y-3", className), children: /* @__PURE__ */ jsx7("div", { className: "flex flex-wrap gap-2", children: RADIUS_PRESETS.map((r) => /* @__PURE__ */ jsx7(
+    Button,
+    {
+      variant: value === r.value ? "secondary" : "outline",
+      size: "xs",
+      onClick: () => onChange(r.value),
+      children: r.label === "None" ? t("ui.neutral.none", r.label) : r.label
+    },
+    r.value
+  )) }) });
+}
+function ThemeBackgroundImagePicker({ value, onChange, className, labels, locale = "en" }) {
+  const t = (key, fallback) => translate(labels, locale, key, fallback);
+  return /* @__PURE__ */ jsxs4("div", { className: cn("space-y-3", className), children: [
+    /* @__PURE__ */ jsx7("h4", { className: "text-sm font-semibold", children: t("ui.backgroundImage", "Background Image") }),
+    /* @__PURE__ */ jsxs4("div", { className: "flex flex-wrap gap-2", children: [
+      /* @__PURE__ */ jsx7(
+        Input,
+        {
+          value,
+          onChange: (e) => {
+            const raw2 = e.target.value.trim();
+            if (!raw2) {
+              onChange("");
+              return;
+            }
+            const val = /^https?:\/\/|^\//.test(raw2) && !raw2.startsWith("url(") ? `url('${raw2}')` : raw2;
+            onChange(val);
+          },
+          placeholder: t("ui.backgroundPlaceholder", "https://\u2026 or url('\u2026') or gradient CSS"),
+          className: "text-xs"
+        }
+      ),
+      value && /* @__PURE__ */ jsx7(Button, { variant: "outline", size: "xs", onClick: () => onChange(""), children: t("ui.clear", "Clear") })
+    ] }),
+    /* @__PURE__ */ jsx7("p", { className: "text-xs text-muted-foreground", children: t("ui.patternOverlayHint", "Pattern always overlays on top of background image.") })
+  ] });
+}
+
 // src/types.ts
 var raw = (value) => value;
 
@@ -821,272 +1500,7 @@ function createTheme(config) {
   return base2;
 }
 
-// src/react/ui/button.tsx
-import * as React2 from "react";
-
-// src/react/ui/utils.ts
-function cn(...inputs) {
-  const classes = [];
-  for (const input of inputs) {
-    if (!input) continue;
-    if (typeof input === "string") {
-      classes.push(input);
-      continue;
-    }
-    for (const [key, value] of Object.entries(input)) {
-      if (value) classes.push(key);
-    }
-  }
-  return classes.join(" ");
-}
-
-// src/react/ui/button.tsx
-import { jsx as jsx2 } from "react/jsx-runtime";
-var base = "inline-flex items-center justify-center rounded-md text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ring-offset-background";
-var variants = {
-  default: "bg-primary text-primary-foreground hover:bg-primary/90",
-  secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-  outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-  ghost: "hover:bg-accent hover:text-accent-foreground",
-  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-};
-var sizes = {
-  xs: "h-7 px-2",
-  sm: "h-8 px-3",
-  md: "h-9 px-4",
-  icon: "h-9 w-9"
-};
-var Button = React2.forwardRef(
-  ({ className, variant = "default", size = "sm", ...props }, ref) => /* @__PURE__ */ jsx2(
-    "button",
-    {
-      ref,
-      className: cn(base, variants[variant], sizes[size], className),
-      ...props
-    }
-  )
-);
-Button.displayName = "Button";
-
-// src/react/ui/input.tsx
-import * as React3 from "react";
-import { jsx as jsx3 } from "react/jsx-runtime";
-var Input = React3.forwardRef(
-  ({ className, type, ...props }, ref) => /* @__PURE__ */ jsx3(
-    "input",
-    {
-      type,
-      ref,
-      className: cn(
-        "flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm text-foreground shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ring-offset-background",
-        className
-      ),
-      ...props
-    }
-  )
-);
-Input.displayName = "Input";
-
-// src/react/ui/label.tsx
-import * as React4 from "react";
-import { jsx as jsx4 } from "react/jsx-runtime";
-var Label = React4.forwardRef(
-  ({ className, ...props }, ref) => /* @__PURE__ */ jsx4(
-    "label",
-    {
-      ref,
-      className: cn("text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className),
-      ...props
-    }
-  )
-);
-Label.displayName = "Label";
-
-// src/react/ui/select.tsx
-import * as React5 from "react";
-import * as SelectPrimitive from "@radix-ui/react-select";
-import { jsx as jsx5, jsxs as jsxs2 } from "react/jsx-runtime";
-var Select = SelectPrimitive.Root;
-var SelectGroup = SelectPrimitive.Group;
-var SelectValue = SelectPrimitive.Value;
-var SelectTrigger = React5.forwardRef(({ className, children, ...props }, ref) => /* @__PURE__ */ jsxs2(
-  SelectPrimitive.Trigger,
-  {
-    ref,
-    className: cn(
-      "flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm text-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ring-offset-background",
-      className
-    ),
-    ...props,
-    children: [
-      children,
-      /* @__PURE__ */ jsx5(SelectPrimitive.Icon, { className: "ml-2 text-muted-foreground", children: /* @__PURE__ */ jsx5("svg", { width: "12", height: "12", viewBox: "0 0 20 20", fill: "currentColor", "aria-hidden": "true", children: /* @__PURE__ */ jsx5("path", { d: "M5.5 7.5 10 12l4.5-4.5-1.5-1.5L10 9 7 6z" }) }) })
-    ]
-  }
-));
-SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
-var SelectContent = React5.forwardRef(({ className, children, position = "popper", ...props }, ref) => /* @__PURE__ */ jsx5(SelectPrimitive.Portal, { children: /* @__PURE__ */ jsx5(
-  SelectPrimitive.Content,
-  {
-    ref,
-    position,
-    className: cn(
-      "z-50 min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md animate-in fade-in-80",
-      className
-    ),
-    ...props,
-    children: /* @__PURE__ */ jsx5(
-      SelectPrimitive.Viewport,
-      {
-        className: cn("p-1", position === "popper" && "w-full min-w-[var(--radix-select-trigger-width)]"),
-        children
-      }
-    )
-  }
-) }));
-SelectContent.displayName = SelectPrimitive.Content.displayName;
-var SelectLabel = React5.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx5(
-  SelectPrimitive.Label,
-  {
-    ref,
-    className: cn("px-2 py-1.5 text-xs font-semibold text-muted-foreground", className),
-    ...props
-  }
-));
-SelectLabel.displayName = SelectPrimitive.Label.displayName;
-var SelectItem = React5.forwardRef(({ className, children, ...props }, ref) => /* @__PURE__ */ jsx5(
-  SelectPrimitive.Item,
-  {
-    ref,
-    className: cn(
-      "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-xs outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      className
-    ),
-    ...props,
-    children: /* @__PURE__ */ jsx5(SelectPrimitive.ItemText, { children })
-  }
-));
-SelectItem.displayName = SelectPrimitive.Item.displayName;
-var SelectSeparator = React5.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx5(SelectPrimitive.Separator, { ref, className: cn("-mx-1 my-1 h-px bg-border", className), ...props }));
-SelectSeparator.displayName = SelectPrimitive.Separator.displayName;
-
-// src/react/ThemePicker.tsx
-import { jsx as jsx6, jsxs as jsxs3 } from "react/jsx-runtime";
-var TAILWIND_COLORS2 = [
-  "slate",
-  "gray",
-  "zinc",
-  "neutral",
-  "stone",
-  "red",
-  "orange",
-  "amber",
-  "yellow",
-  "lime",
-  "green",
-  "emerald",
-  "teal",
-  "cyan",
-  "sky",
-  "blue",
-  "indigo",
-  "violet",
-  "purple",
-  "fuchsia",
-  "pink",
-  "rose"
-];
-var NEUTRAL_COLORS = ["slate", "gray", "zinc", "neutral", "stone"];
-var PATTERN_TYPES = [
-  "none",
-  "dots",
-  "grid",
-  "cross",
-  "diagonal-lines",
-  "horizontal-lines",
-  "vertical-lines",
-  "zigzag",
-  "checkerboard",
-  "triangles",
-  "hexagons",
-  "noise"
-];
-var PATTERN_LABELS = {
-  "none": "None",
-  "dots": "Dots",
-  "grid": "Grid",
-  "cross": "Cross",
-  "diagonal-lines": "Diagonal",
-  "horizontal-lines": "H-Lines",
-  "vertical-lines": "V-Lines",
-  "zigzag": "Zigzag",
-  "checkerboard": "Checker",
-  "triangles": "Triangles",
-  "hexagons": "Hexagons",
-  "noise": "Noise"
-};
-var PATTERN_OPACITY_PRESETS = [
-  { label: "Subtle", value: 0.06 },
-  { label: "Normal", value: 0.12 },
-  { label: "Bold", value: 0.25 }
-];
-var RADIUS_PRESETS = [
-  { label: "None", value: "0rem" },
-  { label: "SM", value: "0.25rem" },
-  { label: "MD", value: "0.5rem" },
-  { label: "LG", value: "0.75rem" },
-  { label: "XL", value: "1rem" },
-  { label: "Full", value: "9999px" }
-];
-var FONT_GROUPS = [
-  {
-    label: "System",
-    options: [
-      { label: "System default (sans-serif)", value: FONTS.SYSTEM_SANS },
-      { label: "System serif", value: FONTS.SYSTEM_SERIF }
-    ]
-  },
-  {
-    label: "Sans-serif",
-    options: [
-      { label: "Inter", value: FONTS.INTER },
-      { label: "Geist", value: FONTS.GEIST },
-      { label: "Plus Jakarta Sans", value: FONTS.PLUS_JAKARTA },
-      { label: "Space Grotesk", value: FONTS.SPACE_GROTESK },
-      { label: "Josefin Sans", value: FONTS.JOSEFIN_SANS },
-      { label: "Raleway", value: FONTS.RALEWAY },
-      { label: "Nunito", value: FONTS.NUNITO },
-      { label: "Poppins", value: FONTS.POPPINS },
-      { label: "Outfit", value: FONTS.OUTFIT },
-      { label: "DM Sans", value: FONTS.DM_SANS },
-      { label: "Manrope", value: FONTS.MANROPE }
-    ]
-  },
-  {
-    label: "Serif",
-    options: [
-      { label: "Cormorant Garamond", value: FONTS.CORMORANT },
-      { label: "Bodoni Moda", value: FONTS.BODONI_MODA },
-      { label: "Cinzel", value: FONTS.CINZEL },
-      { label: "Fraunces", value: FONTS.FRAUNCES },
-      { label: "Instrument Serif", value: FONTS.INSTRUMENT_SERIF },
-      { label: "Playfair Display", value: FONTS.PLAYFAIR },
-      { label: "Lora", value: FONTS.LORA },
-      { label: "Merriweather", value: FONTS.MERRIWEATHER },
-      { label: "DM Serif Display", value: FONTS.DM_SERIF }
-    ]
-  },
-  {
-    label: "Display",
-    options: [
-      { label: "Bebas Neue", value: FONTS.BEBAS_NEUE },
-      { label: "Syne", value: FONTS.SYNE },
-      { label: "Unbounded", value: FONTS.UNBOUNDED },
-      { label: "Archivo Black", value: FONTS.ARCHIVO_BLACK },
-      { label: "Righteous", value: FONTS.RIGHTEOUS }
-    ]
-  }
-];
+// src/react/theme-picker-build.ts
 var PRIMARY_KEYS = ["primary", "primaryForeground", "ring"];
 var SECONDARY_KEYS = ["secondary", "secondaryForeground", "accent", "accentForeground"];
 var NEUTRAL_KEYS = [
@@ -1101,411 +1515,6 @@ var NEUTRAL_KEYS = [
   "border",
   "input"
 ];
-var DEFAULT_LABELS = {
-  en: {
-    "ui.primary": "Primary",
-    "ui.secondary": "Secondary",
-    "ui.neutralBase": "Neutral base",
-    "ui.auto": "Auto",
-    "ui.usingPreset": "Using preset",
-    "ui.autoFromPrimary": "Auto from primary",
-    "ui.primaryFamily": "Primary family",
-    "ui.surfacesSuffix": "surfaces",
-    "ui.pattern": "Pattern",
-    "ui.pattern.none": "No pattern",
-    "ui.pattern.size": "Size",
-    "ui.pattern.density": "Density",
-    "ui.backgroundImage": "Background Image",
-    "ui.backgroundPlaceholder": "https://\u2026 or url('\u2026') or gradient CSS",
-    "ui.clear": "Clear",
-    "ui.patternOverlayHint": "Pattern always overlays on top of background image.",
-    "ui.overrideOnPreset": "overrides on preset",
-    "ui.font.body": "body",
-    "ui.font.heading": "heading",
-    "ui.font.sameAsBody": "Same as body",
-    "ui.font.systemDefault": "System default",
-    "ui.font.systemDefaultSans": "System default (sans-serif)",
-    "ui.font.systemSerif": "System serif",
-    "ui.size.sm": "SM",
-    "ui.size.md": "MD",
-    "ui.size.lg": "LG",
-    "ui.opacity.subtle": "Subtle",
-    "ui.opacity.normal": "Normal",
-    "ui.opacity.bold": "Bold",
-    "ui.neutral.none": "none",
-    "ui.filter.all": "All",
-    "ui.filter.curated": "Featured",
-    "ui.filter.basic": "Basic",
-    "ui.filter.claude": "Studio",
-    "ui.filter.tweakcn": "Signature",
-    "ui.filter.community": "Community"
-  },
-  es: {
-    "ui.primary": "Primario",
-    "ui.secondary": "Secundario",
-    "ui.neutralBase": "Base neutral",
-    "ui.auto": "Auto",
-    "ui.usingPreset": "Usando preset",
-    "ui.autoFromPrimary": "Auto desde primario",
-    "ui.primaryFamily": "Familia primaria",
-    "ui.surfacesSuffix": "superficies",
-    "ui.pattern": "Patr\xF3n",
-    "ui.pattern.none": "Sin patr\xF3n",
-    "ui.pattern.size": "Tama\xF1o",
-    "ui.pattern.density": "Densidad",
-    "ui.backgroundImage": "Imagen de fondo",
-    "ui.backgroundPlaceholder": "https://\u2026 o url('\u2026') o CSS de gradiente",
-    "ui.clear": "Borrar",
-    "ui.patternOverlayHint": "El patr\xF3n siempre se superpone a la imagen de fondo.",
-    "ui.overrideOnPreset": "sobrescribe el preset",
-    "ui.font.body": "cuerpo",
-    "ui.font.heading": "t\xEDtulos",
-    "ui.font.sameAsBody": "Igual que cuerpo",
-    "ui.font.systemDefault": "Sistema por defecto",
-    "ui.font.systemDefaultSans": "Sistema por defecto (sans-serif)",
-    "ui.font.systemSerif": "Sistema serif",
-    "ui.size.sm": "SM",
-    "ui.size.md": "MD",
-    "ui.size.lg": "LG",
-    "ui.opacity.subtle": "Sutil",
-    "ui.opacity.normal": "Normal",
-    "ui.opacity.bold": "Fuerte",
-    "ui.neutral.none": "ninguno",
-    "ui.filter.all": "Todos",
-    "ui.filter.curated": "Destacados",
-    "ui.filter.basic": "B\xE1sicos",
-    "ui.filter.claude": "Studio",
-    "ui.filter.tweakcn": "Signature",
-    "ui.filter.community": "Comunidad"
-  },
-  pt: {
-    "ui.primary": "Prim\xE1rio",
-    "ui.secondary": "Secund\xE1rio",
-    "ui.neutralBase": "Base neutra",
-    "ui.auto": "Auto",
-    "ui.usingPreset": "Usando preset",
-    "ui.autoFromPrimary": "Auto do prim\xE1rio",
-    "ui.primaryFamily": "Fam\xEDlia prim\xE1ria",
-    "ui.surfacesSuffix": "superf\xEDcies",
-    "ui.pattern": "Padr\xE3o",
-    "ui.pattern.none": "Sem padr\xE3o",
-    "ui.pattern.size": "Tamanho",
-    "ui.pattern.density": "Densidade",
-    "ui.backgroundImage": "Imagem de fundo",
-    "ui.backgroundPlaceholder": "https://\u2026 ou url('\u2026') ou CSS de gradiente",
-    "ui.clear": "Limpar",
-    "ui.patternOverlayHint": "O padr\xE3o sempre sobrep\xF5e a imagem de fundo.",
-    "ui.overrideOnPreset": "sobrescreve o preset",
-    "ui.font.body": "corpo",
-    "ui.font.heading": "t\xEDtulos",
-    "ui.font.sameAsBody": "Igual ao corpo",
-    "ui.font.systemDefault": "Sistema padr\xE3o",
-    "ui.font.systemDefaultSans": "Sistema padr\xE3o (sans-serif)",
-    "ui.font.systemSerif": "Sistema serif",
-    "ui.size.sm": "SM",
-    "ui.size.md": "MD",
-    "ui.size.lg": "LG",
-    "ui.opacity.subtle": "Suave",
-    "ui.opacity.normal": "Normal",
-    "ui.opacity.bold": "Forte",
-    "ui.neutral.none": "nenhum",
-    "ui.filter.all": "Todos",
-    "ui.filter.curated": "Destaques",
-    "ui.filter.basic": "B\xE1sicos",
-    "ui.filter.claude": "Studio",
-    "ui.filter.tweakcn": "Signature",
-    "ui.filter.community": "Comunidade"
-  }
-};
-function translate(labels, locale, key, fallback) {
-  const lang = locale === "es" || locale === "pt" || locale === "en" ? locale : "en";
-  return labels?.[lang]?.[key] ?? DEFAULT_LABELS[lang][key] ?? fallback;
-}
-function getSwatchColors(theme, mode = "light") {
-  const t = mode === "dark" ? theme.dark : theme.light;
-  return [resolveColor(t.background), resolveColor(t.primary), resolveColor(t.secondary)];
-}
-function ThemeSwatch({ theme, selected, onClick, previewMode = "light", labelOverride, swatchSize = 14 }) {
-  const [bg, pri, sec] = getSwatchColors(theme, previewMode);
-  const label = labelOverride ?? theme.label;
-  return /* @__PURE__ */ jsxs3(
-    "button",
-    {
-      onClick,
-      title: label,
-      className: cn(
-        "flex w-full items-center gap-3 rounded-md border px-3 py-2 text-left text-sm transition-colors",
-        selected ? "border-ring bg-accent text-accent-foreground" : "border-border hover:bg-muted/50"
-      ),
-      children: [
-        /* @__PURE__ */ jsxs3("span", { className: "flex shrink-0 gap-1.5", children: [
-          /* @__PURE__ */ jsx6(
-            "span",
-            {
-              className: "inline-block rounded-full border border-border",
-              style: { backgroundColor: bg, width: swatchSize, height: swatchSize }
-            }
-          ),
-          /* @__PURE__ */ jsx6(
-            "span",
-            {
-              className: "inline-block rounded-full",
-              style: { backgroundColor: pri, width: swatchSize, height: swatchSize }
-            }
-          ),
-          /* @__PURE__ */ jsx6(
-            "span",
-            {
-              className: "inline-block rounded-full",
-              style: { backgroundColor: sec, width: swatchSize, height: swatchSize }
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsx6("span", { className: "truncate", children: label })
-      ]
-    }
-  );
-}
-function ThemePalettePicker({
-  themes,
-  value,
-  onChange,
-  labels,
-  locale = "en",
-  paletteMaxHeight,
-  previewMode = "light",
-  className,
-  swatchSize
-}) {
-  if (themes.length === 0) return null;
-  const lang = locale === "es" || locale === "pt" || locale === "en" ? locale : "en";
-  return /* @__PURE__ */ jsx6("div", { className, style: paletteMaxHeight ? { maxHeight: paletteMaxHeight, overflowY: "auto" } : void 0, children: /* @__PURE__ */ jsx6("div", { className: "grid grid-cols-2 gap-2", children: themes.map((t) => /* @__PURE__ */ jsx6(
-    ThemeSwatch,
-    {
-      theme: t,
-      selected: t.name === value,
-      onClick: () => onChange(t.name),
-      labelOverride: labels?.[lang]?.[t.name],
-      previewMode,
-      swatchSize
-    },
-    t.name
-  )) }) });
-}
-function ThemeCustomPalettePicker({
-  hasPreset,
-  primary,
-  secondary,
-  neutral,
-  onPrimaryChange,
-  onSecondaryChange,
-  onNeutralChange,
-  className,
-  title,
-  subtitle,
-  labels,
-  locale = "en"
-}) {
-  const t = (key, fallback) => translate(labels, locale, key, fallback);
-  return /* @__PURE__ */ jsxs3("div", { className: cn("space-y-4", className), children: [
-    /* @__PURE__ */ jsxs3("div", { className: "flex items-baseline gap-2", children: [
-      /* @__PURE__ */ jsx6("span", { className: "text-[11px] font-semibold uppercase tracking-wide text-muted-foreground", children: title }),
-      subtitle && /* @__PURE__ */ jsx6("span", { className: "text-[11px] text-muted-foreground/70", children: subtitle })
-    ] }),
-    /* @__PURE__ */ jsxs3("section", { className: "space-y-2", children: [
-      /* @__PURE__ */ jsx6("h4", { className: "text-xs font-semibold text-muted-foreground", children: t("ui.primary", "Primary") }),
-      /* @__PURE__ */ jsxs3("div", { className: "flex flex-wrap items-center gap-2", children: [
-        hasPreset && /* @__PURE__ */ jsx6(Button, { variant: primary === null ? "secondary" : "outline", size: "xs", onClick: () => onPrimaryChange(null), children: t("ui.auto", "Auto") }),
-        TAILWIND_COLORS2.map((color) => /* @__PURE__ */ jsx6(
-          "button",
-          {
-            onClick: () => onPrimaryChange(color),
-            title: color,
-            className: cn(
-              "h-6 w-6 rounded-full border transition-colors",
-              primary === color ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
-            ),
-            style: { backgroundColor: resolveColor(`${color}-500`) }
-          },
-          color
-        ))
-      ] }),
-      primary === null && hasPreset && /* @__PURE__ */ jsx6("p", { className: "text-[11px] text-muted-foreground", children: t("ui.usingPreset", "Using preset") })
-    ] }),
-    /* @__PURE__ */ jsxs3("section", { className: "space-y-2", children: [
-      /* @__PURE__ */ jsx6("h4", { className: "text-xs font-semibold text-muted-foreground", children: t("ui.secondary", "Secondary") }),
-      /* @__PURE__ */ jsxs3("div", { className: "flex flex-wrap items-center gap-2", children: [
-        hasPreset ? /* @__PURE__ */ jsx6(Button, { variant: secondary === null ? "secondary" : "outline", size: "xs", onClick: () => onSecondaryChange(null), children: t("ui.auto", "Auto") }) : /* @__PURE__ */ jsx6(
-          "button",
-          {
-            onClick: () => onSecondaryChange(null),
-            title: "Auto (derived from primary)",
-            className: cn(
-              "h-6 w-6 rounded-full border transition-colors",
-              secondary === null ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
-            ),
-            style: {
-              backgroundImage: `conic-gradient(${TAILWIND_COLORS2.slice(5, 10).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(", ")})`
-            }
-          }
-        ),
-        TAILWIND_COLORS2.map((color) => /* @__PURE__ */ jsx6(
-          "button",
-          {
-            onClick: () => onSecondaryChange(color),
-            title: color,
-            className: cn(
-              "h-6 w-6 rounded-full border transition-colors",
-              secondary === color ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
-            ),
-            style: { backgroundColor: resolveColor(`${color}-500`) }
-          },
-          color
-        ))
-      ] }),
-      secondary === null && /* @__PURE__ */ jsx6("p", { className: "text-[11px] text-muted-foreground", children: hasPreset ? t("ui.usingPreset", "Using preset") : t("ui.autoFromPrimary", "Auto from primary") })
-    ] }),
-    /* @__PURE__ */ jsxs3("section", { className: "space-y-2", children: [
-      /* @__PURE__ */ jsx6("h4", { className: "text-xs font-semibold text-muted-foreground", children: t("ui.neutralBase", "Neutral base") }),
-      /* @__PURE__ */ jsxs3("div", { className: "flex flex-wrap items-center gap-2", children: [
-        hasPreset ? /* @__PURE__ */ jsx6(Button, { variant: neutral === null ? "secondary" : "outline", size: "xs", onClick: () => onNeutralChange(null), children: t("ui.auto", "Auto") }) : /* @__PURE__ */ jsx6(
-          Button,
-          {
-            variant: neutral === null || neutral === "none" ? "secondary" : "outline",
-            size: "xs",
-            onClick: () => onNeutralChange("none"),
-            children: t("ui.neutral.none", "none")
-          }
-        ),
-        NEUTRAL_COLORS.map((color) => /* @__PURE__ */ jsx6(
-          Button,
-          {
-            variant: neutral === color ? "secondary" : "outline",
-            size: "xs",
-            onClick: () => onNeutralChange(color),
-            children: color
-          },
-          color
-        ))
-      ] }),
-      /* @__PURE__ */ jsx6("p", { className: "text-[11px] text-muted-foreground", children: neutral === null ? hasPreset ? t("ui.usingPreset", "Using preset") : t("ui.primaryFamily", "Primary family") : neutral === "none" ? t("ui.primaryFamily", "Primary family") : `${neutral} ${t("ui.surfacesSuffix", "surfaces")}` })
-    ] })
-  ] });
-}
-function ThemeFontsPicker({ value, onChange, className, labels, locale = "en" }) {
-  const t = (key, fallback) => translate(labels, locale, key, fallback);
-  const DEFAULT = "__default__";
-  return /* @__PURE__ */ jsx6("div", { className: cn("space-y-3", className), children: /* @__PURE__ */ jsx6("div", { className: "space-y-2", children: ["body", "heading"].map((fontType) => /* @__PURE__ */ jsxs3("div", { className: "grid grid-cols-[64px_1fr] items-center gap-3", children: [
-    /* @__PURE__ */ jsx6(Label, { className: "text-xs text-muted-foreground capitalize", children: fontType === "heading" ? t("ui.font.heading", "heading") : t("ui.font.body", "body") }),
-    /* @__PURE__ */ jsxs3(
-      Select,
-      {
-        value: value[fontType] ?? DEFAULT,
-        onValueChange: (v) => onChange({ ...value, [fontType]: v === DEFAULT ? void 0 : v }),
-        children: [
-          /* @__PURE__ */ jsx6(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ jsx6(SelectValue, { placeholder: fontType === "heading" ? t("ui.font.sameAsBody", "Same as body") : t("ui.font.systemDefault", "System default") }) }),
-          /* @__PURE__ */ jsxs3(SelectContent, { children: [
-            /* @__PURE__ */ jsx6(SelectGroup, { children: /* @__PURE__ */ jsx6(SelectItem, { value: DEFAULT, children: fontType === "heading" ? t("ui.font.sameAsBody", "Same as body") : t("ui.font.systemDefault", "System default") }) }),
-            FONT_GROUPS.map((group) => /* @__PURE__ */ jsxs3(SelectGroup, { children: [
-              /* @__PURE__ */ jsx6(SelectLabel, { children: group.label }),
-              group.options.map((f) => /* @__PURE__ */ jsx6(SelectItem, { value: f.value, children: f.label === "System default (sans-serif)" ? t("ui.font.systemDefaultSans", f.label) : f.label === "System serif" ? t("ui.font.systemSerif", f.label) : f.label }, f.value))
-            ] }, group.label))
-          ] })
-        ]
-      }
-    )
-  ] }, fontType)) }) });
-}
-function ThemePatternsPicker({ value, onChange, className, labels, locale = "en" }) {
-  const t = (key, fallback) => translate(labels, locale, key, fallback);
-  const lang = locale === "es" || locale === "pt" || locale === "en" ? locale : "en";
-  const activeType = value.type;
-  return /* @__PURE__ */ jsxs3("div", { className: cn("space-y-3", className), children: [
-    /* @__PURE__ */ jsx6("h4", { className: "text-sm font-semibold", children: t("ui.pattern", "Pattern") }),
-    /* @__PURE__ */ jsx6("div", { className: "flex flex-wrap gap-2", children: PATTERN_TYPES.map((pt) => {
-      const active = activeType === pt;
-      const ps = pt !== "none" ? generatePattern({ type: pt, opacity: 0.18, size: "sm" }) : null;
-      return /* @__PURE__ */ jsx6(
-        "button",
-        {
-          onClick: () => onChange({ ...value, type: pt }),
-          title: PATTERN_LABELS[pt],
-          className: cn(
-            "flex h-12 w-12 items-center justify-center rounded-md border bg-background text-[10px] text-muted-foreground transition-colors",
-            active ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
-          ),
-          style: {
-            backgroundImage: ps?.backgroundImage ?? "none",
-            backgroundSize: ps?.backgroundSize ?? "auto",
-            backgroundPosition: ps?.backgroundPosition ?? "center"
-          },
-          children: pt === "none" && /* @__PURE__ */ jsx6("span", { children: t("ui.neutral.none", "none") })
-        },
-        pt
-      );
-    }) }),
-    activeType !== "none" && /* @__PURE__ */ jsxs3("div", { className: "space-y-2", children: [
-      /* @__PURE__ */ jsxs3("div", { className: "flex items-center gap-3", children: [
-        /* @__PURE__ */ jsx6("span", { className: "w-16 text-xs text-muted-foreground", children: t("ui.pattern.size", "Size") }),
-        /* @__PURE__ */ jsx6("div", { className: "flex gap-2", children: ["sm", "md", "lg"].map((s) => /* @__PURE__ */ jsx6(Button, { variant: (value.size ?? "md") === s ? "secondary" : "outline", size: "xs", onClick: () => onChange({ ...value, size: s }), children: s === "sm" ? t("ui.size.sm", "SM") : s === "md" ? t("ui.size.md", "MD") : t("ui.size.lg", "LG") }, s)) })
-      ] }),
-      /* @__PURE__ */ jsxs3("div", { className: "flex items-center gap-3", children: [
-        /* @__PURE__ */ jsx6("span", { className: "w-16 text-xs text-muted-foreground", children: t("ui.pattern.density", "Density") }),
-        /* @__PURE__ */ jsx6("div", { className: "flex gap-2", children: PATTERN_OPACITY_PRESETS.map((o) => /* @__PURE__ */ jsx6(
-          Button,
-          {
-            variant: (value.opacity ?? 0.12) === o.value ? "secondary" : "outline",
-            size: "xs",
-            onClick: () => onChange({ ...value, opacity: o.value }),
-            children: o.label === "Subtle" ? t("ui.opacity.subtle", o.label) : o.label === "Normal" ? t("ui.opacity.normal", o.label) : t("ui.opacity.bold", o.label)
-          },
-          o.label
-        )) })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsx6("p", { className: "text-xs text-muted-foreground", children: activeType === "none" ? t("ui.pattern.none", "No pattern") : labels?.[lang]?.[`ui.pattern.${activeType}`] ?? PATTERN_LABELS[activeType] })
-  ] });
-}
-function ThemeRadiusPicker({ value, onChange, className, labels, locale = "en" }) {
-  const t = (key, fallback) => translate(labels, locale, key, fallback);
-  return /* @__PURE__ */ jsx6("div", { className: cn("space-y-3", className), children: /* @__PURE__ */ jsx6("div", { className: "flex flex-wrap gap-2", children: RADIUS_PRESETS.map((r) => /* @__PURE__ */ jsx6(
-    Button,
-    {
-      variant: value === r.value ? "secondary" : "outline",
-      size: "xs",
-      onClick: () => onChange(r.value),
-      children: r.label === "None" ? t("ui.neutral.none", r.label) : r.label
-    },
-    r.value
-  )) }) });
-}
-function ThemeBackgroundImagePicker({ value, onChange, className, labels, locale = "en" }) {
-  const t = (key, fallback) => translate(labels, locale, key, fallback);
-  return /* @__PURE__ */ jsxs3("div", { className: cn("space-y-3", className), children: [
-    /* @__PURE__ */ jsx6("h4", { className: "text-sm font-semibold", children: t("ui.backgroundImage", "Background Image") }),
-    /* @__PURE__ */ jsxs3("div", { className: "flex flex-wrap gap-2", children: [
-      /* @__PURE__ */ jsx6(
-        Input,
-        {
-          value,
-          onChange: (e) => {
-            const raw2 = e.target.value.trim();
-            if (!raw2) {
-              onChange("");
-              return;
-            }
-            const val = /^https?:\/\/|^\//.test(raw2) && !raw2.startsWith("url(") ? `url('${raw2}')` : raw2;
-            onChange(val);
-          },
-          placeholder: t("ui.backgroundPlaceholder", "https://\u2026 or url('\u2026') or gradient CSS"),
-          className: "text-xs"
-        }
-      ),
-      value && /* @__PURE__ */ jsx6(Button, { variant: "outline", size: "xs", onClick: () => onChange(""), children: t("ui.clear", "Clear") })
-    ] }),
-    /* @__PURE__ */ jsx6("p", { className: "text-xs text-muted-foreground", children: t("ui.patternOverlayHint", "Pattern always overlays on top of background image.") })
-  ] });
-}
 function buildTheme(themes, selectedPresetName, customPrimary, customSecondary, customNeutral) {
   if (selectedPresetName) {
     const preset = themes.find((t) => t.name === selectedPresetName) ?? themes[0];
@@ -1572,6 +1581,9 @@ function buildTheme(themes, selectedPresetName, customPrimary, customSecondary, 
     }
   );
 }
+
+// src/react/ThemePicker.tsx
+import { jsx as jsx8, jsxs as jsxs5 } from "react/jsx-runtime";
 function ThemePicker({
   themes,
   value,
@@ -1623,8 +1635,8 @@ function ThemePicker({
     });
   }, [selectedPresetName, customPrimary, customSecondary, customNeutral, overrideRadius, overrideFonts, overridePattern, overrideBgImage]);
   const hasPreset = selectedPresetName !== null;
-  return /* @__PURE__ */ jsxs3("div", { className: cn("space-y-4 text-sm text-foreground", className), children: [
-    showPalette && /* @__PURE__ */ jsx6(
+  return /* @__PURE__ */ jsxs5("div", { className: cn("space-y-4 text-sm text-foreground", className), children: [
+    showPalette && /* @__PURE__ */ jsx8(
       ThemePalettePicker,
       {
         themes,
@@ -1643,7 +1655,7 @@ function ThemePicker({
         swatchSize: paletteSwatchSize
       }
     ),
-    showCustomPalette && /* @__PURE__ */ jsx6("div", { className: cn(showPalette ? "border-t border-border pt-4" : ""), children: /* @__PURE__ */ jsx6(
+    showCustomPalette && /* @__PURE__ */ jsx8("div", { className: cn(showPalette ? "border-t border-border pt-4" : ""), children: /* @__PURE__ */ jsx8(
       ThemeCustomPalettePicker,
       {
         hasPreset,
@@ -1658,11 +1670,11 @@ function ThemePicker({
         locale
       }
     ) }),
-    sections.length > 0 && /* @__PURE__ */ jsxs3("div", { className: "space-y-4 border-t border-border pt-4", children: [
-      sections.includes("fonts") && /* @__PURE__ */ jsx6(ThemeFontsPicker, { value: overrideFonts, onChange: setOverrideFonts, labels, locale }),
-      sections.includes("patterns") && /* @__PURE__ */ jsx6(ThemePatternsPicker, { value: overridePattern, onChange: setOverridePattern, labels, locale }),
-      sections.includes("radius") && /* @__PURE__ */ jsx6(ThemeRadiusPicker, { value: overrideRadius, onChange: setOverrideRadius, labels, locale }),
-      sections.includes("background") && /* @__PURE__ */ jsx6(ThemeBackgroundImagePicker, { value: overrideBgImage, onChange: setOverrideBgImage, labels, locale })
+    sections.length > 0 && /* @__PURE__ */ jsxs5("div", { className: "space-y-4 border-t border-border pt-4", children: [
+      sections.includes("fonts") && /* @__PURE__ */ jsx8(ThemeFontsPicker, { value: overrideFonts, onChange: setOverrideFonts, labels, locale }),
+      sections.includes("patterns") && /* @__PURE__ */ jsx8(ThemePatternsPicker, { value: overridePattern, onChange: setOverridePattern, labels, locale }),
+      sections.includes("radius") && /* @__PURE__ */ jsx8(ThemeRadiusPicker, { value: overrideRadius, onChange: setOverrideRadius, labels, locale }),
+      sections.includes("background") && /* @__PURE__ */ jsx8(ThemeBackgroundImagePicker, { value: overrideBgImage, onChange: setOverrideBgImage, labels, locale })
     ] })
   ] });
 }

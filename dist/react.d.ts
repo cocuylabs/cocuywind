@@ -112,30 +112,13 @@ declare function ThemeProvider({ children, themes, defaultTheme, defaultMode, pe
  */
 declare function useTheme(): ThemeContextValue;
 
-type ThemePickerSection = 'fonts' | 'patterns' | 'radius' | 'background';
-interface ThemePickerProps {
-    themes: Theme[];
-    value: Theme;
-    onChange: (theme: Theme) => void;
-    allowCustom?: boolean;
-    sections?: ThemePickerSection[];
-    className?: string;
-    locale?: 'en' | 'es' | 'pt';
-    labels?: Record<string, Record<string, string>>;
-    /** Max height for the palette swatches area only — sections remain visible below */
-    paletteMaxHeight?: string | number;
-    /** Size (px) of the three palette dots in each swatch row */
-    paletteSwatchSize?: number;
-    /** Show the preset palette grid */
-    showPalette?: boolean;
-    /** Show the custom palette controls */
-    showCustomPalette?: boolean;
-}
+type ThemePickerLabels = Record<string, Record<string, string>> | undefined;
+
 interface ThemePalettePickerProps {
     themes: Theme[];
     value: string | null;
     onChange: (name: string) => void;
-    labels?: Record<string, Record<string, string>>;
+    labels?: ThemePickerLabels;
     locale?: 'en' | 'es' | 'pt';
     paletteMaxHeight?: string | number;
     previewMode?: 'light' | 'dark';
@@ -154,15 +137,16 @@ interface ThemeCustomPalettePickerProps {
     className?: string;
     title?: string;
     subtitle?: string;
-    labels?: Record<string, Record<string, string>>;
+    labels?: ThemePickerLabels;
     locale?: 'en' | 'es' | 'pt';
 }
 declare function ThemeCustomPalettePicker({ hasPreset, primary, secondary, neutral, onPrimaryChange, onSecondaryChange, onNeutralChange, className, title, subtitle, labels, locale, }: ThemeCustomPalettePickerProps): react_jsx_runtime.JSX.Element;
+
 interface ThemeFontsPickerProps {
     value: ThemeFonts;
     onChange: (value: ThemeFonts) => void;
     className?: string;
-    labels?: Record<string, Record<string, string>>;
+    labels?: ThemePickerLabels;
     locale?: 'en' | 'es' | 'pt';
 }
 declare function ThemeFontsPicker({ value, onChange, className, labels, locale }: ThemeFontsPickerProps): react_jsx_runtime.JSX.Element;
@@ -170,7 +154,7 @@ interface ThemePatternsPickerProps {
     value: ThemePattern;
     onChange: (value: ThemePattern) => void;
     className?: string;
-    labels?: Record<string, Record<string, string>>;
+    labels?: ThemePickerLabels;
     locale?: 'en' | 'es' | 'pt';
 }
 declare function ThemePatternsPicker({ value, onChange, className, labels, locale }: ThemePatternsPickerProps): react_jsx_runtime.JSX.Element;
@@ -178,7 +162,7 @@ interface ThemeRadiusPickerProps {
     value: string;
     onChange: (value: string) => void;
     className?: string;
-    labels?: Record<string, Record<string, string>>;
+    labels?: ThemePickerLabels;
     locale?: 'en' | 'es' | 'pt';
 }
 declare function ThemeRadiusPicker({ value, onChange, className, labels, locale }: ThemeRadiusPickerProps): react_jsx_runtime.JSX.Element;
@@ -186,10 +170,31 @@ interface ThemeBackgroundImagePickerProps {
     value: string;
     onChange: (value: string) => void;
     className?: string;
-    labels?: Record<string, Record<string, string>>;
+    labels?: ThemePickerLabels;
     locale?: 'en' | 'es' | 'pt';
 }
 declare function ThemeBackgroundImagePicker({ value, onChange, className, labels, locale }: ThemeBackgroundImagePickerProps): react_jsx_runtime.JSX.Element;
+
+type ThemePickerSection = 'fonts' | 'patterns' | 'radius' | 'background';
+interface ThemePickerProps {
+    themes: Theme[];
+    value: Theme;
+    onChange: (theme: Theme) => void;
+    allowCustom?: boolean;
+    sections?: ThemePickerSection[];
+    className?: string;
+    locale?: 'en' | 'es' | 'pt';
+    labels?: ThemePickerLabels;
+    /** Max height for the palette swatches area only — sections remain visible below */
+    paletteMaxHeight?: string | number;
+    /** Size (px) of the three palette dots in each swatch row */
+    paletteSwatchSize?: number;
+    /** Show the preset palette grid */
+    showPalette?: boolean;
+    /** Show the custom palette controls */
+    showCustomPalette?: boolean;
+}
+
 declare function ThemePicker({ themes, value, onChange, allowCustom, sections, className, locale, labels, paletteMaxHeight, paletteSwatchSize, showPalette, showCustomPalette, }: ThemePickerProps): react_jsx_runtime.JSX.Element;
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

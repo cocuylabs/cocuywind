@@ -97,7 +97,12 @@ src/
     ├── index.ts
     ├── ThemeProvider.tsx
     ├── useTheme.ts
-    └── ThemePicker.tsx
+    ├── ThemePicker.tsx          # main picker + re-exports
+    ├── ThemePalettePickers.tsx  # preset grid + custom primary/secondary/neutral
+    ├── ThemeStylePickers.tsx    # fonts, patterns, radius, background image
+    ├── theme-picker-build.ts    # buildTheme()
+    ├── theme-picker-constants.ts
+    └── theme-picker-labels.ts   # DEFAULT_LABELS, translate()
 
 scripts/
 └── sync-tweakcn.mjs     # Fetches new TweakCN registry/community themes, never overwrites
