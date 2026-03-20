@@ -72,9 +72,14 @@ export type PatternType =
 
 export interface ThemePattern {
   type: PatternType
-  /** Defaults to current foreground at low opacity */
+  /** Defaults to `var(--foreground)` at low opacity */
   color?: ColorToken
-  /** 0–1, default 0.15 */
+  /**
+   * Optional token tint. When set, overrides `color` and uses the theme token
+   * (e.g. `var(--primary)`) so it adapts in dark mode.
+   */
+  tint?: 'primary' | 'secondary' | 'accent'
+  /** 0–1, default 0.08 */
   opacity?: number
   /** default 'md' */
   size?: 'sm' | 'md' | 'lg'
@@ -141,6 +146,7 @@ export interface StoredTheme {
     primary: TailwindColor
     neutral?: TailwindColor
     secondary?: TailwindColor
+    accent?: TailwindColor
     radius?: string
     /** Numeric chroma multiplier that was applied (1.0 = unchanged) */
     vividness?: number
@@ -157,6 +163,7 @@ export interface StoredTheme {
     basePreset: string
     primary?:   TailwindColor
     secondary?: TailwindColor
+    accent?:    TailwindColor
     neutral?:   TailwindColor | 'none'
   }
   /** Optional original/source label for display or attribution */

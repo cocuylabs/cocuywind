@@ -44,9 +44,14 @@ interface ThemeFonts {
 type PatternType = 'none' | 'dots' | 'grid' | 'cross' | 'diagonal-lines' | 'horizontal-lines' | 'vertical-lines' | 'zigzag' | 'checkerboard' | 'triangles' | 'hexagons' | 'noise';
 interface ThemePattern {
     type: PatternType;
-    /** Defaults to current foreground at low opacity */
+    /** Defaults to `var(--foreground)` at low opacity */
     color?: ColorToken;
-    /** 0–1, default 0.15 */
+    /**
+     * Optional token tint. When set, overrides `color` and uses the theme token
+     * (e.g. `var(--primary)`) so it adapts in dark mode.
+     */
+    tint?: 'primary' | 'secondary' | 'accent';
+    /** 0–1, default 0.08 */
     opacity?: number;
     /** default 'md' */
     size?: 'sm' | 'md' | 'lg';
@@ -130,9 +135,11 @@ interface ThemeCustomPalettePickerProps {
     hasPreset: boolean;
     primary: TailwindColor | null;
     secondary: TailwindColor | null;
+    accent: TailwindColor | null;
     neutral: TailwindColor | 'none' | null;
     onPrimaryChange: (value: TailwindColor | null) => void;
     onSecondaryChange: (value: TailwindColor | null) => void;
+    onAccentChange: (value: TailwindColor | null) => void;
     onNeutralChange: (value: TailwindColor | 'none' | null) => void;
     className?: string;
     title?: string;
@@ -140,7 +147,7 @@ interface ThemeCustomPalettePickerProps {
     labels?: ThemePickerLabels;
     locale?: 'en' | 'es' | 'pt';
 }
-declare function ThemeCustomPalettePicker({ hasPreset, primary, secondary, neutral, onPrimaryChange, onSecondaryChange, onNeutralChange, className, title, subtitle, labels, locale, }: ThemeCustomPalettePickerProps): react_jsx_runtime.JSX.Element;
+declare function ThemeCustomPalettePicker({ hasPreset, primary, secondary, accent, neutral, onPrimaryChange, onSecondaryChange, onAccentChange, onNeutralChange, className, title, subtitle, labels, locale, }: ThemeCustomPalettePickerProps): react_jsx_runtime.JSX.Element;
 
 interface ThemeFontsPickerProps {
     value: ThemeFonts;

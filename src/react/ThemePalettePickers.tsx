@@ -92,9 +92,11 @@ export interface ThemeCustomPalettePickerProps {
   hasPreset: boolean
   primary: TailwindColor | null
   secondary: TailwindColor | null
+  accent: TailwindColor | null
   neutral: TailwindColor | 'none' | null
   onPrimaryChange: (value: TailwindColor | null) => void
   onSecondaryChange: (value: TailwindColor | null) => void
+  onAccentChange: (value: TailwindColor | null) => void
   onNeutralChange: (value: TailwindColor | 'none' | null) => void
   className?: string
   title?: string
@@ -107,9 +109,11 @@ export function ThemeCustomPalettePicker({
   hasPreset,
   primary,
   secondary,
+  accent,
   neutral,
   onPrimaryChange,
   onSecondaryChange,
+  onAccentChange,
   onNeutralChange,
   className,
   title,
@@ -187,6 +191,46 @@ export function ThemeCustomPalettePicker({
         {secondary === null && (
           <p className="text-[11px] text-muted-foreground">
             {hasPreset ? t('ui.usingPreset', 'Using preset') : t('ui.autoFromPrimary', 'Auto from primary')}
+          </p>
+        )}
+      </section>
+
+      <section className="space-y-2">
+        <h4 className="text-xs font-semibold text-muted-foreground">{t('ui.accent', 'Accent')}</h4>
+        <div className="flex flex-wrap items-center gap-2">
+          {hasPreset ? (
+            <Button variant={accent === null ? 'secondary' : 'outline'} size="xs" onClick={() => onAccentChange(null)}>
+              {t('ui.auto', 'Auto')}
+            </Button>
+          ) : (
+            <button
+              onClick={() => onAccentChange(null)}
+              title="Auto (derived from secondary/primary)"
+              className={cn(
+                'h-6 w-6 rounded-full border transition-colors',
+                accent === null ? 'border-foreground ring-2 ring-ring' : 'border-border hover:border-muted-foreground'
+              )}
+              style={{
+                backgroundImage: `conic-gradient(${TAILWIND_COLORS.slice(0, 5).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(', ')})`,
+              }}
+            />
+          )}
+          {TAILWIND_COLORS.map(color => (
+            <button
+              key={color}
+              onClick={() => onAccentChange(color)}
+              title={color}
+              className={cn(
+                'h-6 w-6 rounded-full border transition-colors',
+                accent === color ? 'border-foreground ring-2 ring-ring' : 'border-border hover:border-muted-foreground'
+              )}
+              style={{ backgroundColor: resolveColor(`${color}-500`) }}
+            />
+          ))}
+        </div>
+        {accent === null && (
+          <p className="text-[11px] text-muted-foreground">
+            {hasPreset ? t('ui.usingPreset', 'Using preset') : t('ui.autoFromSecondary', 'Auto from secondary')}
           </p>
         )}
       </section>

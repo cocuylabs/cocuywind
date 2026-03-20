@@ -402,7 +402,7 @@ function getSize(s, key) {
 }
 function generatePattern(config) {
   const size = config.size ?? "md";
-  const opacity = config.opacity ?? 0.12;
+  const opacity = config.opacity ?? 0.08;
   const color = config.color ? resolveColor(config.color) : "var(--foreground)";
   const colorWithOpacity = wrapWithOpacity(color, opacity);
   switch (config.type) {
@@ -481,14 +481,13 @@ function generatePattern(config) {
     }
     case "triangles": {
       const s = getSize(size, "tri");
-      const half = s / 2;
       return {
         backgroundImage: [
-          `linear-gradient(120deg, ${colorWithOpacity} 33.33%, transparent 33.33%)`,
-          `linear-gradient(240deg, ${colorWithOpacity} 33.33%, transparent 33.33%)`,
-          `linear-gradient(0deg,   ${colorWithOpacity} 33.33%, transparent 33.33%)`
+          `repeating-linear-gradient(60deg, ${colorWithOpacity} 0 1px, transparent 1px ${s}px)`,
+          `repeating-linear-gradient(-60deg, ${colorWithOpacity} 0 1px, transparent 1px ${s}px)`,
+          `repeating-linear-gradient(0deg, ${colorWithOpacity} 0 1px, transparent 1px ${s}px)`
         ].join(", "),
-        backgroundSize: `${s}px ${half}px`
+        backgroundSize: `${s}px ${s}px`
       };
     }
     case "hexagons": {
@@ -496,11 +495,12 @@ function generatePattern(config) {
       const h = Math.round(s * 0.866);
       return {
         backgroundImage: [
-          `linear-gradient(120deg, ${colorWithOpacity} 25%, transparent 25% 75%, ${colorWithOpacity} 75%)`,
-          `linear-gradient(60deg,  ${colorWithOpacity} 25%, transparent 25% 75%, ${colorWithOpacity} 75%)`,
-          `linear-gradient(${colorWithOpacity} 10%, transparent 10% 90%, ${colorWithOpacity} 90%)`
+          `linear-gradient(30deg, ${colorWithOpacity} 12%, transparent 12.5% 87%, ${colorWithOpacity} 87.5%)`,
+          `linear-gradient(150deg, ${colorWithOpacity} 12%, transparent 12.5% 87%, ${colorWithOpacity} 87.5%)`,
+          `linear-gradient(90deg, ${colorWithOpacity} 12%, transparent 12.5% 87%, ${colorWithOpacity} 87.5%)`
         ].join(", "),
-        backgroundSize: `${s}px ${h}px`
+        backgroundSize: `${s}px ${h}px`,
+        backgroundPosition: `0 0, 0 0, ${s / 2}px ${h / 2}px`
       };
     }
     case "noise": {
@@ -564,7 +564,12 @@ function generateCSS(theme) {
   if (fonts.body) lines.push(`  --font-body: ${fonts.body};`);
   if (fonts.heading) lines.push(`  --font-heading: ${fonts.heading};`);
   if (theme.pattern && theme.pattern.type !== "none") {
-    const patternStyle = generatePattern(theme.pattern);
+    const pattern = theme.pattern.tint ? {
+      ...theme.pattern,
+      color: theme.pattern.tint === "primary" ? raw("var(--primary)") : theme.pattern.tint === "secondary" ? raw("var(--secondary)") : raw("var(--accent)"),
+      opacity: theme.pattern.tint === "accent" ? (theme.pattern.opacity ?? 0.08) * 2 : theme.pattern.tint === "secondary" ? (theme.pattern.opacity ?? 0.08) * 1.4 : theme.pattern.opacity
+    } : theme.pattern;
+    const patternStyle = generatePattern(pattern);
     lines.push(`  --pattern-image: ${patternStyle.backgroundImage};`);
     lines.push(`  --pattern-size: ${patternStyle.backgroundSize};`);
     if (patternStyle.backgroundPosition) {
@@ -610,7 +615,12 @@ function storedThemeToCSS(stored) {
   if (fonts?.body) lines.push(`  --font-body: ${fonts.body};`);
   if (fonts?.heading) lines.push(`  --font-heading: ${fonts.heading};`);
   if (pattern && pattern.type !== "none") {
-    const patternStyle = generatePattern(pattern);
+    const patternConfig = pattern.tint ? {
+      ...pattern,
+      color: pattern.tint === "primary" ? raw("var(--primary)") : pattern.tint === "secondary" ? raw("var(--secondary)") : raw("var(--accent)"),
+      opacity: pattern.tint === "accent" ? (pattern.opacity ?? 0.08) * 2 : pattern.tint === "secondary" ? (pattern.opacity ?? 0.08) * 1.4 : pattern.opacity
+    } : pattern;
+    const patternStyle = generatePattern(patternConfig);
     lines.push(`  --pattern-image: ${patternStyle.backgroundImage};`);
     lines.push(`  --pattern-size: ${patternStyle.backgroundSize};`);
     if (patternStyle.backgroundPosition) {
@@ -698,8 +708,9 @@ var DARK_PRIMARY_SHADE = 400;
 function token(color, shade) {
   return `${color}-${shade}`;
 }
-function buildLightTokens(primary, neutral, secondary, overrides) {
+function buildLightTokens(primary, neutral, secondary, accent, overrides) {
   const surface = neutral ?? primary;
+  const accentColor = accent ?? secondary ?? primary;
   const base = {
     background: token(surface, 50),
     foreground: token(surface, 950),
@@ -713,7 +724,7 @@ function buildLightTokens(primary, neutral, secondary, overrides) {
     secondaryForeground: token(surface, 800),
     muted: token(surface, 100),
     mutedForeground: token(surface, 500),
-    accent: token(secondary ?? primary, 200),
+    accent: token(accentColor, 200),
     accentForeground: token(surface, 800),
     destructive: "red-600",
     destructiveForeground: "white",
@@ -723,8 +734,9 @@ function buildLightTokens(primary, neutral, secondary, overrides) {
   };
   return overrides ? { ...base, ...overrides } : base;
 }
-function buildDarkTokens(primary, neutral, secondary, overrides) {
+function buildDarkTokens(primary, neutral, secondary, accent, overrides) {
   const surface = neutral ?? primary;
+  const accentColor = accent ?? secondary ?? primary;
   const base = {
     background: token(surface, 950),
     foreground: token(surface, 50),
@@ -739,7 +751,7 @@ function buildDarkTokens(primary, neutral, secondary, overrides) {
     secondaryForeground: token(surface, 200),
     muted: token(surface, 900),
     mutedForeground: token(surface, 400),
-    accent: token(secondary ?? primary, 800),
+    accent: token(accentColor, 800),
     accentForeground: token(surface, 200),
     destructive: "red-400",
     destructiveForeground: token(primary, 950),
@@ -750,14 +762,14 @@ function buildDarkTokens(primary, neutral, secondary, overrides) {
   return overrides ? { ...base, ...overrides } : base;
 }
 function createTheme(config) {
-  const { name, label, primary, neutral, secondary, radius, fonts, pattern, category, overrides, vividness } = config;
+  const { name, label, primary, neutral, secondary, accent, radius, fonts, pattern, category, overrides, vividness } = config;
   const vividnessFactor = typeof vividness === "string" ? VIVIDNESS_PRESETS[vividness] : typeof vividness === "number" ? vividness : void 0;
   const vividnessPresetName = typeof vividness === "string" ? vividness : void 0;
   const base = {
     name,
     label,
-    light: buildLightTokens(primary, neutral, secondary, overrides?.light),
-    dark: buildDarkTokens(primary, neutral, secondary, overrides?.dark),
+    light: buildLightTokens(primary, neutral, secondary, accent, overrides?.light),
+    dark: buildDarkTokens(primary, neutral, secondary, accent, overrides?.dark),
     fonts,
     pattern,
     radius: radius ?? "0.5rem",
@@ -766,6 +778,7 @@ function createTheme(config) {
       primary,
       neutral,
       secondary,
+      accent,
       radius,
       vividness: vividnessFactor,
       vividnessPreset: vividnessPresetName

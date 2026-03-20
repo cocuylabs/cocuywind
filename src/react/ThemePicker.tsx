@@ -85,6 +85,9 @@ export function ThemePicker({
   const [customSecondary, setCustomSecondary] = useState<TailwindColor | null>(
     () => v._overlayConfig?.secondary ?? (v._generatorConfig?.secondary ?? null)
   )
+  const [customAccent, setCustomAccent] = useState<TailwindColor | null>(
+    () => v._overlayConfig?.accent ?? (v._generatorConfig?.accent ?? null)
+  )
   const [customNeutral,   setCustomNeutral]   = useState<TailwindColor | 'none' | null>(
     () => v._overlayConfig?.neutral   ?? (v._generatorConfig?.neutral   ? v._generatorConfig.neutral as TailwindColor : null)
   )
@@ -95,7 +98,7 @@ export function ThemePicker({
   const [overrideBgImage, setOverrideBgImage] = useState(value.backgroundImage ?? '')
 
   useEffect(() => {
-    const base = buildTheme(themes, selectedPresetName, customPrimary, customSecondary, customNeutral)
+    const base = buildTheme(themes, selectedPresetName, customPrimary, customSecondary, customAccent, customNeutral)
     if (!base) return
     onChange({
       ...base,
@@ -104,7 +107,7 @@ export function ThemePicker({
       pattern:         overridePattern.type !== 'none' ? overridePattern : undefined,
       backgroundImage: overrideBgImage || undefined,
     })
-  }, [selectedPresetName, customPrimary, customSecondary, customNeutral, overrideRadius, overrideFonts, overridePattern, overrideBgImage])
+  }, [selectedPresetName, customPrimary, customSecondary, customAccent, customNeutral, overrideRadius, overrideFonts, overridePattern, overrideBgImage])
 
   const hasPreset = selectedPresetName !== null
 
@@ -120,6 +123,7 @@ export function ThemePicker({
             if (selected) setOverrideRadius(selected.radius ?? '0.5rem')
             setCustomPrimary(null)
             setCustomSecondary(null)
+            setCustomAccent(null)
             setCustomNeutral(null)
           }}
           labels={labels}
@@ -135,9 +139,11 @@ export function ThemePicker({
             hasPreset={hasPreset}
             primary={customPrimary}
             secondary={customSecondary}
+            accent={customAccent}
             neutral={customNeutral}
             onPrimaryChange={setCustomPrimary}
             onSecondaryChange={setCustomSecondary}
+            onAccentChange={setCustomAccent}
             onNeutralChange={setCustomNeutral}
             subtitle={hasPreset ? translate(labels, locale, 'ui.overrideOnPreset', 'overrides on preset') : undefined}
             labels={labels}

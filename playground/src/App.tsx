@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { ThemeProvider, useTheme } from 'cocuywind/react'
 import { ThemePicker } from 'cocuywind/react'
-import { themes, builtinThemes, tweakcnThemes, communityThemes, tailwindBasicThemes, generateCSS, themeLabelsEn, themeLabelsEs, themeLabelsPt, generatePattern, FONTS } from 'cocuywind'
+import { themes, builtinThemes, tweakcnThemes, communityThemes, tailwindBasicThemes, generateCSS, themeLabelsEn, themeLabelsEs, themeLabelsPt, generatePattern, FONTS, raw } from 'cocuywind'
 import type { Theme, ThemeFonts, ThemePattern, PatternType } from 'cocuywind'
 import './styles.css'
 
@@ -165,12 +165,26 @@ function Demo() {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {PATTERN_TYPES.map(pt => {
                     const active = stylePattern.type === pt
-                    const ps = pt !== 'none' ? generatePattern({ type: pt, opacity: 0.18, size: 'sm' }) : null
+                    const previewColor = stylePattern.tint === 'primary'
+                      ? raw('var(--primary)')
+                      : stylePattern.tint === 'secondary'
+                        ? raw('var(--secondary)')
+                        : stylePattern.tint === 'accent'
+                          ? raw('var(--accent)')
+                          : undefined
+                    const previewOpacity = stylePattern.tint === 'accent'
+                      ? (stylePattern.opacity ?? 0.08) * 2.0
+                      : stylePattern.tint === 'secondary'
+                        ? (stylePattern.opacity ?? 0.08) * 1.4
+                      : stylePattern.opacity
+                    const ps = pt !== 'none'
+                      ? generatePattern({ type: pt, opacity: previewOpacity ?? 0.18, size: 'sm', color: previewColor })
+                      : null
                     return (
                       <button
                         key={pt}
                         onClick={() => {
-                          const updated: ThemePattern = { type: pt }
+                          const updated: ThemePattern = { ...stylePattern, type: pt }
                           applyStyle(styleFonts, updated, styleRadius)
                         }}
                         title={PATTERN_LABELS[pt]}
@@ -197,6 +211,34 @@ function Demo() {
                 <p style={{ margin: '6px 0 0', fontSize: 11, opacity: 0.5 }}>
                   {stylePattern.type === 'none' ? 'No pattern — solid background' : PATTERN_LABELS[stylePattern.type]}
                 </p>
+                {stylePattern.type !== 'none' && (
+                  <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                    <button
+                      onClick={() => applyStyle(styleFonts, { ...stylePattern, tint: undefined }, styleRadius)}
+                      style={chip(!stylePattern.tint)}
+                    >
+                      Foreground
+                    </button>
+                    <button
+                      onClick={() => applyStyle(styleFonts, { ...stylePattern, tint: 'primary' }, styleRadius)}
+                      style={chip(stylePattern.tint === 'primary')}
+                    >
+                      Primary
+                    </button>
+                    <button
+                      onClick={() => applyStyle(styleFonts, { ...stylePattern, tint: 'secondary' }, styleRadius)}
+                      style={chip(stylePattern.tint === 'secondary')}
+                    >
+                      Secondary
+                    </button>
+                    <button
+                      onClick={() => applyStyle(styleFonts, { ...stylePattern, tint: 'accent' }, styleRadius)}
+                      style={chip(stylePattern.tint === 'accent')}
+                    >
+                      Accent
+                    </button>
+                  </div>
+                )}
               </section>
 
               {/* Radius */}

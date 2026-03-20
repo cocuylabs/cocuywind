@@ -45,9 +45,14 @@ interface ThemeFonts {
 type PatternType = 'none' | 'dots' | 'grid' | 'cross' | 'diagonal-lines' | 'horizontal-lines' | 'vertical-lines' | 'zigzag' | 'checkerboard' | 'triangles' | 'hexagons' | 'noise';
 interface ThemePattern {
     type: PatternType;
-    /** Defaults to current foreground at low opacity */
+    /** Defaults to `var(--foreground)` at low opacity */
     color?: ColorToken;
-    /** 0–1, default 0.15 */
+    /**
+     * Optional token tint. When set, overrides `color` and uses the theme token
+     * (e.g. `var(--primary)`) so it adapts in dark mode.
+     */
+    tint?: 'primary' | 'secondary' | 'accent';
+    /** 0–1, default 0.08 */
     opacity?: number;
     /** default 'md' */
     size?: 'sm' | 'md' | 'lg';
@@ -104,6 +109,7 @@ interface StoredTheme {
         primary: TailwindColor;
         neutral?: TailwindColor;
         secondary?: TailwindColor;
+        accent?: TailwindColor;
         radius?: string;
         /** Numeric chroma multiplier that was applied (1.0 = unchanged) */
         vividness?: number;
@@ -120,6 +126,7 @@ interface StoredTheme {
         basePreset: string;
         primary?: TailwindColor;
         secondary?: TailwindColor;
+        accent?: TailwindColor;
         neutral?: TailwindColor | 'none';
     };
     /** Optional original/source label for display or attribution */
@@ -189,6 +196,11 @@ interface CreateThemeConfig {
      * Omit (or undefined) to auto-derive from primary (secondary = primary at -200/-800).
      */
     secondary?: TailwindColor;
+    /**
+     * Accent color family (badges, highlights).
+     * Omit (or undefined) to auto-derive from secondary, then primary.
+     */
+    accent?: TailwindColor;
     radius?: string;
     fonts?: ThemeFonts;
     pattern?: ThemePattern;

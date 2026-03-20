@@ -1,5 +1,6 @@
 import { resolveColor } from './colors.js'
 import type { Theme, ThemeTokens, StoredTheme, ResolvedTokens } from './types.js'
+import { raw } from './types.js'
 import { generatePattern } from './patterns.js'
 
 /** Maps camelCase token names to CSS custom property names */
@@ -62,7 +63,22 @@ export function generateCSS(theme: Theme): string {
 
   // Pattern CSS variables
   if (theme.pattern && theme.pattern.type !== 'none') {
-    const patternStyle = generatePattern(theme.pattern)
+    const pattern = theme.pattern.tint
+      ? {
+          ...theme.pattern,
+          color: theme.pattern.tint === 'primary'
+            ? raw('var(--primary)')
+            : theme.pattern.tint === 'secondary'
+              ? raw('var(--secondary)')
+              : raw('var(--accent)'),
+          opacity: theme.pattern.tint === 'accent'
+            ? (theme.pattern.opacity ?? 0.08) * 2.0
+            : theme.pattern.tint === 'secondary'
+              ? (theme.pattern.opacity ?? 0.08) * 1.4
+            : theme.pattern.opacity,
+        }
+      : theme.pattern
+    const patternStyle = generatePattern(pattern)
     lines.push(`  --pattern-image: ${patternStyle.backgroundImage};`)
     lines.push(`  --pattern-size: ${patternStyle.backgroundSize};`)
     if (patternStyle.backgroundPosition) {
@@ -127,7 +143,22 @@ export function storedThemeToCSS(stored: StoredTheme): string {
   if (fonts?.heading) lines.push(`  --font-heading: ${fonts.heading};`)
 
   if (pattern && pattern.type !== 'none') {
-    const patternStyle = generatePattern(pattern)
+    const patternConfig = pattern.tint
+      ? {
+          ...pattern,
+          color: pattern.tint === 'primary'
+            ? raw('var(--primary)')
+            : pattern.tint === 'secondary'
+              ? raw('var(--secondary)')
+              : raw('var(--accent)'),
+          opacity: pattern.tint === 'accent'
+            ? (pattern.opacity ?? 0.08) * 2.0
+            : pattern.tint === 'secondary'
+              ? (pattern.opacity ?? 0.08) * 1.4
+            : pattern.opacity,
+        }
+      : pattern
+    const patternStyle = generatePattern(patternConfig)
     lines.push(`  --pattern-image: ${patternStyle.backgroundImage};`)
     lines.push(`  --pattern-size: ${patternStyle.backgroundSize};`)
     if (patternStyle.backgroundPosition) {

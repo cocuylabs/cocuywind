@@ -2,7 +2,8 @@ import type { Theme, TailwindColor, ThemeTokens } from '../types.js'
 import { createTheme } from '../factory.js'
 
 const PRIMARY_KEYS   = ['primary', 'primaryForeground', 'ring'] as const
-const SECONDARY_KEYS = ['secondary', 'secondaryForeground', 'accent', 'accentForeground'] as const
+const SECONDARY_KEYS = ['secondary', 'secondaryForeground'] as const
+const ACCENT_KEYS    = ['accent', 'accentForeground'] as const
 const NEUTRAL_KEYS   = [
   'background', 'foreground', 'card', 'cardForeground',
   'popover', 'popoverForeground', 'muted', 'mutedForeground',
@@ -20,13 +21,14 @@ export function buildTheme(
   selectedPresetName: string | null,
   customPrimary:   TailwindColor | null,
   customSecondary: TailwindColor | null,
+  customAccent:    TailwindColor | null,
   customNeutral:   TailwindColor | 'none' | null,
 ): Theme | null {
   if (selectedPresetName) {
     const preset = themes.find(t => t.name === selectedPresetName) ?? themes[0]
     if (!preset) return null
 
-    if (customPrimary === null && customSecondary === null && customNeutral === null) {
+    if (customPrimary === null && customSecondary === null && customAccent === null && customNeutral === null) {
       return { ...preset, _source: 'preset', _presetName: preset.name } as Theme
     }
 
@@ -35,6 +37,7 @@ export function buildTheme(
       primary:   customPrimary   ?? 'blue',
       neutral:   customNeutral === 'none' ? undefined : (customNeutral ?? undefined),
       secondary: customSecondary ?? undefined,
+      accent:    customAccent ?? undefined,
     })
 
     const lightOverride: Partial<ThemeTokens> = {}
@@ -45,6 +48,9 @@ export function buildTheme(
     }
     if (customSecondary !== null) {
       for (const k of SECONDARY_KEYS) { lightOverride[k] = ref.light[k]; darkOverride[k] = ref.dark[k] }
+    }
+    if (customAccent !== null) {
+      for (const k of ACCENT_KEYS) { lightOverride[k] = ref.light[k]; darkOverride[k] = ref.dark[k] }
     }
     if (customNeutral !== null) {
       for (const k of NEUTRAL_KEYS) { lightOverride[k] = ref.light[k]; darkOverride[k] = ref.dark[k] }
@@ -61,6 +67,7 @@ export function buildTheme(
         basePreset: preset.name,
         ...(customPrimary   !== null && { primary:   customPrimary }),
         ...(customSecondary !== null && { secondary: customSecondary }),
+        ...(customAccent    !== null && { accent:    customAccent }),
         ...(customNeutral   !== null && { neutral:   customNeutral }),
       },
     } as Theme
@@ -69,15 +76,16 @@ export function buildTheme(
   const primary   = customPrimary ?? 'blue'
   const neutral   = customNeutral === 'none' ? undefined : (customNeutral ?? undefined)
   const secondary = customSecondary ?? undefined
+  const accent    = customAccent ?? undefined
   return Object.assign(
     createTheme({
-      name:  `custom-${primary}${neutral ? `-${neutral}` : ''}${secondary ? `-${secondary}` : ''}`,
+      name:  `custom-${primary}${neutral ? `-${neutral}` : ''}${secondary ? `-${secondary}` : ''}${accent ? `-${accent}` : ''}`,
       label: `Custom (${primary})`,
-      primary, neutral, secondary,
+      primary, neutral, secondary, accent,
     }),
     {
       _source: 'generated' as const,
-      _generatorConfig: { primary, neutral, secondary },
+      _generatorConfig: { primary, neutral, secondary, accent },
     }
   )
 }

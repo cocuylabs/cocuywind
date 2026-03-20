@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react'
 import type { Theme } from '../types.js'
+import { raw } from '../types.js'
 import { generateThemeVariables } from '../generate.js'
 import { googleFontsUrl } from '../fonts.js'
 import { generatePattern } from '../patterns.js'
@@ -153,7 +154,22 @@ export function ThemeProvider({
 
     // Apply pattern CSS variables
     if (theme.pattern && theme.pattern.type !== 'none') {
-      const ps = generatePattern(theme.pattern)
+      const pattern = theme.pattern.tint
+        ? {
+            ...theme.pattern,
+            color: theme.pattern.tint === 'primary'
+              ? raw('var(--primary)')
+              : theme.pattern.tint === 'secondary'
+                ? raw('var(--secondary)')
+                : raw('var(--accent)'),
+            opacity: theme.pattern.tint === 'accent'
+              ? (theme.pattern.opacity ?? 0.08) * 2.0
+              : theme.pattern.tint === 'secondary'
+                ? (theme.pattern.opacity ?? 0.08) * 1.4
+              : theme.pattern.opacity,
+          }
+        : theme.pattern
+      const ps = generatePattern(pattern)
       root.style.setProperty('--pattern-image', ps.backgroundImage)
       root.style.setProperty('--pattern-size', ps.backgroundSize)
       if (ps.backgroundPosition) root.style.setProperty('--pattern-position', ps.backgroundPosition)

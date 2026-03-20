@@ -1,5 +1,6 @@
 import React from 'react'
 import type { ThemeFonts, ThemePattern } from '../types.js'
+import { raw } from '../types.js'
 import { generatePattern } from '../patterns.js'
 import { Button } from './ui/button.js'
 import { Input } from './ui/input.js'
@@ -59,7 +60,7 @@ export function ThemeFontsPicker({ value, onChange, className, labels, locale = 
                   <SelectGroup key={group.label}>
                     <SelectLabel>{group.label}</SelectLabel>
                     {group.options.map(f => (
-                      <SelectItem key={f.value} value={f.value}>
+                      <SelectItem key={f.value} value={f.value} style={{ fontFamily: f.value }}>
                         {f.label === 'System default (sans-serif)' ? t('ui.font.systemDefaultSans', f.label) :
                           f.label === 'System serif' ? t('ui.font.systemSerif', f.label) : f.label}
                       </SelectItem>
@@ -87,6 +88,18 @@ export function ThemePatternsPicker({ value, onChange, className, labels, locale
   const t = (key: string, fallback: string) => translate(labels, locale, key, fallback)
   const lang = (locale === 'es' || locale === 'pt' || locale === 'en') ? locale : 'en'
   const activeType = value.type
+  const previewColor = value.tint === 'primary'
+    ? raw('var(--primary)')
+    : value.tint === 'secondary'
+      ? raw('var(--secondary)')
+      : value.tint === 'accent'
+        ? raw('var(--accent)')
+        : undefined
+  const previewOpacity = value.tint === 'accent'
+    ? (value.opacity ?? 0.08) * 2.0
+    : value.tint === 'secondary'
+      ? (value.opacity ?? 0.08) * 1.4
+    : value.opacity
 
   return (
     <div className={cn('space-y-3', className)}>
@@ -94,7 +107,9 @@ export function ThemePatternsPicker({ value, onChange, className, labels, locale
       <div className="flex flex-wrap gap-2">
         {PATTERN_TYPES.map(pt => {
           const active = activeType === pt
-          const ps = pt !== 'none' ? generatePattern({ type: pt, opacity: 0.18, size: 'sm' }) : null
+          const ps = pt !== 'none'
+            ? generatePattern({ type: pt, opacity: previewOpacity ?? 0.18, size: 'sm', color: previewColor })
+            : null
           return (
             <button
               key={pt}
@@ -119,6 +134,39 @@ export function ThemePatternsPicker({ value, onChange, className, labels, locale
       {activeType !== 'none' && (
         <div className="space-y-2">
           <div className="flex items-center gap-3">
+            <span className="w-16 text-xs text-muted-foreground">{t('ui.pattern.tint', 'Tint')}</span>
+            <div className="flex gap-2">
+              <Button
+                variant={!value.tint ? 'secondary' : 'outline'}
+                size="xs"
+                onClick={() => onChange({ ...value, tint: undefined })}
+              >
+                {t('ui.pattern.tint.foreground', 'Foreground')}
+              </Button>
+              <Button
+                variant={value.tint === 'primary' ? 'secondary' : 'outline'}
+                size="xs"
+                onClick={() => onChange({ ...value, tint: 'primary' })}
+              >
+                {t('ui.pattern.tint.primary', 'Primary')}
+              </Button>
+              <Button
+                variant={value.tint === 'secondary' ? 'secondary' : 'outline'}
+                size="xs"
+                onClick={() => onChange({ ...value, tint: 'secondary' })}
+              >
+                {t('ui.pattern.tint.secondary', 'Secondary')}
+              </Button>
+              <Button
+                variant={value.tint === 'accent' ? 'secondary' : 'outline'}
+                size="xs"
+                onClick={() => onChange({ ...value, tint: 'accent' })}
+              >
+                {t('ui.pattern.tint.accent', 'Accent')}
+              </Button>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
             <span className="w-16 text-xs text-muted-foreground">{t('ui.pattern.size', 'Size')}</span>
             <div className="flex gap-2">
               {(['sm', 'md', 'lg'] as const).map(s => (
@@ -134,7 +182,7 @@ export function ThemePatternsPicker({ value, onChange, className, labels, locale
               {PATTERN_OPACITY_PRESETS.map(o => (
                 <Button
                   key={o.label}
-                  variant={(value.opacity ?? 0.12) === o.value ? 'secondary' : 'outline'}
+                  variant={(value.opacity ?? 0.08) === o.value ? 'secondary' : 'outline'}
                   size="xs"
                   onClick={() => onChange({ ...value, opacity: o.value })}
                 >

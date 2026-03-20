@@ -21,8 +21,8 @@ export const PATTERN_LABELS: Record<PatternType, string> = {
 }
 export const PATTERN_OPACITY_PRESETS = [
   { label: 'Subtle', value: 0.06 },
-  { label: 'Normal', value: 0.12 },
-  { label: 'Bold',   value: 0.25 },
+  { label: 'Normal', value: 0.08 },
+  { label: 'Bold',   value: 0.18 },
 ]
 export const RADIUS_PRESETS = [
   { label: 'None', value: '0rem' },   { label: 'SM', value: '0.25rem' },

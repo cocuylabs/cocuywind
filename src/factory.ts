@@ -30,9 +30,11 @@ function buildLightTokens(
   primary: TailwindColor,
   neutral: TailwindColor | undefined,
   secondary: TailwindColor | undefined,
+  accent: TailwindColor | undefined,
   overrides?: Partial<ThemeTokens>,
 ): ThemeTokens {
   const surface = neutral ?? primary
+  const accentColor = accent ?? secondary ?? primary
   const base: ThemeTokens = {
     background:          token(surface, 50),
     foreground:          token(surface, 950),
@@ -46,7 +48,7 @@ function buildLightTokens(
     secondaryForeground: token(surface, 800),
     muted:               token(surface, 100),
     mutedForeground:     token(surface, 500),
-    accent:              token(secondary ?? primary, 200),
+    accent:              token(accentColor, 200),
     accentForeground:    token(surface, 800),
     destructive:         'red-600' as ColorToken,
     destructiveForeground: 'white',
@@ -67,9 +69,11 @@ function buildDarkTokens(
   primary: TailwindColor,
   neutral: TailwindColor | undefined,
   secondary: TailwindColor | undefined,
+  accent: TailwindColor | undefined,
   overrides?: Partial<ThemeTokens>,
 ): ThemeTokens {
   const surface = neutral ?? primary
+  const accentColor = accent ?? secondary ?? primary
   const base: ThemeTokens = {
     background:          token(surface, 950),
     foreground:          token(surface, 50),
@@ -84,7 +88,7 @@ function buildDarkTokens(
     secondaryForeground: token(surface, 200),
     muted:               token(surface, 900),
     mutedForeground:     token(surface, 400),
-    accent:              token(secondary ?? primary, 800),
+    accent:              token(accentColor, 800),
     accentForeground:    token(surface, 200),
     destructive:         'red-400' as ColorToken,
     destructiveForeground: token(primary, 950),
@@ -109,6 +113,11 @@ export interface CreateThemeConfig {
    * Omit (or undefined) to auto-derive from primary (secondary = primary at -200/-800).
    */
   secondary?: TailwindColor
+  /**
+   * Accent color family (badges, highlights).
+   * Omit (or undefined) to auto-derive from secondary, then primary.
+   */
+  accent?: TailwindColor
   radius?: string
   fonts?: ThemeFonts
   pattern?: ThemePattern
@@ -134,7 +143,7 @@ export interface CreateThemeConfig {
  * createTheme({ name: 'ocean', label: 'Ocean', primary: 'blue', secondary: 'teal' })
  */
 export function createTheme(config: CreateThemeConfig): Theme {
-  const { name, label, primary, neutral, secondary, radius, fonts, pattern, category, overrides, vividness } = config
+  const { name, label, primary, neutral, secondary, accent, radius, fonts, pattern, category, overrides, vividness } = config
 
   const vividnessFactor: number | undefined =
     typeof vividness === 'string' ? VIVIDNESS_PRESETS[vividness]
@@ -147,14 +156,14 @@ export function createTheme(config: CreateThemeConfig): Theme {
   const base = {
     name,
     label,
-    light: buildLightTokens(primary, neutral, secondary, overrides?.light),
-    dark:  buildDarkTokens(primary, neutral, secondary, overrides?.dark),
+    light: buildLightTokens(primary, neutral, secondary, accent, overrides?.light),
+    dark:  buildDarkTokens(primary, neutral, secondary, accent, overrides?.dark),
     fonts,
     pattern,
     radius: radius ?? '0.5rem',
     category,
     _generatorConfig: {
-      primary, neutral, secondary, radius,
+      primary, neutral, secondary, accent, radius,
       vividness: vividnessFactor,
       vividnessPreset: vividnessPresetName,
     },

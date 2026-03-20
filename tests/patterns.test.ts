@@ -54,7 +54,7 @@ describe('generatePattern', () => {
 
   it('wraps color with opacity via color-mix', () => {
     const result = generatePattern({ type: 'dots', opacity: 0.3 })
-    // currentColor is default, wrapped in color-mix
+    // var(--foreground) is default, wrapped in color-mix
     expect(result.backgroundImage).toContain('color-mix')
     expect(result.backgroundImage).toContain('30%')
   })

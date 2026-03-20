@@ -8,6 +8,9 @@ import {
   useState
 } from "react";
 
+// src/types.ts
+var raw = (value) => value;
+
 // src/colors.ts
 var TAILWIND_COLORS = {
   // ─── white / black ────────────────────────────────────────────────────────
@@ -296,7 +299,7 @@ function getSize(s, key) {
 }
 function generatePattern(config) {
   const size = config.size ?? "md";
-  const opacity = config.opacity ?? 0.12;
+  const opacity = config.opacity ?? 0.08;
   const color = config.color ? resolveColor(config.color) : "var(--foreground)";
   const colorWithOpacity = wrapWithOpacity(color, opacity);
   switch (config.type) {
@@ -375,14 +378,13 @@ function generatePattern(config) {
     }
     case "triangles": {
       const s = getSize(size, "tri");
-      const half = s / 2;
       return {
         backgroundImage: [
-          `linear-gradient(120deg, ${colorWithOpacity} 33.33%, transparent 33.33%)`,
-          `linear-gradient(240deg, ${colorWithOpacity} 33.33%, transparent 33.33%)`,
-          `linear-gradient(0deg,   ${colorWithOpacity} 33.33%, transparent 33.33%)`
+          `repeating-linear-gradient(60deg, ${colorWithOpacity} 0 1px, transparent 1px ${s}px)`,
+          `repeating-linear-gradient(-60deg, ${colorWithOpacity} 0 1px, transparent 1px ${s}px)`,
+          `repeating-linear-gradient(0deg, ${colorWithOpacity} 0 1px, transparent 1px ${s}px)`
         ].join(", "),
-        backgroundSize: `${s}px ${half}px`
+        backgroundSize: `${s}px ${s}px`
       };
     }
     case "hexagons": {
@@ -390,11 +392,12 @@ function generatePattern(config) {
       const h = Math.round(s * 0.866);
       return {
         backgroundImage: [
-          `linear-gradient(120deg, ${colorWithOpacity} 25%, transparent 25% 75%, ${colorWithOpacity} 75%)`,
-          `linear-gradient(60deg,  ${colorWithOpacity} 25%, transparent 25% 75%, ${colorWithOpacity} 75%)`,
-          `linear-gradient(${colorWithOpacity} 10%, transparent 10% 90%, ${colorWithOpacity} 90%)`
+          `linear-gradient(30deg, ${colorWithOpacity} 12%, transparent 12.5% 87%, ${colorWithOpacity} 87.5%)`,
+          `linear-gradient(150deg, ${colorWithOpacity} 12%, transparent 12.5% 87%, ${colorWithOpacity} 87.5%)`,
+          `linear-gradient(90deg, ${colorWithOpacity} 12%, transparent 12.5% 87%, ${colorWithOpacity} 87.5%)`
         ].join(", "),
-        backgroundSize: `${s}px ${h}px`
+        backgroundSize: `${s}px ${h}px`,
+        backgroundPosition: `0 0, 0 0, ${s / 2}px ${h / 2}px`
       };
     }
     case "noise": {
@@ -625,7 +628,12 @@ function ThemeProvider({
     }
     root.style.setProperty("--bg-image", theme.backgroundImage ?? "none");
     if (theme.pattern && theme.pattern.type !== "none") {
-      const ps = generatePattern(theme.pattern);
+      const pattern = theme.pattern.tint ? {
+        ...theme.pattern,
+        color: theme.pattern.tint === "primary" ? raw("var(--primary)") : theme.pattern.tint === "secondary" ? raw("var(--secondary)") : raw("var(--accent)"),
+        opacity: theme.pattern.tint === "accent" ? (theme.pattern.opacity ?? 0.08) * 2 : theme.pattern.tint === "secondary" ? (theme.pattern.opacity ?? 0.08) * 1.4 : theme.pattern.opacity
+      } : theme.pattern;
+      const ps = generatePattern(pattern);
       root.style.setProperty("--pattern-image", ps.backgroundImage);
       root.style.setProperty("--pattern-size", ps.backgroundSize);
       if (ps.backgroundPosition) root.style.setProperty("--pattern-position", ps.backgroundPosition);
@@ -799,8 +807,8 @@ var PATTERN_LABELS = {
 };
 var PATTERN_OPACITY_PRESETS = [
   { label: "Subtle", value: 0.06 },
-  { label: "Normal", value: 0.12 },
-  { label: "Bold", value: 0.25 }
+  { label: "Normal", value: 0.08 },
+  { label: "Bold", value: 0.18 }
 ];
 var RADIUS_PRESETS = [
   { label: "None", value: "0rem" },
@@ -865,14 +873,21 @@ var DEFAULT_LABELS = {
   en: {
     "ui.primary": "Primary",
     "ui.secondary": "Secondary",
+    "ui.accent": "Accent",
     "ui.neutralBase": "Neutral base",
     "ui.auto": "Auto",
     "ui.usingPreset": "Using preset",
     "ui.autoFromPrimary": "Auto from primary",
+    "ui.autoFromSecondary": "Auto from secondary",
     "ui.primaryFamily": "Primary family",
     "ui.surfacesSuffix": "surfaces",
     "ui.pattern": "Pattern",
     "ui.pattern.none": "No pattern",
+    "ui.pattern.tint": "Tint",
+    "ui.pattern.tint.foreground": "Foreground",
+    "ui.pattern.tint.primary": "Primary",
+    "ui.pattern.tint.secondary": "Secondary",
+    "ui.pattern.tint.accent": "Accent",
     "ui.pattern.size": "Size",
     "ui.pattern.density": "Density",
     "ui.backgroundImage": "Background Image",
@@ -903,14 +918,21 @@ var DEFAULT_LABELS = {
   es: {
     "ui.primary": "Primario",
     "ui.secondary": "Secundario",
+    "ui.accent": "Acento",
     "ui.neutralBase": "Base neutral",
     "ui.auto": "Auto",
     "ui.usingPreset": "Usando preset",
     "ui.autoFromPrimary": "Auto desde primario",
+    "ui.autoFromSecondary": "Auto desde secundario",
     "ui.primaryFamily": "Familia primaria",
     "ui.surfacesSuffix": "superficies",
     "ui.pattern": "Patr\xF3n",
     "ui.pattern.none": "Sin patr\xF3n",
+    "ui.pattern.tint": "Tinte",
+    "ui.pattern.tint.foreground": "Primer plano",
+    "ui.pattern.tint.primary": "Primario",
+    "ui.pattern.tint.secondary": "Secundario",
+    "ui.pattern.tint.accent": "Acento",
     "ui.pattern.size": "Tama\xF1o",
     "ui.pattern.density": "Densidad",
     "ui.backgroundImage": "Imagen de fondo",
@@ -941,14 +963,21 @@ var DEFAULT_LABELS = {
   pt: {
     "ui.primary": "Prim\xE1rio",
     "ui.secondary": "Secund\xE1rio",
+    "ui.accent": "Destaque",
     "ui.neutralBase": "Base neutra",
     "ui.auto": "Auto",
     "ui.usingPreset": "Usando preset",
     "ui.autoFromPrimary": "Auto do prim\xE1rio",
+    "ui.autoFromSecondary": "Auto do secund\xE1rio",
     "ui.primaryFamily": "Fam\xEDlia prim\xE1ria",
     "ui.surfacesSuffix": "superf\xEDcies",
     "ui.pattern": "Padr\xE3o",
     "ui.pattern.none": "Sem padr\xE3o",
+    "ui.pattern.tint": "Tonalidade",
+    "ui.pattern.tint.foreground": "Primeiro plano",
+    "ui.pattern.tint.primary": "Prim\xE1rio",
+    "ui.pattern.tint.secondary": "Secund\xE1rio",
+    "ui.pattern.tint.accent": "Destaque",
     "ui.pattern.size": "Tamanho",
     "ui.pattern.density": "Densidade",
     "ui.backgroundImage": "Imagem de fundo",
@@ -1059,9 +1088,11 @@ function ThemeCustomPalettePicker({
   hasPreset,
   primary,
   secondary,
+  accent,
   neutral,
   onPrimaryChange,
   onSecondaryChange,
+  onAccentChange,
   onNeutralChange,
   className,
   title,
@@ -1127,6 +1158,39 @@ function ThemeCustomPalettePicker({
         ))
       ] }),
       secondary === null && /* @__PURE__ */ jsx3("p", { className: "text-[11px] text-muted-foreground", children: hasPreset ? t("ui.usingPreset", "Using preset") : t("ui.autoFromPrimary", "Auto from primary") })
+    ] }),
+    /* @__PURE__ */ jsxs2("section", { className: "space-y-2", children: [
+      /* @__PURE__ */ jsx3("h4", { className: "text-xs font-semibold text-muted-foreground", children: t("ui.accent", "Accent") }),
+      /* @__PURE__ */ jsxs2("div", { className: "flex flex-wrap items-center gap-2", children: [
+        hasPreset ? /* @__PURE__ */ jsx3(Button, { variant: accent === null ? "secondary" : "outline", size: "xs", onClick: () => onAccentChange(null), children: t("ui.auto", "Auto") }) : /* @__PURE__ */ jsx3(
+          "button",
+          {
+            onClick: () => onAccentChange(null),
+            title: "Auto (derived from secondary/primary)",
+            className: cn(
+              "h-6 w-6 rounded-full border transition-colors",
+              accent === null ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
+            ),
+            style: {
+              backgroundImage: `conic-gradient(${TAILWIND_COLORS2.slice(0, 5).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(", ")})`
+            }
+          }
+        ),
+        TAILWIND_COLORS2.map((color) => /* @__PURE__ */ jsx3(
+          "button",
+          {
+            onClick: () => onAccentChange(color),
+            title: color,
+            className: cn(
+              "h-6 w-6 rounded-full border transition-colors",
+              accent === color ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
+            ),
+            style: { backgroundColor: resolveColor(`${color}-500`) }
+          },
+          color
+        ))
+      ] }),
+      accent === null && /* @__PURE__ */ jsx3("p", { className: "text-[11px] text-muted-foreground", children: hasPreset ? t("ui.usingPreset", "Using preset") : t("ui.autoFromSecondary", "Auto from secondary") })
     ] }),
     /* @__PURE__ */ jsxs2("section", { className: "space-y-2", children: [
       /* @__PURE__ */ jsx3("h4", { className: "text-xs font-semibold text-muted-foreground", children: t("ui.neutralBase", "Neutral base") }),
@@ -1275,7 +1339,7 @@ function ThemeFontsPicker({ value, onChange, className, labels, locale = "en" })
             /* @__PURE__ */ jsx7(SelectGroup, { children: /* @__PURE__ */ jsx7(SelectItem, { value: DEFAULT, children: fontType === "heading" ? t("ui.font.sameAsBody", "Same as body") : t("ui.font.systemDefault", "System default") }) }),
             FONT_GROUPS.map((group) => /* @__PURE__ */ jsxs4(SelectGroup, { children: [
               /* @__PURE__ */ jsx7(SelectLabel, { children: group.label }),
-              group.options.map((f) => /* @__PURE__ */ jsx7(SelectItem, { value: f.value, children: f.label === "System default (sans-serif)" ? t("ui.font.systemDefaultSans", f.label) : f.label === "System serif" ? t("ui.font.systemSerif", f.label) : f.label }, f.value))
+              group.options.map((f) => /* @__PURE__ */ jsx7(SelectItem, { value: f.value, style: { fontFamily: f.value }, children: f.label === "System default (sans-serif)" ? t("ui.font.systemDefaultSans", f.label) : f.label === "System serif" ? t("ui.font.systemSerif", f.label) : f.label }, f.value))
             ] }, group.label))
           ] })
         ]
@@ -1287,11 +1351,13 @@ function ThemePatternsPicker({ value, onChange, className, labels, locale = "en"
   const t = (key, fallback) => translate(labels, locale, key, fallback);
   const lang = locale === "es" || locale === "pt" || locale === "en" ? locale : "en";
   const activeType = value.type;
+  const previewColor = value.tint === "primary" ? raw("var(--primary)") : value.tint === "secondary" ? raw("var(--secondary)") : value.tint === "accent" ? raw("var(--accent)") : void 0;
+  const previewOpacity = value.tint === "accent" ? (value.opacity ?? 0.08) * 2 : value.tint === "secondary" ? (value.opacity ?? 0.08) * 1.4 : value.opacity;
   return /* @__PURE__ */ jsxs4("div", { className: cn("space-y-3", className), children: [
     /* @__PURE__ */ jsx7("h4", { className: "text-sm font-semibold", children: t("ui.pattern", "Pattern") }),
     /* @__PURE__ */ jsx7("div", { className: "flex flex-wrap gap-2", children: PATTERN_TYPES.map((pt) => {
       const active = activeType === pt;
-      const ps = pt !== "none" ? generatePattern({ type: pt, opacity: 0.18, size: "sm" }) : null;
+      const ps = pt !== "none" ? generatePattern({ type: pt, opacity: previewOpacity ?? 0.18, size: "sm", color: previewColor }) : null;
       return /* @__PURE__ */ jsx7(
         "button",
         {
@@ -1313,6 +1379,47 @@ function ThemePatternsPicker({ value, onChange, className, labels, locale = "en"
     }) }),
     activeType !== "none" && /* @__PURE__ */ jsxs4("div", { className: "space-y-2", children: [
       /* @__PURE__ */ jsxs4("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsx7("span", { className: "w-16 text-xs text-muted-foreground", children: t("ui.pattern.tint", "Tint") }),
+        /* @__PURE__ */ jsxs4("div", { className: "flex gap-2", children: [
+          /* @__PURE__ */ jsx7(
+            Button,
+            {
+              variant: !value.tint ? "secondary" : "outline",
+              size: "xs",
+              onClick: () => onChange({ ...value, tint: void 0 }),
+              children: t("ui.pattern.tint.foreground", "Foreground")
+            }
+          ),
+          /* @__PURE__ */ jsx7(
+            Button,
+            {
+              variant: value.tint === "primary" ? "secondary" : "outline",
+              size: "xs",
+              onClick: () => onChange({ ...value, tint: "primary" }),
+              children: t("ui.pattern.tint.primary", "Primary")
+            }
+          ),
+          /* @__PURE__ */ jsx7(
+            Button,
+            {
+              variant: value.tint === "secondary" ? "secondary" : "outline",
+              size: "xs",
+              onClick: () => onChange({ ...value, tint: "secondary" }),
+              children: t("ui.pattern.tint.secondary", "Secondary")
+            }
+          ),
+          /* @__PURE__ */ jsx7(
+            Button,
+            {
+              variant: value.tint === "accent" ? "secondary" : "outline",
+              size: "xs",
+              onClick: () => onChange({ ...value, tint: "accent" }),
+              children: t("ui.pattern.tint.accent", "Accent")
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs4("div", { className: "flex items-center gap-3", children: [
         /* @__PURE__ */ jsx7("span", { className: "w-16 text-xs text-muted-foreground", children: t("ui.pattern.size", "Size") }),
         /* @__PURE__ */ jsx7("div", { className: "flex gap-2", children: ["sm", "md", "lg"].map((s) => /* @__PURE__ */ jsx7(Button, { variant: (value.size ?? "md") === s ? "secondary" : "outline", size: "xs", onClick: () => onChange({ ...value, size: s }), children: s === "sm" ? t("ui.size.sm", "SM") : s === "md" ? t("ui.size.md", "MD") : t("ui.size.lg", "LG") }, s)) })
       ] }),
@@ -1321,7 +1428,7 @@ function ThemePatternsPicker({ value, onChange, className, labels, locale = "en"
         /* @__PURE__ */ jsx7("div", { className: "flex gap-2", children: PATTERN_OPACITY_PRESETS.map((o) => /* @__PURE__ */ jsx7(
           Button,
           {
-            variant: (value.opacity ?? 0.12) === o.value ? "secondary" : "outline",
+            variant: (value.opacity ?? 0.08) === o.value ? "secondary" : "outline",
             size: "xs",
             onClick: () => onChange({ ...value, opacity: o.value }),
             children: o.label === "Subtle" ? t("ui.opacity.subtle", o.label) : o.label === "Normal" ? t("ui.opacity.normal", o.label) : t("ui.opacity.bold", o.label)
@@ -1374,9 +1481,6 @@ function ThemeBackgroundImagePicker({ value, onChange, className, labels, locale
   ] });
 }
 
-// src/types.ts
-var raw = (value) => value;
-
 // src/vividness.ts
 var VIVIDNESS_PRESETS = {
   playful: 1.3,
@@ -1420,8 +1524,9 @@ var DARK_PRIMARY_SHADE = 400;
 function token(color, shade) {
   return `${color}-${shade}`;
 }
-function buildLightTokens(primary, neutral, secondary, overrides) {
+function buildLightTokens(primary, neutral, secondary, accent, overrides) {
   const surface = neutral ?? primary;
+  const accentColor = accent ?? secondary ?? primary;
   const base2 = {
     background: token(surface, 50),
     foreground: token(surface, 950),
@@ -1435,7 +1540,7 @@ function buildLightTokens(primary, neutral, secondary, overrides) {
     secondaryForeground: token(surface, 800),
     muted: token(surface, 100),
     mutedForeground: token(surface, 500),
-    accent: token(secondary ?? primary, 200),
+    accent: token(accentColor, 200),
     accentForeground: token(surface, 800),
     destructive: "red-600",
     destructiveForeground: "white",
@@ -1445,8 +1550,9 @@ function buildLightTokens(primary, neutral, secondary, overrides) {
   };
   return overrides ? { ...base2, ...overrides } : base2;
 }
-function buildDarkTokens(primary, neutral, secondary, overrides) {
+function buildDarkTokens(primary, neutral, secondary, accent, overrides) {
   const surface = neutral ?? primary;
+  const accentColor = accent ?? secondary ?? primary;
   const base2 = {
     background: token(surface, 950),
     foreground: token(surface, 50),
@@ -1461,7 +1567,7 @@ function buildDarkTokens(primary, neutral, secondary, overrides) {
     secondaryForeground: token(surface, 200),
     muted: token(surface, 900),
     mutedForeground: token(surface, 400),
-    accent: token(secondary ?? primary, 800),
+    accent: token(accentColor, 800),
     accentForeground: token(surface, 200),
     destructive: "red-400",
     destructiveForeground: token(primary, 950),
@@ -1472,14 +1578,14 @@ function buildDarkTokens(primary, neutral, secondary, overrides) {
   return overrides ? { ...base2, ...overrides } : base2;
 }
 function createTheme(config) {
-  const { name, label, primary, neutral, secondary, radius, fonts, pattern, category, overrides, vividness } = config;
+  const { name, label, primary, neutral, secondary, accent, radius, fonts, pattern, category, overrides, vividness } = config;
   const vividnessFactor = typeof vividness === "string" ? VIVIDNESS_PRESETS[vividness] : typeof vividness === "number" ? vividness : void 0;
   const vividnessPresetName = typeof vividness === "string" ? vividness : void 0;
   const base2 = {
     name,
     label,
-    light: buildLightTokens(primary, neutral, secondary, overrides?.light),
-    dark: buildDarkTokens(primary, neutral, secondary, overrides?.dark),
+    light: buildLightTokens(primary, neutral, secondary, accent, overrides?.light),
+    dark: buildDarkTokens(primary, neutral, secondary, accent, overrides?.dark),
     fonts,
     pattern,
     radius: radius ?? "0.5rem",
@@ -1488,6 +1594,7 @@ function createTheme(config) {
       primary,
       neutral,
       secondary,
+      accent,
       radius,
       vividness: vividnessFactor,
       vividnessPreset: vividnessPresetName
@@ -1501,7 +1608,8 @@ function createTheme(config) {
 
 // src/react/theme-picker-build.ts
 var PRIMARY_KEYS = ["primary", "primaryForeground", "ring"];
-var SECONDARY_KEYS = ["secondary", "secondaryForeground", "accent", "accentForeground"];
+var SECONDARY_KEYS = ["secondary", "secondaryForeground"];
+var ACCENT_KEYS = ["accent", "accentForeground"];
 var NEUTRAL_KEYS = [
   "background",
   "foreground",
@@ -1514,11 +1622,11 @@ var NEUTRAL_KEYS = [
   "border",
   "input"
 ];
-function buildTheme(themes, selectedPresetName, customPrimary, customSecondary, customNeutral) {
+function buildTheme(themes, selectedPresetName, customPrimary, customSecondary, customAccent, customNeutral) {
   if (selectedPresetName) {
     const preset = themes.find((t) => t.name === selectedPresetName) ?? themes[0];
     if (!preset) return null;
-    if (customPrimary === null && customSecondary === null && customNeutral === null) {
+    if (customPrimary === null && customSecondary === null && customAccent === null && customNeutral === null) {
       return { ...preset, _source: "preset", _presetName: preset.name };
     }
     const ref = createTheme({
@@ -1526,7 +1634,8 @@ function buildTheme(themes, selectedPresetName, customPrimary, customSecondary, 
       label: "ref",
       primary: customPrimary ?? "blue",
       neutral: customNeutral === "none" ? void 0 : customNeutral ?? void 0,
-      secondary: customSecondary ?? void 0
+      secondary: customSecondary ?? void 0,
+      accent: customAccent ?? void 0
     });
     const lightOverride = {};
     const darkOverride = {};
@@ -1538,6 +1647,12 @@ function buildTheme(themes, selectedPresetName, customPrimary, customSecondary, 
     }
     if (customSecondary !== null) {
       for (const k of SECONDARY_KEYS) {
+        lightOverride[k] = ref.light[k];
+        darkOverride[k] = ref.dark[k];
+      }
+    }
+    if (customAccent !== null) {
+      for (const k of ACCENT_KEYS) {
         lightOverride[k] = ref.light[k];
         darkOverride[k] = ref.dark[k];
       }
@@ -1559,6 +1674,7 @@ function buildTheme(themes, selectedPresetName, customPrimary, customSecondary, 
         basePreset: preset.name,
         ...customPrimary !== null && { primary: customPrimary },
         ...customSecondary !== null && { secondary: customSecondary },
+        ...customAccent !== null && { accent: customAccent },
         ...customNeutral !== null && { neutral: customNeutral }
       }
     };
@@ -1566,17 +1682,19 @@ function buildTheme(themes, selectedPresetName, customPrimary, customSecondary, 
   const primary = customPrimary ?? "blue";
   const neutral = customNeutral === "none" ? void 0 : customNeutral ?? void 0;
   const secondary = customSecondary ?? void 0;
+  const accent = customAccent ?? void 0;
   return Object.assign(
     createTheme({
-      name: `custom-${primary}${neutral ? `-${neutral}` : ""}${secondary ? `-${secondary}` : ""}`,
+      name: `custom-${primary}${neutral ? `-${neutral}` : ""}${secondary ? `-${secondary}` : ""}${accent ? `-${accent}` : ""}`,
       label: `Custom (${primary})`,
       primary,
       neutral,
-      secondary
+      secondary,
+      accent
     }),
     {
       _source: "generated",
-      _generatorConfig: { primary, neutral, secondary }
+      _generatorConfig: { primary, neutral, secondary, accent }
     }
   );
 }
@@ -1615,6 +1733,9 @@ function ThemePicker({
   const [customSecondary, setCustomSecondary] = useState2(
     () => v._overlayConfig?.secondary ?? (v._generatorConfig?.secondary ?? null)
   );
+  const [customAccent, setCustomAccent] = useState2(
+    () => v._overlayConfig?.accent ?? (v._generatorConfig?.accent ?? null)
+  );
   const [customNeutral, setCustomNeutral] = useState2(
     () => v._overlayConfig?.neutral ?? (v._generatorConfig?.neutral ? v._generatorConfig.neutral : null)
   );
@@ -1623,7 +1744,7 @@ function ThemePicker({
   const [overridePattern, setOverridePattern] = useState2(value.pattern ?? { type: "none" });
   const [overrideBgImage, setOverrideBgImage] = useState2(value.backgroundImage ?? "");
   useEffect2(() => {
-    const base2 = buildTheme(themes, selectedPresetName, customPrimary, customSecondary, customNeutral);
+    const base2 = buildTheme(themes, selectedPresetName, customPrimary, customSecondary, customAccent, customNeutral);
     if (!base2) return;
     onChange({
       ...base2,
@@ -1632,7 +1753,7 @@ function ThemePicker({
       pattern: overridePattern.type !== "none" ? overridePattern : void 0,
       backgroundImage: overrideBgImage || void 0
     });
-  }, [selectedPresetName, customPrimary, customSecondary, customNeutral, overrideRadius, overrideFonts, overridePattern, overrideBgImage]);
+  }, [selectedPresetName, customPrimary, customSecondary, customAccent, customNeutral, overrideRadius, overrideFonts, overridePattern, overrideBgImage]);
   const hasPreset = selectedPresetName !== null;
   return /* @__PURE__ */ jsxs5("div", { className: cn("space-y-4 text-sm text-foreground", className), children: [
     showPalette && /* @__PURE__ */ jsx8(
@@ -1646,6 +1767,7 @@ function ThemePicker({
           if (selected) setOverrideRadius(selected.radius ?? "0.5rem");
           setCustomPrimary(null);
           setCustomSecondary(null);
+          setCustomAccent(null);
           setCustomNeutral(null);
         },
         labels,
@@ -1660,9 +1782,11 @@ function ThemePicker({
         hasPreset,
         primary: customPrimary,
         secondary: customSecondary,
+        accent: customAccent,
         neutral: customNeutral,
         onPrimaryChange: setCustomPrimary,
         onSecondaryChange: setCustomSecondary,
+        onAccentChange: setCustomAccent,
         onNeutralChange: setCustomNeutral,
         subtitle: hasPreset ? translate(labels, locale, "ui.overrideOnPreset", "overrides on preset") : void 0,
         labels,

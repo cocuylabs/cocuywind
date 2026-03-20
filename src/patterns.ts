@@ -26,7 +26,7 @@ function getSize(s: 'sm' | 'md' | 'lg' | undefined, key: keyof typeof SIZE_MAP.m
  */
 export function generatePattern(config: ThemePattern): PatternStyle {
   const size = config.size ?? 'md'
-  const opacity = config.opacity ?? 0.12
+  const opacity = config.opacity ?? 0.08
   // Default to foreground so patterns remain visible on dark backgrounds.
   const color = config.color ? resolveColor(config.color) : 'var(--foreground)'
 
@@ -119,14 +119,13 @@ export function generatePattern(config: ThemePattern): PatternStyle {
 
     case 'triangles': {
       const s = getSize(size, 'tri')
-      const half = s / 2
       return {
         backgroundImage: [
-          `linear-gradient(120deg, ${colorWithOpacity} 33.33%, transparent 33.33%)`,
-          `linear-gradient(240deg, ${colorWithOpacity} 33.33%, transparent 33.33%)`,
-          `linear-gradient(0deg,   ${colorWithOpacity} 33.33%, transparent 33.33%)`,
+          `repeating-linear-gradient(60deg, ${colorWithOpacity} 0 1px, transparent 1px ${s}px)`,
+          `repeating-linear-gradient(-60deg, ${colorWithOpacity} 0 1px, transparent 1px ${s}px)`,
+          `repeating-linear-gradient(0deg, ${colorWithOpacity} 0 1px, transparent 1px ${s}px)`,
         ].join(', '),
-        backgroundSize: `${s}px ${half}px`,
+        backgroundSize: `${s}px ${s}px`,
       }
     }
 
@@ -135,11 +134,12 @@ export function generatePattern(config: ThemePattern): PatternStyle {
       const h = Math.round(s * 0.866) // sin(60°)
       return {
         backgroundImage: [
-          `linear-gradient(120deg, ${colorWithOpacity} 25%, transparent 25% 75%, ${colorWithOpacity} 75%)`,
-          `linear-gradient(60deg,  ${colorWithOpacity} 25%, transparent 25% 75%, ${colorWithOpacity} 75%)`,
-          `linear-gradient(${colorWithOpacity} 10%, transparent 10% 90%, ${colorWithOpacity} 90%)`,
+          `linear-gradient(30deg, ${colorWithOpacity} 12%, transparent 12.5% 87%, ${colorWithOpacity} 87.5%)`,
+          `linear-gradient(150deg, ${colorWithOpacity} 12%, transparent 12.5% 87%, ${colorWithOpacity} 87.5%)`,
+          `linear-gradient(90deg, ${colorWithOpacity} 12%, transparent 12.5% 87%, ${colorWithOpacity} 87.5%)`,
         ].join(', '),
         backgroundSize: `${s}px ${h}px`,
+        backgroundPosition: `0 0, 0 0, ${s / 2}px ${h / 2}px`,
       }
     }
 
