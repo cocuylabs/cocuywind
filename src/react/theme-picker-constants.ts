@@ -1,5 +1,5 @@
 import type { TailwindColor, PatternType } from '../types.js'
-import { FONTS, FONT_ADJUSTMENTS } from '../fonts.js'
+import { FONTS } from '../fonts.js'
 
 export const TAILWIND_COLORS: TailwindColor[] = [
   'slate', 'gray', 'zinc', 'neutral', 'stone',
@@ -43,41 +43,41 @@ export const FONT_GROUPS = [
   {
     label: 'Sans-serif',
     options: [
-      { label: 'Inter',             value: FONTS.INTER },
-      { label: 'Geist',             value: FONTS.GEIST },
-      { label: 'Plus Jakarta Sans', value: FONTS.PLUS_JAKARTA },
-      { label: 'Space Grotesk',     value: FONTS.SPACE_GROTESK },
-      { label: 'Josefin Sans',      value: FONTS.JOSEFIN_SANS },
-      { label: 'Raleway',           value: FONTS.RALEWAY },
-      { label: 'Nunito',            value: FONTS.NUNITO },
-      { label: 'Poppins',           value: FONTS.POPPINS },
-      { label: 'Outfit',            value: FONTS.OUTFIT },
       { label: 'DM Sans',           value: FONTS.DM_SANS },
+      { label: 'Geist',             value: FONTS.GEIST },
+      { label: 'Inter',             value: FONTS.INTER },
+      { label: 'Josefin Sans',      value: FONTS.JOSEFIN_SANS },
       { label: 'Manrope',           value: FONTS.MANROPE },
+      { label: 'Nunito',            value: FONTS.NUNITO },
+      { label: 'Outfit',            value: FONTS.OUTFIT },
+      { label: 'Plus Jakarta Sans', value: FONTS.PLUS_JAKARTA },
+      { label: 'Poppins',           value: FONTS.POPPINS },
+      { label: 'Raleway',           value: FONTS.RALEWAY },
+      { label: 'Space Grotesk',     value: FONTS.SPACE_GROTESK },
     ],
   },
   {
     label: 'Serif',
     options: [
-      { label: 'Cormorant Garamond', value: FONTS.CORMORANT },
       { label: 'Bodoni Moda',        value: FONTS.BODONI_MODA },
       { label: 'Cinzel',             value: FONTS.CINZEL },
+      { label: 'Cormorant Garamond', value: FONTS.CORMORANT },
+      { label: 'DM Serif Display',   value: FONTS.DM_SERIF },
       { label: 'Fraunces',           value: FONTS.FRAUNCES },
       { label: 'Instrument Serif',   value: FONTS.INSTRUMENT_SERIF },
-      { label: 'Playfair Display',   value: FONTS.PLAYFAIR },
       { label: 'Lora',               value: FONTS.LORA },
       { label: 'Merriweather',       value: FONTS.MERRIWEATHER },
-      { label: 'DM Serif Display',   value: FONTS.DM_SERIF },
+      { label: 'Playfair Display',   value: FONTS.PLAYFAIR },
     ],
   },
   {
     label: 'Display',
     options: [
+      { label: 'Archivo Black', value: FONTS.ARCHIVO_BLACK },
       { label: 'Bebas Neue',    value: FONTS.BEBAS_NEUE },
+      { label: 'Righteous',     value: FONTS.RIGHTEOUS },
       { label: 'Syne',          value: FONTS.SYNE },
       { label: 'Unbounded',     value: FONTS.UNBOUNDED },
-      { label: 'Archivo Black', value: FONTS.ARCHIVO_BLACK },
-      { label: 'Righteous',     value: FONTS.RIGHTEOUS },
     ],
   },
 ]

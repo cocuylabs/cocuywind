@@ -419,44 +419,38 @@ function wrapWithOpacity(color, opacity) {
 
 // src/fonts.ts
 var FONTS = {
-  // ─── System fonts ─────────────────────────────────────────────────────────
-  SYSTEM_SANS: "system-ui, -apple-system, sans-serif",
-  SYSTEM_SERIF: "Georgia, 'Times New Roman', serif",
-  SYSTEM_MONO: "ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace",
-  // ─── Sans-serif Google Fonts ───────────────────────────────────────────────
-  INTER: "'Inter', system-ui, sans-serif",
-  GEIST: "'Geist', system-ui, sans-serif",
-  PLUS_JAKARTA: "'Plus Jakarta Sans', system-ui, sans-serif",
-  NUNITO: "'Nunito', system-ui, sans-serif",
-  POPPINS: "'Poppins', system-ui, sans-serif",
-  OUTFIT: "'Outfit', system-ui, sans-serif",
-  DM_SANS: "'DM Sans', system-ui, sans-serif",
-  MANROPE: "'Manrope', system-ui, sans-serif",
-  // ─── Serif Google Fonts ────────────────────────────────────────────────────
-  PLAYFAIR: "'Playfair Display', Georgia, serif",
-  LORA: "'Lora', Georgia, serif",
-  MERRIWEATHER: "'Merriweather', Georgia, serif",
-  DM_SERIF: "'DM Serif Display', Georgia, serif",
-  CORMORANT: "'Cormorant Garamond', Georgia, serif",
+  ARCHIVO_BLACK: "'Archivo Black', system-ui, sans-serif",
+  BEBAS_NEUE: "'Bebas Neue', system-ui, sans-serif",
   BODONI_MODA: "'Bodoni Moda', Georgia, serif",
   CINZEL: "'Cinzel', Georgia, serif",
-  FRAUNCES: "'Fraunces', Georgia, serif",
-  INSTRUMENT_SERIF: "'Instrument Serif', Georgia, serif",
-  // ─── Display / Edgy Google Fonts ──────────────────────────────────────────
-  BEBAS_NEUE: "'Bebas Neue', system-ui, sans-serif",
-  SYNE: "'Syne', system-ui, sans-serif",
-  UNBOUNDED: "'Unbounded', system-ui, sans-serif",
-  ARCHIVO_BLACK: "'Archivo Black', system-ui, sans-serif",
-  RIGHTEOUS: "'Righteous', system-ui, sans-serif",
-  // ─── More Sans-serif Google Fonts ─────────────────────────────────────────
-  SPACE_GROTESK: "'Space Grotesk', system-ui, sans-serif",
-  JOSEFIN_SANS: "'Josefin Sans', system-ui, sans-serif",
-  RALEWAY: "'Raleway', system-ui, sans-serif",
-  // ─── Monospace Google Fonts ────────────────────────────────────────────────
-  JETBRAINS_MONO: "'JetBrains Mono', ui-monospace, monospace",
+  CORMORANT: "'Cormorant Garamond', Georgia, serif",
+  DM_SANS: "'DM Sans', system-ui, sans-serif",
+  DM_SERIF: "'DM Serif Display', Georgia, serif",
   FIRA_CODE: "'Fira Code', ui-monospace, monospace",
+  FRAUNCES: "'Fraunces', Georgia, serif",
+  GEIST: "'Geist', system-ui, sans-serif",
+  IBM_PLEX_MONO: "'IBM Plex Mono', ui-monospace, monospace",
+  INSTRUMENT_SERIF: "'Instrument Serif', Georgia, serif",
+  INTER: "'Inter', system-ui, sans-serif",
+  JETBRAINS_MONO: "'JetBrains Mono', ui-monospace, monospace",
+  JOSEFIN_SANS: "'Josefin Sans', system-ui, sans-serif",
+  LORA: "'Lora', Georgia, serif",
+  MANROPE: "'Manrope', system-ui, sans-serif",
+  MERRIWEATHER: "'Merriweather', Georgia, serif",
+  NUNITO: "'Nunito', system-ui, sans-serif",
+  OUTFIT: "'Outfit', system-ui, sans-serif",
+  PLAYFAIR: "'Playfair Display', Georgia, serif",
+  PLUS_JAKARTA: "'Plus Jakarta Sans', system-ui, sans-serif",
+  POPPINS: "'Poppins', system-ui, sans-serif",
+  RALEWAY: "'Raleway', system-ui, sans-serif",
+  RIGHTEOUS: "'Righteous', system-ui, sans-serif",
   SOURCE_CODE_PRO: "'Source Code Pro', ui-monospace, monospace",
-  IBM_PLEX_MONO: "'IBM Plex Mono', ui-monospace, monospace"
+  SPACE_GROTESK: "'Space Grotesk', system-ui, sans-serif",
+  SYNE: "'Syne', system-ui, sans-serif",
+  SYSTEM_MONO: "ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace",
+  SYSTEM_SANS: "system-ui, -apple-system, sans-serif",
+  SYSTEM_SERIF: "Georgia, 'Times New Roman', serif",
+  UNBOUNDED: "'Unbounded', system-ui, sans-serif"
 };
 var GOOGLE_FONT_NAMES = {
   INTER: "Inter:wght@400;500;600;700",
@@ -495,12 +489,15 @@ var FONT_ADJUSTMENTS = {
   [FONTS.BODONI_MODA]: { fontSize: "1.1em", letterSpacing: "0.02em" },
   [FONTS.INSTRUMENT_SERIF]: { fontSize: "1.05em" },
   [FONTS.FRAUNCES]: { fontSize: "1.05em" },
+  [FONTS.DM_SERIF]: { fontSize: "1.05em" },
   // ── Cinzel — all-caps Roman; open tracking feels more natural ────────────
   [FONTS.CINZEL]: { letterSpacing: "0.06em" },
   // ── Sans-serif — geometric/narrow faces benefit from a touch of tracking ─
   [FONTS.JOSEFIN_SANS]: { letterSpacing: "0.04em" },
   [FONTS.RALEWAY]: { letterSpacing: "0.02em" },
   // ── Display — extreme width / condensed cases ────────────────────────────
+  [FONTS.MERRIWEATHER]: { fontSize: "1.025em" },
+  [FONTS.PLAYFAIR]: { fontSize: "1.025em" },
   [FONTS.BEBAS_NEUE]: { fontSize: "1.2em", letterSpacing: "0.06em" },
   [FONTS.UNBOUNDED]: { fontSize: "0.82em" },
   [FONTS.ARCHIVO_BLACK]: { fontSize: "0.95em" }
@@ -867,41 +864,41 @@ var FONT_GROUPS = [
   {
     label: "Sans-serif",
     options: [
-      { label: "Inter", value: FONTS.INTER },
-      { label: "Geist", value: FONTS.GEIST },
-      { label: "Plus Jakarta Sans", value: FONTS.PLUS_JAKARTA },
-      { label: "Space Grotesk", value: FONTS.SPACE_GROTESK },
-      { label: "Josefin Sans", value: FONTS.JOSEFIN_SANS },
-      { label: "Raleway", value: FONTS.RALEWAY },
-      { label: "Nunito", value: FONTS.NUNITO },
-      { label: "Poppins", value: FONTS.POPPINS },
-      { label: "Outfit", value: FONTS.OUTFIT },
       { label: "DM Sans", value: FONTS.DM_SANS },
-      { label: "Manrope", value: FONTS.MANROPE }
+      { label: "Geist", value: FONTS.GEIST },
+      { label: "Inter", value: FONTS.INTER },
+      { label: "Josefin Sans", value: FONTS.JOSEFIN_SANS },
+      { label: "Manrope", value: FONTS.MANROPE },
+      { label: "Nunito", value: FONTS.NUNITO },
+      { label: "Outfit", value: FONTS.OUTFIT },
+      { label: "Plus Jakarta Sans", value: FONTS.PLUS_JAKARTA },
+      { label: "Poppins", value: FONTS.POPPINS },
+      { label: "Raleway", value: FONTS.RALEWAY },
+      { label: "Space Grotesk", value: FONTS.SPACE_GROTESK }
     ]
   },
   {
     label: "Serif",
     options: [
-      { label: "Cormorant Garamond", value: FONTS.CORMORANT },
       { label: "Bodoni Moda", value: FONTS.BODONI_MODA },
       { label: "Cinzel", value: FONTS.CINZEL },
+      { label: "Cormorant Garamond", value: FONTS.CORMORANT },
+      { label: "DM Serif Display", value: FONTS.DM_SERIF },
       { label: "Fraunces", value: FONTS.FRAUNCES },
       { label: "Instrument Serif", value: FONTS.INSTRUMENT_SERIF },
-      { label: "Playfair Display", value: FONTS.PLAYFAIR },
       { label: "Lora", value: FONTS.LORA },
       { label: "Merriweather", value: FONTS.MERRIWEATHER },
-      { label: "DM Serif Display", value: FONTS.DM_SERIF }
+      { label: "Playfair Display", value: FONTS.PLAYFAIR }
     ]
   },
   {
     label: "Display",
     options: [
-      { label: "Bebas Neue", value: FONTS.BEBAS_NEUE },
-      { label: "Syne", value: FONTS.SYNE },
-      { label: "Unbounded", value: FONTS.UNBOUNDED },
       { label: "Archivo Black", value: FONTS.ARCHIVO_BLACK },
-      { label: "Righteous", value: FONTS.RIGHTEOUS }
+      { label: "Bebas Neue", value: FONTS.BEBAS_NEUE },
+      { label: "Righteous", value: FONTS.RIGHTEOUS },
+      { label: "Syne", value: FONTS.SYNE },
+      { label: "Unbounded", value: FONTS.UNBOUNDED }
     ]
   }
 ];
