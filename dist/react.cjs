@@ -752,7 +752,7 @@ function useTheme() {
 }
 
 // src/react/ThemePicker.tsx
-var import_react3 = require("react");
+var import_react4 = require("react");
 
 // src/react/ui/button.tsx
 var React2 = __toESM(require("react"), 1);
@@ -868,6 +868,29 @@ var RADIUS_PRESETS = [
   { label: "XL", value: "1rem" },
   { label: "Full", value: "9999px" }
 ];
+var FONT_PICKER_ADJUSTMENTS = {
+  // ── Serif — small x-height or high-contrast strokes need a size bump ──────
+  [FONTS.CORMORANT]: { fontSize: "1.15em" },
+  // tiny x-height
+  [FONTS.BODONI_MODA]: { fontSize: "1.1em", letterSpacing: "0.02em" },
+  // hairline strokes
+  [FONTS.INSTRUMENT_SERIF]: { fontSize: "1.05em" },
+  [FONTS.FRAUNCES]: { fontSize: "1.05em" },
+  // ── Cinzel — all-caps Roman; open tracking feels more natural ────────────
+  [FONTS.CINZEL]: { letterSpacing: "0.06em" },
+  // ── Sans-serif — geometric/narrow faces benefit from a touch of tracking ─
+  [FONTS.JOSEFIN_SANS]: { letterSpacing: "0.04em" },
+  // geometric, thin strokes
+  [FONTS.RALEWAY]: { letterSpacing: "0.02em" },
+  // elegant, narrow
+  // ── Display — extreme width / condensed cases ────────────────────────────
+  [FONTS.BEBAS_NEUE]: { fontSize: "1.2em", letterSpacing: "0.06em" },
+  // condensed all-caps
+  [FONTS.UNBOUNDED]: { fontSize: "0.82em" },
+  // very wide / expanded
+  [FONTS.ARCHIVO_BLACK]: { fontSize: "0.95em" }
+  // heavy weight reads large
+};
 var FONT_GROUPS = [
   {
     label: "System",
@@ -1269,6 +1292,9 @@ function ThemeCustomPalettePicker({
   ] });
 }
 
+// src/react/ThemeStylePickers.tsx
+var import_react3 = require("react");
+
 // src/react/ui/input.tsx
 var React3 = __toESM(require("react"), 1);
 var import_jsx_runtime4 = require("react/jsx-runtime");
@@ -1339,7 +1365,7 @@ var SelectContent = React5.forwardRef(({ className, children, position = "popper
     children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
       SelectPrimitive.Viewport,
       {
-        className: cn("p-1", position === "popper" && "w-full min-w-[var(--radix-select-trigger-width)]"),
+        className: cn("p-1 max-h-[var(--radix-select-content-available-height)] overflow-y-auto", position === "popper" && "w-full min-w-[var(--radix-select-trigger-width)]"),
         children
       }
     )
@@ -1376,6 +1402,21 @@ var import_jsx_runtime7 = require("react/jsx-runtime");
 function ThemeFontsPicker({ value, onChange, className, labels, locale = "en" }) {
   const t = (key, fallback) => translate(labels, locale, key, fallback);
   const DEFAULT = "__default__";
+  (0, import_react3.useEffect)(() => {
+    if (typeof window === "undefined") return;
+    const allFonts = FONT_GROUPS.flatMap((g) => g.options.map((o) => o.value));
+    const url = googleFontsUrl(allFonts);
+    if (!url) return;
+    const id = "cocuywind-picker-gfonts";
+    let linkEl = document.getElementById(id);
+    if (!linkEl) {
+      linkEl = document.createElement("link");
+      linkEl.id = id;
+      linkEl.rel = "stylesheet";
+      document.head.appendChild(linkEl);
+    }
+    if (linkEl.href !== url) linkEl.href = url;
+  }, []);
   return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: cn("space-y-3", className), children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "space-y-2", children: ["body", "heading"].map((fontType) => /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "grid grid-cols-[64px_1fr] items-center gap-3", children: [
     /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Label, { className: "text-xs text-muted-foreground capitalize", children: fontType === "heading" ? t("ui.font.heading", "heading") : t("ui.font.body", "body") }),
     /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(
@@ -1384,12 +1425,12 @@ function ThemeFontsPicker({ value, onChange, className, labels, locale = "en" })
         value: value[fontType] ?? DEFAULT,
         onValueChange: (v) => onChange({ ...value, [fontType]: v === DEFAULT ? void 0 : v }),
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectTrigger, { className: "h-8 text-xs", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectValue, { placeholder: fontType === "heading" ? t("ui.font.sameAsBody", "Same as body") : t("ui.font.systemDefault", "System default") }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectTrigger, { className: "h-8 text-xs", style: { fontFamily: value[fontType] ?? void 0, ...FONT_PICKER_ADJUSTMENTS[value[fontType] ?? ""] }, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectValue, { placeholder: fontType === "heading" ? t("ui.font.sameAsBody", "Same as body") : t("ui.font.systemDefault", "System default") }) }),
           /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(SelectContent, { children: [
             /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectGroup, { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectItem, { value: DEFAULT, children: fontType === "heading" ? t("ui.font.sameAsBody", "Same as body") : t("ui.font.systemDefault", "System default") }) }),
             FONT_GROUPS.map((group) => /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(SelectGroup, { children: [
               /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectLabel, { children: group.label }),
-              group.options.map((f) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectItem, { value: f.value, style: { fontFamily: f.value }, children: f.label === "System default (sans-serif)" ? t("ui.font.systemDefaultSans", f.label) : f.label === "System serif" ? t("ui.font.systemSerif", f.label) : f.label }, f.value))
+              group.options.map((f) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SelectItem, { value: f.value, style: { fontFamily: f.value, ...FONT_PICKER_ADJUSTMENTS[f.value] }, children: f.label === "System default (sans-serif)" ? t("ui.font.systemDefaultSans", f.label) : f.label === "System serif" ? t("ui.font.systemSerif", f.label) : f.label }, f.value))
             ] }, group.label))
           ] })
         ]
@@ -1428,9 +1469,9 @@ function ThemePatternsPicker({ value, onChange, className, labels, locale = "en"
       );
     }) }),
     activeType !== "none" && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "space-y-2", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "flex items-center gap-3", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "w-16 text-xs text-muted-foreground", children: t("ui.pattern.tint", "Tint") }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "flex gap-2", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "flex flex-wrap items-center gap-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "w-16 shrink-0 text-xs text-muted-foreground", children: t("ui.pattern.tint", "Tint") }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "flex flex-wrap gap-2", children: [
           /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
             Button,
             {
@@ -1469,13 +1510,13 @@ function ThemePatternsPicker({ value, onChange, className, labels, locale = "en"
           )
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "flex items-center gap-3", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "w-16 text-xs text-muted-foreground", children: t("ui.pattern.size", "Size") }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "flex gap-2", children: ["sm", "md", "lg"].map((s) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Button, { variant: (value.size ?? "md") === s ? "secondary" : "outline", size: "xs", onClick: () => onChange({ ...value, size: s }), children: s === "sm" ? t("ui.size.sm", "SM") : s === "md" ? t("ui.size.md", "MD") : t("ui.size.lg", "LG") }, s)) })
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "flex flex-wrap items-center gap-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "w-16 shrink-0 text-xs text-muted-foreground", children: t("ui.pattern.size", "Size") }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "flex flex-wrap gap-2", children: ["sm", "md", "lg"].map((s) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Button, { variant: (value.size ?? "md") === s ? "secondary" : "outline", size: "xs", onClick: () => onChange({ ...value, size: s }), children: s === "sm" ? t("ui.size.sm", "SM") : s === "md" ? t("ui.size.md", "MD") : t("ui.size.lg", "LG") }, s)) })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "flex items-center gap-3", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "w-16 text-xs text-muted-foreground", children: t("ui.pattern.density", "Density") }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "flex gap-2", children: PATTERN_OPACITY_PRESETS.map((o) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "flex flex-wrap items-center gap-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "w-16 shrink-0 text-xs text-muted-foreground", children: t("ui.pattern.density", "Density") }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "flex flex-wrap gap-2", children: PATTERN_OPACITY_PRESETS.map((o) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
           Button,
           {
             variant: (value.opacity ?? 0.08) === o.value ? "secondary" : "outline",
@@ -1766,7 +1807,7 @@ function ThemePicker({
   showCustomPalette = allowCustom
 }) {
   const v = value;
-  const [selectedPresetName, setSelectedPresetName] = (0, import_react3.useState)(() => {
+  const [selectedPresetName, setSelectedPresetName] = (0, import_react4.useState)(() => {
     if (v._overlayConfig?.basePreset) {
       const found = themes.find((t) => t.name === v._overlayConfig.basePreset);
       if (found) return found.name;
@@ -1777,23 +1818,23 @@ function ThemePicker({
     }
     return themes.find((t) => t.name === value.name)?.name ?? null;
   });
-  const [customPrimary, setCustomPrimary] = (0, import_react3.useState)(
+  const [customPrimary, setCustomPrimary] = (0, import_react4.useState)(
     () => v._overlayConfig?.primary ?? (v._generatorConfig?.primary ?? null)
   );
-  const [customSecondary, setCustomSecondary] = (0, import_react3.useState)(
+  const [customSecondary, setCustomSecondary] = (0, import_react4.useState)(
     () => v._overlayConfig?.secondary ?? (v._generatorConfig?.secondary ?? null)
   );
-  const [customAccent, setCustomAccent] = (0, import_react3.useState)(
+  const [customAccent, setCustomAccent] = (0, import_react4.useState)(
     () => v._overlayConfig?.accent ?? (v._generatorConfig?.accent ?? null)
   );
-  const [customNeutral, setCustomNeutral] = (0, import_react3.useState)(
+  const [customNeutral, setCustomNeutral] = (0, import_react4.useState)(
     () => v._overlayConfig?.neutral ?? (v._generatorConfig?.neutral ? v._generatorConfig.neutral : null)
   );
-  const [overrideRadius, setOverrideRadius] = (0, import_react3.useState)(value.radius ?? "0.5rem");
-  const [overrideFonts, setOverrideFonts] = (0, import_react3.useState)(value.fonts ?? {});
-  const [overridePattern, setOverridePattern] = (0, import_react3.useState)(value.pattern ?? { type: "none" });
-  const [overrideBgImage, setOverrideBgImage] = (0, import_react3.useState)(value.backgroundImage ?? "");
-  (0, import_react3.useEffect)(() => {
+  const [overrideRadius, setOverrideRadius] = (0, import_react4.useState)(value.radius ?? "0.5rem");
+  const [overrideFonts, setOverrideFonts] = (0, import_react4.useState)(value.fonts ?? {});
+  const [overridePattern, setOverridePattern] = (0, import_react4.useState)(value.pattern ?? { type: "none" });
+  const [overrideBgImage, setOverrideBgImage] = (0, import_react4.useState)(value.backgroundImage ?? "");
+  (0, import_react4.useEffect)(() => {
     const base2 = buildTheme(themes, selectedPresetName, customPrimary, customSecondary, customAccent, customNeutral);
     if (!base2) return;
     onChange({

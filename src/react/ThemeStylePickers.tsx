@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import type { ThemeFonts, ThemePattern } from '../types.js'
 import { raw } from '../types.js'
 import { generatePattern } from '../patterns.js'
+import { googleFontsUrl } from '../fonts.js'
 import { Button } from './ui/button.js'
 import { Input } from './ui/input.js'
 import { Label } from './ui/label.js'
@@ -17,6 +18,7 @@ import {
 import { cn } from './ui/utils.js'
 import {
   FONT_GROUPS,
+  FONT_PICKER_ADJUSTMENTS,
   PATTERN_TYPES,
   PATTERN_LABELS,
   PATTERN_OPACITY_PRESETS,
@@ -35,6 +37,23 @@ export interface ThemeFontsPickerProps {
 export function ThemeFontsPicker({ value, onChange, className, labels, locale = 'en' }: ThemeFontsPickerProps) {
   const t = (key: string, fallback: string) => translate(labels, locale, key, fallback)
   const DEFAULT = '__default__'
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const allFonts = FONT_GROUPS.flatMap(g => g.options.map(o => o.value))
+    const url = googleFontsUrl(allFonts)
+    if (!url) return
+    const id = 'cocuywind-picker-gfonts'
+    let linkEl = document.getElementById(id) as HTMLLinkElement | null
+    if (!linkEl) {
+      linkEl = document.createElement('link')
+      linkEl.id = id
+      linkEl.rel = 'stylesheet'
+      document.head.appendChild(linkEl)
+    }
+    if (linkEl.href !== url) linkEl.href = url
+  }, [])
+
   return (
     <div className={cn('space-y-3', className)}>
       <div className="space-y-2">
@@ -47,7 +66,7 @@ export function ThemeFontsPicker({ value, onChange, className, labels, locale = 
               value={value[fontType] ?? DEFAULT}
               onValueChange={(v) => onChange({ ...value, [fontType]: v === DEFAULT ? undefined : v })}
             >
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger className="h-8 text-xs" style={{ fontFamily: value[fontType] ?? undefined, ...FONT_PICKER_ADJUSTMENTS[value[fontType] ?? ''] }}>
                 <SelectValue placeholder={fontType === 'heading' ? t('ui.font.sameAsBody', 'Same as body') : t('ui.font.systemDefault', 'System default')} />
               </SelectTrigger>
               <SelectContent>
@@ -60,7 +79,7 @@ export function ThemeFontsPicker({ value, onChange, className, labels, locale = 
                   <SelectGroup key={group.label}>
                     <SelectLabel>{group.label}</SelectLabel>
                     {group.options.map(f => (
-                      <SelectItem key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                      <SelectItem key={f.value} value={f.value} style={{ fontFamily: f.value, ...FONT_PICKER_ADJUSTMENTS[f.value] }}>
                         {f.label === 'System default (sans-serif)' ? t('ui.font.systemDefaultSans', f.label) :
                           f.label === 'System serif' ? t('ui.font.systemSerif', f.label) : f.label}
                       </SelectItem>
@@ -133,9 +152,9 @@ export function ThemePatternsPicker({ value, onChange, className, labels, locale
 
       {activeType !== 'none' && (
         <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <span className="w-16 text-xs text-muted-foreground">{t('ui.pattern.tint', 'Tint')}</span>
-            <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="w-16 shrink-0 text-xs text-muted-foreground">{t('ui.pattern.tint', 'Tint')}</span>
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant={!value.tint ? 'secondary' : 'outline'}
                 size="xs"
@@ -166,9 +185,9 @@ export function ThemePatternsPicker({ value, onChange, className, labels, locale
               </Button>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="w-16 text-xs text-muted-foreground">{t('ui.pattern.size', 'Size')}</span>
-            <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="w-16 shrink-0 text-xs text-muted-foreground">{t('ui.pattern.size', 'Size')}</span>
+            <div className="flex flex-wrap gap-2">
               {(['sm', 'md', 'lg'] as const).map(s => (
                 <Button key={s} variant={(value.size ?? 'md') === s ? 'secondary' : 'outline'} size="xs" onClick={() => onChange({ ...value, size: s })}>
                   {s === 'sm' ? t('ui.size.sm', 'SM') : s === 'md' ? t('ui.size.md', 'MD') : t('ui.size.lg', 'LG')}
@@ -176,9 +195,9 @@ export function ThemePatternsPicker({ value, onChange, className, labels, locale
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="w-16 text-xs text-muted-foreground">{t('ui.pattern.density', 'Density')}</span>
-            <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="w-16 shrink-0 text-xs text-muted-foreground">{t('ui.pattern.density', 'Density')}</span>
+            <div className="flex flex-wrap gap-2">
               {PATTERN_OPACITY_PRESETS.map(o => (
                 <Button
                   key={o.label}

@@ -36,7 +36,7 @@ The library is the shared contract. Consumer apps (Astro, etc.) never need it as
 **Commands:**
 ```sh
 pnpm build          # tsup → dist/
-pnpm test           # vitest run (all 131 tests)
+pnpm test           # vitest run (all 153 tests)
 pnpm sync:tweakcn   # fetch new TweakCN themes (skips existing)
 pnpm test:watch     # vitest watch
 pnpm typecheck      # tsc --noEmit
@@ -435,7 +435,7 @@ import { themeLabelsEs, themeLabelsPt } from 'cocuywind'
 ## Testing
 
 Tests live in `tests/`. Run with `pnpm test`.
-Currently 131 tests across 9 files.
+Currently 153 tests across 10 files.
 
 | File | What it covers |
 |---|---|

@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
-import { ThemeProvider, useTheme } from 'cocuywind/react'
-import { ThemePicker } from 'cocuywind/react'
-import { themes, builtinThemes, tweakcnThemes, communityThemes, tailwindBasicThemes, generateCSS, themeLabelsEn, themeLabelsEs, themeLabelsPt, generatePattern, FONTS, raw } from 'cocuywind'
+import { ThemeProvider, useTheme, ThemePicker, ThemeFontsPicker } from 'cocuywind/react'
+import { themes, builtinThemes, tweakcnThemes, communityThemes, tailwindBasicThemes, generateCSS, themeLabelsEn, themeLabelsEs, themeLabelsPt, generatePattern, raw } from 'cocuywind'
 import type { Theme, ThemeFonts, ThemePattern, PatternType } from 'cocuywind'
 import './styles.css'
 
@@ -33,10 +32,6 @@ const RADIUS_PRESETS = [
   { label: 'MD', value: '0.5rem' }, { label: 'LG', value: '0.75rem' },
   { label: 'XL', value: '1rem' }, { label: 'Full', value: '9999px' },
 ]
-const FONT_OPTIONS = Object.entries(FONTS).map(([key, value]) => ({
-  label: key.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase()),
-  value,
-}))
 
 function AccordionSection({ title, count, defaultOpen = true, children }: {
   title: string; count?: number; defaultOpen?: boolean; children: React.ReactNode
@@ -139,24 +134,10 @@ function Demo() {
               {/* Fonts */}
               <section>
                 <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600, opacity: 0.7 }}>Fonts</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {(['body', 'heading'] as const).map(fontType => (
-                    <label key={fontType} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ width: 52, fontSize: 12, opacity: 0.7 }}>{fontType}</span>
-                      <select
-                        value={styleFonts[fontType] ?? ''}
-                        onChange={e => {
-                          const updated = { ...styleFonts, [fontType]: e.target.value || undefined }
-                          applyStyle(updated, stylePattern, styleRadius)
-                        }}
-                        style={{ flex: 1, padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)', fontSize: 12 }}
-                      >
-                        <option value="">{fontType === 'heading' ? 'Same as body' : 'System default'}</option>
-                        {FONT_OPTIONS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
-                      </select>
-                    </label>
-                  ))}
-                </div>
+                <ThemeFontsPicker
+                  value={styleFonts}
+                  onChange={updated => applyStyle(updated, stylePattern, styleRadius)}
+                />
               </section>
 
               {/* Pattern */}

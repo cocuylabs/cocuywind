@@ -29,6 +29,28 @@ export const RADIUS_PRESETS = [
   { label: 'MD',   value: '0.5rem' }, { label: 'LG', value: '0.75rem' },
   { label: 'XL',   value: '1rem' },   { label: 'Full', value: '9999px' },
 ]
+/**
+ * Per-font optical adjustments for the picker UI only.
+ * Goals: compensate for x-height, stroke weight, and tracking differences
+ * so every font name reads at roughly the same visual size in the dropdown.
+ */
+export const FONT_PICKER_ADJUSTMENTS: Partial<Record<string, { fontSize?: string; letterSpacing?: string }>> = {
+  // ── Serif — small x-height or high-contrast strokes need a size bump ──────
+  [FONTS.CORMORANT]:        { fontSize: '1.15em' },                       // tiny x-height
+  [FONTS.BODONI_MODA]:      { fontSize: '1.1em',  letterSpacing: '0.02em' }, // hairline strokes
+  [FONTS.INSTRUMENT_SERIF]: { fontSize: '1.05em' },
+  [FONTS.FRAUNCES]:         { fontSize: '1.05em' },
+  // ── Cinzel — all-caps Roman; open tracking feels more natural ────────────
+  [FONTS.CINZEL]:           { letterSpacing: '0.06em' },
+  // ── Sans-serif — geometric/narrow faces benefit from a touch of tracking ─
+  [FONTS.JOSEFIN_SANS]:     { letterSpacing: '0.04em' },                  // geometric, thin strokes
+  [FONTS.RALEWAY]:          { letterSpacing: '0.02em' },                  // elegant, narrow
+  // ── Display — extreme width / condensed cases ────────────────────────────
+  [FONTS.BEBAS_NEUE]:       { fontSize: '1.2em',  letterSpacing: '0.06em' }, // condensed all-caps
+  [FONTS.UNBOUNDED]:        { fontSize: '0.82em' },                       // very wide / expanded
+  [FONTS.ARCHIVO_BLACK]:    { fontSize: '0.95em' },                       // heavy weight reads large
+}
+
 export const FONT_GROUPS = [
   {
     label: 'System',
