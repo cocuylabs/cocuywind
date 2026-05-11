@@ -142,6 +142,7 @@ declare const TAILWIND_COLORS: Record<TailwindToken, string>;
 /**
  * Resolve a ColorToken to its CSS value.
  * - TailwindToken: looks up in TAILWIND_COLORS
+ * - Hex (#rgb / #rrggbb): converts to oklch so chroma-based ops (adjustVividness) work
  * - RawColor: returns as-is (strips the brand type)
  */
 declare function resolveColor(token: string): string;
