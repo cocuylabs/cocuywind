@@ -11,8 +11,8 @@ function getSwatchColors(theme: Theme, mode: 'light' | 'dark' = 'light'): [strin
   return [resolveColor(t.background), resolveColor(t.primary), resolveColor(t.secondary)]
 }
 
-function ThemeSwatch({ theme, selected, onClick, previewMode = 'light', labelOverride, swatchSize = 12 }: {
-  theme: Theme; selected: boolean; onClick: () => void; previewMode?: 'light' | 'dark'; labelOverride?: string; swatchSize?: number
+function ThemeSwatch({ theme, selected, onClick, previewMode = 'light', labelOverride }: {
+  theme: Theme; selected: boolean; onClick: () => void; previewMode?: 'light' | 'dark'; labelOverride?: string
 }) {
   const [bg, pri, sec] = getSwatchColors(theme, previewMode)
   const label = labelOverride ?? theme.label
@@ -21,23 +21,14 @@ function ThemeSwatch({ theme, selected, onClick, previewMode = 'light', labelOve
       onClick={onClick}
       title={label}
       className={cn(
-        'flex w-full items-center rounded-md border px-3 py-2 text-left text-sm transition-colors',
-        selected ? 'border-ring bg-accent text-accent-foreground' : 'border-border hover:bg-muted/50'
+        'flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors',
+        selected ? 'border-primary/60 bg-primary/10' : 'border-border hover:bg-muted/50'
       )}
     >
-      <span className="flex shrink-0 pr-2">
-        <span
-          className="inline-block border border-border rounded-l-full"
-          style={{ backgroundColor: bg, width: swatchSize, height: (swatchSize * 1.2) }}
-        />
-        <span
-          className="inline-block border border-border border-r-0 border-l-0"
-          style={{ backgroundColor: pri, width: (swatchSize * 0.9), height: (swatchSize * 1.2) }}
-        />
-        <span
-          className="inline-block border border-border rounded-r-full"
-          style={{ backgroundColor: sec, width: swatchSize, height: (swatchSize * 1.2) }}
-        />
+      <span className="flex shrink-0 gap-1">
+        <span className="inline-block rounded-md" style={{ backgroundColor: bg, width: 20, height: 20 }} />
+        <span className="inline-block rounded-md" style={{ backgroundColor: pri, width: 20, height: 20 }} />
+        <span className="inline-block rounded-md" style={{ backgroundColor: sec, width: 20, height: 20 }} />
       </span>
       <span className="truncate">{label}</span>
     </button>
@@ -80,7 +71,6 @@ export function ThemePalettePicker({
             onClick={() => onChange(t.name)}
             labelOverride={labels?.[lang]?.[t.name]}
             previewMode={previewMode}
-            swatchSize={swatchSize}
           />
         ))}
       </div>
@@ -116,154 +106,146 @@ export function ThemeCustomPalettePicker({
   onAccentChange,
   onNeutralChange,
   className,
-  title,
-  subtitle,
   labels,
   locale = 'en',
 }: ThemeCustomPalettePickerProps) {
   const t = (key: string, fallback: string) => translate(labels, locale, key, fallback)
+
+  const autoBtn = (isAuto: boolean, onClick: () => void) => (
+    <button
+      onClick={onClick}
+      className={cn(
+        'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+        isAuto
+          ? 'border-transparent bg-primary text-primary-foreground'
+          : 'border-border bg-transparent text-foreground hover:border-muted-foreground',
+      )}
+    >
+      {t('ui.auto', 'Auto')}
+    </button>
+  )
+
+  const colorBtn = (color: string, isActive: boolean, onClick: () => void) => (
+    <button
+      key={color}
+      onClick={onClick}
+      title={color}
+      className={cn(
+        'h-7 w-7 rounded-full border-2 transition-all',
+        isActive ? 'border-foreground scale-110' : 'border-transparent hover:border-muted-foreground',
+      )}
+      style={{ backgroundColor: resolveColor(`${color}-500`) }}
+    />
+  )
+
   return (
-    <div className={cn('space-y-4', className)}>
-      <div className="flex items-baseline gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{title}</span>
-        {subtitle && <span className="text-[11px] text-muted-foreground/70">{subtitle}</span>}
-      </div>
+    <div className={cn('space-y-5', className)}>
 
       <section className="space-y-2">
-        <h4 className="text-xs font-semibold text-muted-foreground">{t('ui.primary', 'Primary')}</h4>
-        <div className="flex flex-wrap items-center gap-2">
-          {hasPreset && (
-            <Button variant={primary === null ? 'secondary' : 'outline'} size="xs" onClick={() => onPrimaryChange(null)}>
-              {t('ui.auto', 'Auto')}
-            </Button>
+        <div className="flex items-center justify-between">
+          <h4 className="text-base font-semibold">{t('ui.primary', 'Primary')}</h4>
+          {primary === null && hasPreset && (
+            <span className="text-xs text-muted-foreground">{t('ui.usingPreset', 'Using preset color')}</span>
           )}
-          {TAILWIND_COLORS.map(color => (
-            <button
-              key={color}
-              onClick={() => onPrimaryChange(color)}
-              title={color}
-              className={cn(
-                'h-6 w-6 rounded-full border transition-colors',
-                primary === color ? 'border-foreground ring-2 ring-ring' : 'border-border hover:border-muted-foreground'
-              )}
-              style={{ backgroundColor: resolveColor(`${color}-500`) }}
-            />
-          ))}
         </div>
-        {primary === null && hasPreset && (
-          <p className="text-[11px] text-muted-foreground">{t('ui.usingPreset', 'Using preset')}</p>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {hasPreset && autoBtn(primary === null, () => onPrimaryChange(null))}
+          {TAILWIND_COLORS.map(color => colorBtn(color, primary === color, () => onPrimaryChange(color)))}
+        </div>
       </section>
 
       <section className="space-y-2">
-        <h4 className="text-xs font-semibold text-muted-foreground">{t('ui.secondary', 'Secondary')}</h4>
-        <div className="flex flex-wrap items-center gap-2">
-          {hasPreset ? (
-            <Button variant={secondary === null ? 'secondary' : 'outline'} size="xs" onClick={() => onSecondaryChange(null)}>
-              {t('ui.auto', 'Auto')}
-            </Button>
-          ) : (
-            <button
-              onClick={() => onSecondaryChange(null)}
-              title="Auto (derived from primary)"
-              className={cn(
-                'h-6 w-6 rounded-full border transition-colors',
-                secondary === null ? 'border-foreground ring-2 ring-ring' : 'border-border hover:border-muted-foreground'
-              )}
-              style={{
-                backgroundImage: `conic-gradient(${TAILWIND_COLORS.slice(5, 10).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(', ')})`,
-              }}
-            />
+        <div className="flex items-center justify-between">
+          <h4 className="text-base font-semibold">{t('ui.secondary', 'Secondary')}</h4>
+          {secondary === null && (
+            <span className="text-xs text-muted-foreground">
+              {hasPreset ? t('ui.usingPreset', 'Using preset color') : t('ui.autoFromPrimary', 'Auto from primary')}
+            </span>
           )}
-          {TAILWIND_COLORS.map(color => (
-            <button
-              key={color}
-              onClick={() => onSecondaryChange(color)}
-              title={color}
-              className={cn(
-                'h-6 w-6 rounded-full border transition-colors',
-                secondary === color ? 'border-foreground ring-2 ring-ring' : 'border-border hover:border-muted-foreground'
-              )}
-              style={{ backgroundColor: resolveColor(`${color}-500`) }}
-            />
-          ))}
         </div>
-        {secondary === null && (
-          <p className="text-[11px] text-muted-foreground">
-            {hasPreset ? t('ui.usingPreset', 'Using preset') : t('ui.autoFromPrimary', 'Auto from primary')}
-          </p>
-        )}
-      </section>
-
-      <section className="space-y-2">
-        <h4 className="text-xs font-semibold text-muted-foreground">{t('ui.accent', 'Accent')}</h4>
-        <div className="flex flex-wrap items-center gap-2">
-          {hasPreset ? (
-            <Button variant={accent === null ? 'secondary' : 'outline'} size="xs" onClick={() => onAccentChange(null)}>
-              {t('ui.auto', 'Auto')}
-            </Button>
-          ) : (
-            <button
-              onClick={() => onAccentChange(null)}
-              title="Auto (derived from secondary/primary)"
-              className={cn(
-                'h-6 w-6 rounded-full border transition-colors',
-                accent === null ? 'border-foreground ring-2 ring-ring' : 'border-border hover:border-muted-foreground'
-              )}
-              style={{
-                backgroundImage: `conic-gradient(${TAILWIND_COLORS.slice(0, 5).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(', ')})`,
-              }}
-            />
-          )}
-          {TAILWIND_COLORS.map(color => (
-            <button
-              key={color}
-              onClick={() => onAccentChange(color)}
-              title={color}
-              className={cn(
-                'h-6 w-6 rounded-full border transition-colors',
-                accent === color ? 'border-foreground ring-2 ring-ring' : 'border-border hover:border-muted-foreground'
-              )}
-              style={{ backgroundColor: resolveColor(`${color}-500`) }}
-            />
-          ))}
-        </div>
-        {accent === null && (
-          <p className="text-[11px] text-muted-foreground">
-            {hasPreset ? t('ui.usingPreset', 'Using preset') : t('ui.autoFromSecondary', 'Auto from secondary')}
-          </p>
-        )}
-      </section>
-
-      <section className="space-y-2">
-        <h4 className="text-xs font-semibold text-muted-foreground">{t('ui.neutralBase', 'Neutral base')}</h4>
         <div className="flex flex-wrap items-center gap-2">
           {hasPreset
-            ? (
-              <Button variant={neutral === null ? 'secondary' : 'outline'} size="xs" onClick={() => onNeutralChange(null)}>
-                {t('ui.auto', 'Auto')}
-              </Button>
-            ) : (
-              <Button
-                variant={(neutral === null || neutral === 'none') ? 'secondary' : 'outline'}
-                size="xs"
+            ? autoBtn(secondary === null, () => onSecondaryChange(null))
+            : (
+              <button
+                onClick={() => onSecondaryChange(null)}
+                title="Auto (derived from primary)"
+                className={cn(
+                  'h-7 w-7 rounded-full border-2 transition-all',
+                  secondary === null ? 'border-foreground scale-110' : 'border-transparent hover:border-muted-foreground',
+                )}
+                style={{
+                  backgroundImage: `conic-gradient(${TAILWIND_COLORS.slice(5, 10).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(', ')})`,
+                }}
+              />
+            )
+          }
+          {TAILWIND_COLORS.map(color => colorBtn(color, secondary === color, () => onSecondaryChange(color)))}
+        </div>
+      </section>
+
+      <section className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h4 className="text-base font-semibold">{t('ui.accent', 'Accent')}</h4>
+          {accent === null && (
+            <span className="text-xs text-muted-foreground">
+              {hasPreset ? t('ui.usingPreset', 'Using preset color') : t('ui.autoFromSecondary', 'Auto from secondary')}
+            </span>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {hasPreset
+            ? autoBtn(accent === null, () => onAccentChange(null))
+            : (
+              <button
+                onClick={() => onAccentChange(null)}
+                title="Auto (derived from secondary/primary)"
+                className={cn(
+                  'h-7 w-7 rounded-full border-2 transition-all',
+                  accent === null ? 'border-foreground scale-110' : 'border-transparent hover:border-muted-foreground',
+                )}
+                style={{
+                  backgroundImage: `conic-gradient(${TAILWIND_COLORS.slice(0, 5).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(', ')})`,
+                }}
+              />
+            )
+          }
+          {TAILWIND_COLORS.map(color => colorBtn(color, accent === color, () => onAccentChange(color)))}
+        </div>
+      </section>
+
+      <section className="space-y-2">
+        <h4 className="text-base font-semibold">{t('ui.neutralBase', 'Neutral base')}</h4>
+        <div className="flex flex-wrap items-center gap-2">
+          {hasPreset
+            ? autoBtn(neutral === null, () => onNeutralChange(null))
+            : (
+              <button
                 onClick={() => onNeutralChange('none')}
+                className={cn(
+                  'rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors',
+                  (neutral === null || neutral === 'none')
+                    ? 'border-transparent bg-primary text-primary-foreground'
+                    : 'border-border bg-transparent text-foreground hover:border-muted-foreground',
+                )}
               >
-                {t('ui.neutral.none', 'none')}
-              </Button>
+                {t('ui.neutral.none', 'None')}
+              </button>
             )
           }
           {NEUTRAL_COLORS.map(color => (
-            <Button
+            <button
               key={color}
-              variant={neutral === color ? 'secondary' : 'outline'}
-              size="xs"
               onClick={() => onNeutralChange(color)}
+              className={cn(
+                'rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors',
+                neutral === color
+                  ? 'border-transparent bg-primary text-primary-foreground'
+                  : 'border-border bg-transparent text-foreground hover:border-muted-foreground',
+              )}
             >
-              <span className="capitalize bg-muted rounded-md px-1 py-1 text-xs">
-                {color}
-              </span>
-            </Button>
+              {color}
+            </button>
           ))}
         </div>
       </section>

@@ -147,7 +147,7 @@ interface ThemeCustomPalettePickerProps {
     labels?: ThemePickerLabels;
     locale?: 'en' | 'es' | 'pt';
 }
-declare function ThemeCustomPalettePicker({ hasPreset, primary, secondary, accent, neutral, onPrimaryChange, onSecondaryChange, onAccentChange, onNeutralChange, className, title, subtitle, labels, locale, }: ThemeCustomPalettePickerProps): react_jsx_runtime.JSX.Element;
+declare function ThemeCustomPalettePicker({ hasPreset, primary, secondary, accent, neutral, onPrimaryChange, onSecondaryChange, onAccentChange, onNeutralChange, className, labels, locale, }: ThemeCustomPalettePickerProps): react_jsx_runtime.JSX.Element;
 
 interface ThemeFontsPickerProps {
     value: ThemeFonts;

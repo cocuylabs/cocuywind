@@ -775,9 +775,6 @@ function useTheme() {
 // src/react/ThemePicker.tsx
 import { useState as useState2, useEffect as useEffect3 } from "react";
 
-// src/react/ui/button.tsx
-import * as React2 from "react";
-
 // src/react/ui/utils.ts
 function cn(...inputs) {
   const classes = [];
@@ -793,34 +790,6 @@ function cn(...inputs) {
   }
   return classes.join(" ");
 }
-
-// src/react/ui/button.tsx
-import { jsx as jsx2 } from "react/jsx-runtime";
-var base = "inline-flex items-center justify-center rounded-md text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ring-offset-background";
-var variants = {
-  default: "bg-primary text-primary-foreground hover:bg-primary/90",
-  secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-  outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-  ghost: "hover:bg-accent hover:text-accent-foreground",
-  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-};
-var sizes = {
-  xs: "h-7 px-2",
-  sm: "h-8 px-3",
-  md: "h-9 px-4",
-  icon: "h-9 w-9"
-};
-var Button = React2.forwardRef(
-  ({ className, variant = "default", size = "sm", ...props }, ref) => /* @__PURE__ */ jsx2(
-    "button",
-    {
-      ref,
-      className: cn(base, variants[variant], sizes[size], className),
-      ...props
-    }
-  )
-);
-Button.displayName = "Button";
 
 // src/react/theme-picker-constants.ts
 var TAILWIND_COLORS2 = [
@@ -1083,12 +1052,12 @@ function translate(labels, locale, key, fallback) {
 }
 
 // src/react/ThemePalettePickers.tsx
-import { jsx as jsx3, jsxs as jsxs2 } from "react/jsx-runtime";
+import { jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
 function getSwatchColors(theme, mode = "light") {
   const t = mode === "dark" ? theme.dark : theme.light;
   return [resolveColor(t.background), resolveColor(t.primary), resolveColor(t.secondary)];
 }
-function ThemeSwatch({ theme, selected, onClick, previewMode = "light", labelOverride, swatchSize = 12 }) {
+function ThemeSwatch({ theme, selected, onClick, previewMode = "light", labelOverride }) {
   const [bg, pri, sec] = getSwatchColors(theme, previewMode);
   const label = labelOverride ?? theme.label;
   return /* @__PURE__ */ jsxs2(
@@ -1097,34 +1066,16 @@ function ThemeSwatch({ theme, selected, onClick, previewMode = "light", labelOve
       onClick,
       title: label,
       className: cn(
-        "flex w-full items-center rounded-md border px-3 py-2 text-left text-sm transition-colors",
-        selected ? "border-ring bg-accent text-accent-foreground" : "border-border hover:bg-muted/50"
+        "flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors",
+        selected ? "border-primary/60 bg-primary/10" : "border-border hover:bg-muted/50"
       ),
       children: [
-        /* @__PURE__ */ jsxs2("span", { className: "flex shrink-0 pr-2", children: [
-          /* @__PURE__ */ jsx3(
-            "span",
-            {
-              className: "inline-block border border-border rounded-l-full",
-              style: { backgroundColor: bg, width: swatchSize, height: swatchSize * 1.2 }
-            }
-          ),
-          /* @__PURE__ */ jsx3(
-            "span",
-            {
-              className: "inline-block border border-border border-r-0 border-l-0",
-              style: { backgroundColor: pri, width: swatchSize * 0.9, height: swatchSize * 1.2 }
-            }
-          ),
-          /* @__PURE__ */ jsx3(
-            "span",
-            {
-              className: "inline-block border border-border rounded-r-full",
-              style: { backgroundColor: sec, width: swatchSize, height: swatchSize * 1.2 }
-            }
-          )
+        /* @__PURE__ */ jsxs2("span", { className: "flex shrink-0 gap-1", children: [
+          /* @__PURE__ */ jsx2("span", { className: "inline-block rounded-md", style: { backgroundColor: bg, width: 20, height: 20 } }),
+          /* @__PURE__ */ jsx2("span", { className: "inline-block rounded-md", style: { backgroundColor: pri, width: 20, height: 20 } }),
+          /* @__PURE__ */ jsx2("span", { className: "inline-block rounded-md", style: { backgroundColor: sec, width: 20, height: 20 } })
         ] }),
-        /* @__PURE__ */ jsx3("span", { className: "truncate", children: label })
+        /* @__PURE__ */ jsx2("span", { className: "truncate", children: label })
       ]
     }
   );
@@ -1142,15 +1093,14 @@ function ThemePalettePicker({
 }) {
   if (themes.length === 0) return null;
   const lang = locale === "es" || locale === "pt" || locale === "en" ? locale : "en";
-  return /* @__PURE__ */ jsx3("div", { className, style: paletteMaxHeight ? { maxHeight: paletteMaxHeight, overflowY: "auto" } : void 0, children: /* @__PURE__ */ jsx3("div", { className: "grid grid-cols-2 gap-2", children: themes.map((t) => /* @__PURE__ */ jsx3(
+  return /* @__PURE__ */ jsx2("div", { className, style: paletteMaxHeight ? { maxHeight: paletteMaxHeight, overflowY: "auto" } : void 0, children: /* @__PURE__ */ jsx2("div", { className: "grid grid-cols-2 gap-2", children: themes.map((t) => /* @__PURE__ */ jsx2(
     ThemeSwatch,
     {
       theme: t,
       selected: t.name === value,
       onClick: () => onChange(t.name),
       labelOverride: labels?.[lang]?.[t.name],
-      previewMode,
-      swatchSize
+      previewMode
     },
     t.name
   )) }) });
@@ -1166,122 +1116,114 @@ function ThemeCustomPalettePicker({
   onAccentChange,
   onNeutralChange,
   className,
-  title,
-  subtitle,
   labels,
   locale = "en"
 }) {
   const t = (key, fallback) => translate(labels, locale, key, fallback);
-  return /* @__PURE__ */ jsxs2("div", { className: cn("space-y-4", className), children: [
-    /* @__PURE__ */ jsxs2("div", { className: "flex items-baseline gap-2", children: [
-      /* @__PURE__ */ jsx3("span", { className: "text-[11px] font-semibold uppercase tracking-wide text-muted-foreground", children: title }),
-      subtitle && /* @__PURE__ */ jsx3("span", { className: "text-[11px] text-muted-foreground/70", children: subtitle })
-    ] }),
+  const autoBtn = (isAuto, onClick) => /* @__PURE__ */ jsx2(
+    "button",
+    {
+      onClick,
+      className: cn(
+        "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+        isAuto ? "border-transparent bg-primary text-primary-foreground" : "border-border bg-transparent text-foreground hover:border-muted-foreground"
+      ),
+      children: t("ui.auto", "Auto")
+    }
+  );
+  const colorBtn = (color, isActive, onClick) => /* @__PURE__ */ jsx2(
+    "button",
+    {
+      onClick,
+      title: color,
+      className: cn(
+        "h-7 w-7 rounded-full border-2 transition-all",
+        isActive ? "border-foreground scale-110" : "border-transparent hover:border-muted-foreground"
+      ),
+      style: { backgroundColor: resolveColor(`${color}-500`) }
+    },
+    color
+  );
+  return /* @__PURE__ */ jsxs2("div", { className: cn("space-y-5", className), children: [
     /* @__PURE__ */ jsxs2("section", { className: "space-y-2", children: [
-      /* @__PURE__ */ jsx3("h4", { className: "text-xs font-semibold text-muted-foreground", children: t("ui.primary", "Primary") }),
-      /* @__PURE__ */ jsxs2("div", { className: "flex flex-wrap items-center gap-2", children: [
-        hasPreset && /* @__PURE__ */ jsx3(Button, { variant: primary === null ? "secondary" : "outline", size: "xs", onClick: () => onPrimaryChange(null), children: t("ui.auto", "Auto") }),
-        TAILWIND_COLORS2.map((color) => /* @__PURE__ */ jsx3(
-          "button",
-          {
-            onClick: () => onPrimaryChange(color),
-            title: color,
-            className: cn(
-              "h-6 w-6 rounded-full border transition-colors",
-              primary === color ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
-            ),
-            style: { backgroundColor: resolveColor(`${color}-500`) }
-          },
-          color
-        ))
+      /* @__PURE__ */ jsxs2("div", { className: "flex items-center justify-between", children: [
+        /* @__PURE__ */ jsx2("h4", { className: "text-base font-semibold", children: t("ui.primary", "Primary") }),
+        primary === null && hasPreset && /* @__PURE__ */ jsx2("span", { className: "text-xs text-muted-foreground", children: t("ui.usingPreset", "Using preset color") })
       ] }),
-      primary === null && hasPreset && /* @__PURE__ */ jsx3("p", { className: "text-[11px] text-muted-foreground", children: t("ui.usingPreset", "Using preset") })
+      /* @__PURE__ */ jsxs2("div", { className: "flex flex-wrap items-center gap-2", children: [
+        hasPreset && autoBtn(primary === null, () => onPrimaryChange(null)),
+        TAILWIND_COLORS2.map((color) => colorBtn(color, primary === color, () => onPrimaryChange(color)))
+      ] })
     ] }),
     /* @__PURE__ */ jsxs2("section", { className: "space-y-2", children: [
-      /* @__PURE__ */ jsx3("h4", { className: "text-xs font-semibold text-muted-foreground", children: t("ui.secondary", "Secondary") }),
+      /* @__PURE__ */ jsxs2("div", { className: "flex items-center justify-between", children: [
+        /* @__PURE__ */ jsx2("h4", { className: "text-base font-semibold", children: t("ui.secondary", "Secondary") }),
+        secondary === null && /* @__PURE__ */ jsx2("span", { className: "text-xs text-muted-foreground", children: hasPreset ? t("ui.usingPreset", "Using preset color") : t("ui.autoFromPrimary", "Auto from primary") })
+      ] }),
       /* @__PURE__ */ jsxs2("div", { className: "flex flex-wrap items-center gap-2", children: [
-        hasPreset ? /* @__PURE__ */ jsx3(Button, { variant: secondary === null ? "secondary" : "outline", size: "xs", onClick: () => onSecondaryChange(null), children: t("ui.auto", "Auto") }) : /* @__PURE__ */ jsx3(
+        hasPreset ? autoBtn(secondary === null, () => onSecondaryChange(null)) : /* @__PURE__ */ jsx2(
           "button",
           {
             onClick: () => onSecondaryChange(null),
             title: "Auto (derived from primary)",
             className: cn(
-              "h-6 w-6 rounded-full border transition-colors",
-              secondary === null ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
+              "h-7 w-7 rounded-full border-2 transition-all",
+              secondary === null ? "border-foreground scale-110" : "border-transparent hover:border-muted-foreground"
             ),
             style: {
               backgroundImage: `conic-gradient(${TAILWIND_COLORS2.slice(5, 10).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(", ")})`
             }
           }
         ),
-        TAILWIND_COLORS2.map((color) => /* @__PURE__ */ jsx3(
-          "button",
-          {
-            onClick: () => onSecondaryChange(color),
-            title: color,
-            className: cn(
-              "h-6 w-6 rounded-full border transition-colors",
-              secondary === color ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
-            ),
-            style: { backgroundColor: resolveColor(`${color}-500`) }
-          },
-          color
-        ))
-      ] }),
-      secondary === null && /* @__PURE__ */ jsx3("p", { className: "text-[11px] text-muted-foreground", children: hasPreset ? t("ui.usingPreset", "Using preset") : t("ui.autoFromPrimary", "Auto from primary") })
+        TAILWIND_COLORS2.map((color) => colorBtn(color, secondary === color, () => onSecondaryChange(color)))
+      ] })
     ] }),
     /* @__PURE__ */ jsxs2("section", { className: "space-y-2", children: [
-      /* @__PURE__ */ jsx3("h4", { className: "text-xs font-semibold text-muted-foreground", children: t("ui.accent", "Accent") }),
+      /* @__PURE__ */ jsxs2("div", { className: "flex items-center justify-between", children: [
+        /* @__PURE__ */ jsx2("h4", { className: "text-base font-semibold", children: t("ui.accent", "Accent") }),
+        accent === null && /* @__PURE__ */ jsx2("span", { className: "text-xs text-muted-foreground", children: hasPreset ? t("ui.usingPreset", "Using preset color") : t("ui.autoFromSecondary", "Auto from secondary") })
+      ] }),
       /* @__PURE__ */ jsxs2("div", { className: "flex flex-wrap items-center gap-2", children: [
-        hasPreset ? /* @__PURE__ */ jsx3(Button, { variant: accent === null ? "secondary" : "outline", size: "xs", onClick: () => onAccentChange(null), children: t("ui.auto", "Auto") }) : /* @__PURE__ */ jsx3(
+        hasPreset ? autoBtn(accent === null, () => onAccentChange(null)) : /* @__PURE__ */ jsx2(
           "button",
           {
             onClick: () => onAccentChange(null),
             title: "Auto (derived from secondary/primary)",
             className: cn(
-              "h-6 w-6 rounded-full border transition-colors",
-              accent === null ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
+              "h-7 w-7 rounded-full border-2 transition-all",
+              accent === null ? "border-foreground scale-110" : "border-transparent hover:border-muted-foreground"
             ),
             style: {
               backgroundImage: `conic-gradient(${TAILWIND_COLORS2.slice(0, 5).map((c, i) => `${resolveColor(`${c}-400`)} ${i * 72}deg ${(i + 1) * 72}deg`).join(", ")})`
             }
           }
         ),
-        TAILWIND_COLORS2.map((color) => /* @__PURE__ */ jsx3(
-          "button",
-          {
-            onClick: () => onAccentChange(color),
-            title: color,
-            className: cn(
-              "h-6 w-6 rounded-full border transition-colors",
-              accent === color ? "border-foreground ring-2 ring-ring" : "border-border hover:border-muted-foreground"
-            ),
-            style: { backgroundColor: resolveColor(`${color}-500`) }
-          },
-          color
-        ))
-      ] }),
-      accent === null && /* @__PURE__ */ jsx3("p", { className: "text-[11px] text-muted-foreground", children: hasPreset ? t("ui.usingPreset", "Using preset") : t("ui.autoFromSecondary", "Auto from secondary") })
+        TAILWIND_COLORS2.map((color) => colorBtn(color, accent === color, () => onAccentChange(color)))
+      ] })
     ] }),
     /* @__PURE__ */ jsxs2("section", { className: "space-y-2", children: [
-      /* @__PURE__ */ jsx3("h4", { className: "text-xs font-semibold text-muted-foreground", children: t("ui.neutralBase", "Neutral base") }),
+      /* @__PURE__ */ jsx2("h4", { className: "text-base font-semibold", children: t("ui.neutralBase", "Neutral base") }),
       /* @__PURE__ */ jsxs2("div", { className: "flex flex-wrap items-center gap-2", children: [
-        hasPreset ? /* @__PURE__ */ jsx3(Button, { variant: neutral === null ? "secondary" : "outline", size: "xs", onClick: () => onNeutralChange(null), children: t("ui.auto", "Auto") }) : /* @__PURE__ */ jsx3(
-          Button,
+        hasPreset ? autoBtn(neutral === null, () => onNeutralChange(null)) : /* @__PURE__ */ jsx2(
+          "button",
           {
-            variant: neutral === null || neutral === "none" ? "secondary" : "outline",
-            size: "xs",
             onClick: () => onNeutralChange("none"),
-            children: t("ui.neutral.none", "none")
+            className: cn(
+              "rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors",
+              neutral === null || neutral === "none" ? "border-transparent bg-primary text-primary-foreground" : "border-border bg-transparent text-foreground hover:border-muted-foreground"
+            ),
+            children: t("ui.neutral.none", "None")
           }
         ),
-        NEUTRAL_COLORS.map((color) => /* @__PURE__ */ jsx3(
-          Button,
+        NEUTRAL_COLORS.map((color) => /* @__PURE__ */ jsx2(
+          "button",
           {
-            variant: neutral === color ? "secondary" : "outline",
-            size: "xs",
             onClick: () => onNeutralChange(color),
-            children: /* @__PURE__ */ jsx3("span", { className: "capitalize bg-muted rounded-md px-1 py-1 text-xs", children: color })
+            className: cn(
+              "rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors",
+              neutral === color ? "border-transparent bg-primary text-primary-foreground" : "border-border bg-transparent text-foreground hover:border-muted-foreground"
+            ),
+            children: color
           },
           color
         ))
@@ -1292,6 +1234,35 @@ function ThemeCustomPalettePicker({
 
 // src/react/ThemeStylePickers.tsx
 import { useEffect as useEffect2 } from "react";
+
+// src/react/ui/button.tsx
+import * as React2 from "react";
+import { jsx as jsx3 } from "react/jsx-runtime";
+var base = "inline-flex items-center justify-center rounded-md text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ring-offset-background";
+var variants = {
+  default: "bg-primary text-primary-foreground hover:bg-primary/90",
+  secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+  outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+  ghost: "hover:bg-accent hover:text-accent-foreground",
+  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+};
+var sizes = {
+  xs: "h-7 px-2",
+  sm: "h-8 px-3",
+  md: "h-9 px-4",
+  icon: "h-9 w-9"
+};
+var Button = React2.forwardRef(
+  ({ className, variant = "default", size = "sm", ...props }, ref) => /* @__PURE__ */ jsx3(
+    "button",
+    {
+      ref,
+      className: cn(base, variants[variant], sizes[size], className),
+      ...props
+    }
+  )
+);
+Button.displayName = "Button";
 
 // src/react/ui/input.tsx
 import * as React3 from "react";
