@@ -12,12 +12,17 @@ export const PATTERN_TYPES: PatternType[] = [
   'none', 'dots', 'grid', 'cross', 'diagonal-lines',
   'horizontal-lines', 'vertical-lines', 'zigzag', 'checkerboard',
   'triangles', 'hexagons', 'noise',
+  'waves', 'crosshatch', 'isometric', 'halftone', 'confetti', 'topography',
+  'gradient', 'gradient-radial',
 ]
 export const PATTERN_LABELS: Record<PatternType, string> = {
   'none': 'None', 'dots': 'Dots', 'grid': 'Grid', 'cross': 'Cross',
   'diagonal-lines': 'Diagonal', 'horizontal-lines': 'H-Lines',
   'vertical-lines': 'V-Lines', 'zigzag': 'Zigzag', 'checkerboard': 'Checker',
   'triangles': 'Triangles', 'hexagons': 'Hexagons', 'noise': 'Noise',
+  'waves': 'Waves', 'crosshatch': 'Crosshatch', 'isometric': 'Isometric',
+  'halftone': 'Halftone', 'confetti': 'Confetti', 'topography': 'Topography',
+  'gradient': 'Gradient', 'gradient-radial': 'Glow',
 }
 export const PATTERN_OPACITY_PRESETS = [
   { label: 'Subtle', value: 0.06 },

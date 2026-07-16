@@ -8,9 +8,6 @@ import {
   useState
 } from "react";
 
-// src/types.ts
-var raw = (value) => value;
-
 // src/colors.ts
 var TAILWIND_COLORS = {
   // ─── white / black ────────────────────────────────────────────────────────
@@ -319,9 +316,9 @@ function hexToOklch(hex) {
 
 // src/patterns.ts
 var SIZE_MAP = {
-  sm: { dots: 12, grid: 16, lines: 16, cross: 16, zigzag: 14, checker: 12, tri: 12, hex: 24 },
-  md: { dots: 20, grid: 24, lines: 24, cross: 24, zigzag: 20, checker: 20, tri: 20, hex: 36 },
-  lg: { dots: 32, grid: 40, lines: 40, cross: 40, zigzag: 30, checker: 32, tri: 32, hex: 56 }
+  sm: { dots: 12, grid: 16, lines: 16, cross: 16, zigzag: 14, checker: 12, tri: 12, hex: 24, wave: 24, hatch: 8, iso: 20, half: 16, conf: 48, topo: 120 },
+  md: { dots: 20, grid: 24, lines: 24, cross: 24, zigzag: 20, checker: 20, tri: 20, hex: 36, wave: 40, hatch: 12, iso: 32, half: 24, conf: 72, topo: 200 },
+  lg: { dots: 32, grid: 40, lines: 40, cross: 40, zigzag: 30, checker: 32, tri: 32, hex: 56, wave: 64, hatch: 18, iso: 48, half: 36, conf: 104, topo: 320 }
 };
 function getSize(s, key) {
   return SIZE_MAP[s ?? "md"][key];
@@ -437,6 +434,108 @@ function generatePattern(config) {
         backgroundSize: "200px 200px"
       };
     }
+    case "waves": {
+      const s = getSize(size, "wave");
+      const h = Math.round(s / 2);
+      return {
+        backgroundImage: [
+          `radial-gradient(circle at 50% 0, transparent ${Math.round(s * 0.32)}px, ${colorWithOpacity} ${Math.round(s * 0.32)}px, ${colorWithOpacity} ${Math.round(s * 0.36)}px, transparent ${Math.round(s * 0.37)}px)`,
+          `radial-gradient(circle at 50% ${h}px, transparent ${Math.round(s * 0.32)}px, ${colorWithOpacity} ${Math.round(s * 0.32)}px, ${colorWithOpacity} ${Math.round(s * 0.36)}px, transparent ${Math.round(s * 0.37)}px)`
+        ].join(", "),
+        backgroundSize: `${s}px ${h}px`,
+        backgroundPosition: `0 0, ${h}px 0`
+      };
+    }
+    case "crosshatch": {
+      const s = getSize(size, "hatch");
+      return {
+        backgroundImage: [
+          `repeating-linear-gradient(45deg, ${colorWithOpacity} 0, ${colorWithOpacity} 0.5px, transparent 0.5px, transparent ${s}px)`,
+          `repeating-linear-gradient(135deg, ${colorWithOpacity} 0, ${colorWithOpacity} 0.5px, transparent 0.5px, transparent ${s}px)`
+        ].join(", "),
+        backgroundSize: `${s * 2}px ${s * 2}px`
+      };
+    }
+    case "isometric": {
+      const s = getSize(size, "iso");
+      const h = Math.round(s * 1.732);
+      return {
+        backgroundImage: [
+          `repeating-linear-gradient(90deg, ${colorWithOpacity} 0 1px, transparent 1px ${s}px)`,
+          `repeating-linear-gradient(30deg, ${colorWithOpacity} 0 1px, transparent 1px ${Math.round(h / 2)}px)`,
+          `repeating-linear-gradient(150deg, ${colorWithOpacity} 0 1px, transparent 1px ${Math.round(h / 2)}px)`
+        ].join(", "),
+        backgroundSize: `${s * 2}px ${h}px`
+      };
+    }
+    case "halftone": {
+      const s = getSize(size, "half");
+      const half = s / 2;
+      return {
+        backgroundImage: [
+          `radial-gradient(circle, ${colorWithOpacity} 1.8px, transparent 1.8px)`,
+          `radial-gradient(circle, ${colorWithOpacity} 1px, transparent 1px)`
+        ].join(", "),
+        backgroundSize: `${s}px ${s}px`,
+        backgroundPosition: `0 0, ${half}px ${half}px`
+      };
+    }
+    case "confetti": {
+      const s = getSize(size, "conf");
+      const u = s / 72;
+      const dot = (x, y, r) => `radial-gradient(circle ${(r * u).toFixed(1)}px at ${Math.round(x * u)}px ${Math.round(y * u)}px, ${colorWithOpacity} 100%, transparent 100%)`;
+      return {
+        backgroundImage: [
+          dot(9, 12, 2.5),
+          dot(30, 6, 1.8),
+          dot(51, 16, 2.2),
+          dot(66, 38, 1.6),
+          dot(42, 33, 2.6),
+          dot(18, 42, 1.8),
+          dot(6, 60, 2.2),
+          dot(33, 63, 1.6),
+          dot(60, 58, 2.5)
+        ].join(", "),
+        backgroundSize: `${s}px ${s}px`
+      };
+    }
+    case "topography": {
+      const s = getSize(size, "topo");
+      const paths = [
+        "M20 100c0-44 36-80 80-80s80 36 80 80-36 80-80 80-80-36-80-80z",
+        "M40 100c0-33 27-60 60-60s60 27 60 60-27 60-60 60-60-27-60-60z",
+        "M60 100c0-22 18-40 40-40s40 18 40 40-18 40-40 40-40-18-40-40z",
+        "M80 100c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20z"
+      ].map((d) => `<path d='${d}' fill='none' stroke='#808080' stroke-width='1.5' opacity='${opacity}'/>`).join("");
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'>${paths}</svg>`;
+      return {
+        backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(svg)}")`,
+        backgroundSize: `${s}px ${s}px`
+      };
+    }
+    case "gradient": {
+      const o = config.opacity ?? 0.15;
+      const mix = (c) => wrapWithOpacity(c, o);
+      const c1 = config.color ? colorWithOpacity : mix("var(--primary)");
+      const c2 = config.color ? colorWithOpacity : mix("var(--secondary)");
+      const c3 = config.color ? colorWithOpacity : mix("var(--accent)");
+      return {
+        backgroundImage: [
+          `radial-gradient(ellipse 80% 60% at 15% 0%, ${c1}, transparent 60%)`,
+          `radial-gradient(ellipse 70% 60% at 85% 10%, ${c2}, transparent 60%)`,
+          `radial-gradient(ellipse 90% 70% at 50% 100%, ${c3}, transparent 65%)`
+        ].join(", "),
+        backgroundSize: "100% 100%"
+      };
+    }
+    case "gradient-radial": {
+      const o = config.opacity ?? 0.15;
+      const c = config.color ? colorWithOpacity : wrapWithOpacity("var(--primary)", o);
+      return {
+        backgroundImage: `radial-gradient(ellipse 120% 80% at 50% 0%, ${c}, transparent 70%)`,
+        backgroundSize: "100% 100%"
+      };
+    }
     default:
       return { backgroundImage: "none", backgroundSize: "auto" };
   }
@@ -444,6 +543,41 @@ function generatePattern(config) {
 function wrapWithOpacity(color, opacity) {
   const pct = Math.round(opacity * 100);
   return `color-mix(in oklch, ${color} ${pct}%, transparent)`;
+}
+var PATTERN_TINT_OPACITY_MULTIPLIER = {
+  primary: 1,
+  secondary: 1.4,
+  accent: 2
+};
+var PATTERN_MAX_EFFECTIVE_OPACITY = 0.25;
+function patternToCssVars(pattern, options) {
+  if (!pattern || pattern.type === "none") {
+    return { "--pattern-image": "none", "--pattern-size": "auto" };
+  }
+  const mode = options?.mode ?? "light";
+  const modeOpacity = mode === "dark" && pattern.darkOpacity !== void 0 ? pattern.darkOpacity : pattern.opacity;
+  let config;
+  if (pattern.tint) {
+    const tintVar = `var(--${pattern.tint})`;
+    const boosted = (modeOpacity ?? 0.08) * PATTERN_TINT_OPACITY_MULTIPLIER[pattern.tint];
+    config = {
+      ...pattern,
+      color: tintVar,
+      opacity: Math.min(PATTERN_MAX_EFFECTIVE_OPACITY, boosted)
+    };
+  } else {
+    config = {
+      ...pattern,
+      opacity: modeOpacity === void 0 ? void 0 : Math.min(PATTERN_MAX_EFFECTIVE_OPACITY, modeOpacity)
+    };
+  }
+  const style = generatePattern(config);
+  const vars = {
+    "--pattern-image": style.backgroundImage,
+    "--pattern-size": style.backgroundSize
+  };
+  if (style.backgroundPosition) vars["--pattern-position"] = style.backgroundPosition;
+  return vars;
 }
 
 // src/fonts.ts
@@ -580,6 +714,16 @@ var TOKEN_TO_CSS_VAR = {
   ring: "--ring"
 };
 var TOKEN_KEYS = Object.keys(TOKEN_TO_CSS_VAR);
+var SHADOW_COLOR = {
+  light: "color-mix(in oklch, var(--foreground) 15%, transparent)",
+  dark: "color-mix(in oklch, black 50%, transparent)"
+};
+var SHADOW_SCALE = {
+  "--shadow-sm": "0 1px 2px 0 var(--shadow-color)",
+  "--shadow-md": "0 4px 8px -2px var(--shadow-color), 0 2px 4px -2px var(--shadow-color)",
+  "--shadow-lg": "0 12px 24px -6px var(--shadow-color), 0 4px 8px -4px var(--shadow-color)",
+  "--shadow-xl": "0 24px 48px -12px var(--shadow-color)"
+};
 function generateThemeVariables(tokens) {
   const result = {};
   for (const key of TOKEN_KEYS) {
@@ -698,21 +842,17 @@ function ThemeProvider({
       linkEl.remove();
     }
     root.style.setProperty("--bg-image", theme.backgroundImage ?? "none");
-    if (theme.pattern && theme.pattern.type !== "none") {
-      const pattern = theme.pattern.tint ? {
-        ...theme.pattern,
-        color: theme.pattern.tint === "primary" ? raw("var(--primary)") : theme.pattern.tint === "secondary" ? raw("var(--secondary)") : raw("var(--accent)"),
-        opacity: theme.pattern.tint === "accent" ? (theme.pattern.opacity ?? 0.08) * 2 : theme.pattern.tint === "secondary" ? (theme.pattern.opacity ?? 0.08) * 1.4 : theme.pattern.opacity
-      } : theme.pattern;
-      const ps = generatePattern(pattern);
-      root.style.setProperty("--pattern-image", ps.backgroundImage);
-      root.style.setProperty("--pattern-size", ps.backgroundSize);
-      if (ps.backgroundPosition) root.style.setProperty("--pattern-position", ps.backgroundPosition);
-      else root.style.removeProperty("--pattern-position");
+    const patternVars = patternToCssVars(theme.pattern, { mode: resolvedMode });
+    root.style.setProperty("--pattern-image", patternVars["--pattern-image"]);
+    root.style.setProperty("--pattern-size", patternVars["--pattern-size"]);
+    if (patternVars["--pattern-position"]) {
+      root.style.setProperty("--pattern-position", patternVars["--pattern-position"]);
     } else {
-      root.style.setProperty("--pattern-image", "none");
-      root.style.setProperty("--pattern-size", "auto");
       root.style.removeProperty("--pattern-position");
+    }
+    root.style.setProperty("--shadow-color", SHADOW_COLOR[resolvedMode]);
+    for (const [prop, value2] of Object.entries(SHADOW_SCALE)) {
+      root.style.setProperty(prop, value2);
     }
     if (resolvedMode === "dark") {
       root.classList.add("dark");
@@ -829,7 +969,15 @@ var PATTERN_TYPES = [
   "checkerboard",
   "triangles",
   "hexagons",
-  "noise"
+  "noise",
+  "waves",
+  "crosshatch",
+  "isometric",
+  "halftone",
+  "confetti",
+  "topography",
+  "gradient",
+  "gradient-radial"
 ];
 var PATTERN_LABELS = {
   "none": "None",
@@ -843,7 +991,15 @@ var PATTERN_LABELS = {
   "checkerboard": "Checker",
   "triangles": "Triangles",
   "hexagons": "Hexagons",
-  "noise": "Noise"
+  "noise": "Noise",
+  "waves": "Waves",
+  "crosshatch": "Crosshatch",
+  "isometric": "Isometric",
+  "halftone": "Halftone",
+  "confetti": "Confetti",
+  "topography": "Topography",
+  "gradient": "Gradient",
+  "gradient-radial": "Glow"
 };
 var PATTERN_OPACITY_PRESETS = [
   { label: "Subtle", value: 0.06 },
@@ -1235,6 +1391,9 @@ function ThemeCustomPalettePicker({
 // src/react/ThemeStylePickers.tsx
 import { useEffect as useEffect2 } from "react";
 
+// src/types.ts
+var raw = (value) => value;
+
 // src/react/ui/button.tsx
 import * as React2 from "react";
 import { jsx as jsx3 } from "react/jsx-runtime";
@@ -1542,6 +1701,221 @@ function ThemeBackgroundImagePicker({ value, onChange, className, labels, locale
   ] });
 }
 
+// src/contrast.ts
+var OKLCH_RE = /^oklch\(\s*([\d.]+%?)\s+([\d.]+)\s+([\d.]+)(?:deg)?\s*(?:\/\s*[\d.]+%?\s*)?\)$/i;
+function parseOklch(value) {
+  const match = value.trim().match(OKLCH_RE);
+  if (!match) return null;
+  let l = parseFloat(match[1]);
+  if (match[1].endsWith("%")) l /= 100;
+  return { l, c: parseFloat(match[2]), h: parseFloat(match[3]) };
+}
+function oklchToLinearRgb({ l, c, h }) {
+  const hRad = h * Math.PI / 180;
+  const a = c * Math.cos(hRad);
+  const b = c * Math.sin(hRad);
+  const l_ = l + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = l - 0.0894841775 * a - 1.291485548 * b;
+  const l3 = l_ ** 3;
+  const m3 = m_ ** 3;
+  const s3 = s_ ** 3;
+  const clamp = (v) => Math.min(1, Math.max(0, v));
+  return {
+    r: clamp(4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3),
+    g: clamp(-1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3),
+    b: clamp(-0.0041960863 * l3 - 0.7034186147 * m3 + 1.707614701 * s3)
+  };
+}
+function srgbChannelToLinear(v) {
+  return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+}
+function hexToLinearRgb(value) {
+  const hex = value.trim().replace(/^#/, "");
+  let r, g, b;
+  if (/^[0-9a-f]{3}$/i.test(hex)) {
+    r = parseInt(hex[0] + hex[0], 16);
+    g = parseInt(hex[1] + hex[1], 16);
+    b = parseInt(hex[2] + hex[2], 16);
+  } else if (/^[0-9a-f]{6}([0-9a-f]{2})?$/i.test(hex)) {
+    r = parseInt(hex.slice(0, 2), 16);
+    g = parseInt(hex.slice(2, 4), 16);
+    b = parseInt(hex.slice(4, 6), 16);
+  } else {
+    return null;
+  }
+  return {
+    r: srgbChannelToLinear(r / 255),
+    g: srgbChannelToLinear(g / 255),
+    b: srgbChannelToLinear(b / 255)
+  };
+}
+var RGB_RE = /^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/i;
+function rgbToLinearRgb(value) {
+  const match = value.trim().match(RGB_RE);
+  if (!match) return null;
+  return {
+    r: srgbChannelToLinear(parseInt(match[1], 10) / 255),
+    g: srgbChannelToLinear(parseInt(match[2], 10) / 255),
+    b: srgbChannelToLinear(parseInt(match[3], 10) / 255)
+  };
+}
+var HSL_RE = /^hsla?\(\s*([\d.]+)(?:deg)?[,\s]+([\d.]+)%[,\s]+([\d.]+)%/i;
+function hslToLinearRgb(value) {
+  const match = value.trim().match(HSL_RE);
+  if (!match) return null;
+  const h = (parseFloat(match[1]) % 360 + 360) % 360;
+  const s = parseFloat(match[2]) / 100;
+  const l = parseFloat(match[3]) / 100;
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const hp = h / 60;
+  const x = c * (1 - Math.abs(hp % 2 - 1));
+  let r = 0, g = 0, b = 0;
+  if (hp < 1) {
+    r = c;
+    g = x;
+  } else if (hp < 2) {
+    r = x;
+    g = c;
+  } else if (hp < 3) {
+    g = c;
+    b = x;
+  } else if (hp < 4) {
+    g = x;
+    b = c;
+  } else if (hp < 5) {
+    r = x;
+    b = c;
+  } else {
+    r = c;
+    b = x;
+  }
+  const m = l - c / 2;
+  return {
+    r: srgbChannelToLinear(r + m),
+    g: srgbChannelToLinear(g + m),
+    b: srgbChannelToLinear(b + m)
+  };
+}
+function parseColorToRgb(value) {
+  const v = value.trim();
+  const oklch = parseOklch(v);
+  if (oklch) return oklchToLinearRgb(oklch);
+  if (v.startsWith("#")) return hexToLinearRgb(v);
+  return rgbToLinearRgb(v) ?? hslToLinearRgb(v);
+}
+function relativeLuminance(rgb) {
+  return 0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b;
+}
+function contrastRatio(colorA, colorB) {
+  const a = parseColorToRgb(colorA);
+  const b = parseColorToRgb(colorB);
+  if (!a || !b) return NaN;
+  const la = relativeLuminance(a);
+  const lb = relativeLuminance(b);
+  const lighter = Math.max(la, lb);
+  const darker = Math.min(la, lb);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+var CONTRAST_AA_TEXT = 4.5;
+var CONTRAST_AA_UI = 3;
+function formatOklch({ l, c, h }) {
+  const round = (v, places) => parseFloat(v.toFixed(places));
+  return `oklch(${round(l, 4)} ${round(c, 4)} ${round(h, 4)})`;
+}
+function ratioAgainst(fg, bgLum) {
+  const lum = relativeLuminance(oklchToLinearRgb(fg));
+  const lighter = Math.max(lum, bgLum);
+  const darker = Math.min(lum, bgLum);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+function searchLightness(base2, bgLum, target, extreme) {
+  if (ratioAgainst({ ...base2, l: extreme }, bgLum) < target) return null;
+  let fail = base2.l;
+  let pass = extreme;
+  for (let i = 0; i < 24; i++) {
+    const mid = (fail + pass) / 2;
+    if (ratioAgainst({ ...base2, l: mid }, bgLum) >= target) pass = mid;
+    else fail = mid;
+  }
+  return { ...base2, l: pass };
+}
+function ensureContrast(fg, bg, ratio = CONTRAST_AA_TEXT) {
+  const bgRgb = parseColorToRgb(bg);
+  if (!bgRgb) return fg;
+  const bgLum = relativeLuminance(bgRgb);
+  let fgOklch = parseOklch(fg);
+  if (!fgOklch) {
+    const fgRgb = parseColorToRgb(fg);
+    if (!fgRgb) return fg;
+    fgOklch = linearRgbToOklch(fgRgb);
+  }
+  if (ratioAgainst(fgOklch, bgLum) >= ratio) return fg;
+  const searchTarget = ratio + 0.05;
+  const darkBg = bgLum < 0.35;
+  const directions = darkBg ? [1, 0] : [0, 1];
+  for (let c = fgOklch.c; ; c *= 0.6) {
+    const base2 = { ...fgOklch, c };
+    for (const extreme of directions) {
+      const found = searchLightness(base2, bgLum, searchTarget, extreme);
+      if (found) return formatOklch(found);
+    }
+    if (c < 5e-3) break;
+  }
+  return darkBg ? "oklch(1 0 0)" : "oklch(0 0 0)";
+}
+var THEME_TEXT_PAIRS = [
+  ["foreground", "background"],
+  ["cardForeground", "card"],
+  ["popoverForeground", "popover"],
+  ["primaryForeground", "primary"],
+  ["secondaryForeground", "secondary"],
+  ["mutedForeground", "muted"],
+  ["accentForeground", "accent"],
+  ["destructiveForeground", "destructive"]
+];
+function ensureThemeContrast(theme, options) {
+  const textRatio = options?.textRatio ?? CONTRAST_AA_TEXT;
+  const uiRatio = options?.uiRatio ?? CONTRAST_AA_UI;
+  function repair(tokens) {
+    const result = { ...tokens };
+    let changed = false;
+    for (const [fgKey, bgKey] of THEME_TEXT_PAIRS) {
+      const fg = resolveColor(tokens[fgKey]);
+      const bg2 = resolveColor(tokens[bgKey]);
+      const fixed = ensureContrast(fg, bg2, textRatio);
+      if (fixed !== fg) {
+        result[fgKey] = raw(fixed);
+        changed = true;
+      }
+    }
+    const ring = resolveColor(tokens.ring);
+    const bg = resolveColor(tokens.background);
+    const fixedRing = ensureContrast(ring, bg, uiRatio);
+    if (fixedRing !== ring) {
+      result.ring = raw(fixedRing);
+      changed = true;
+    }
+    return changed ? result : tokens;
+  }
+  const light = repair(theme.light);
+  const dark = repair(theme.dark);
+  if (light === theme.light && dark === theme.dark) return theme;
+  return { ...theme, light, dark };
+}
+function linearRgbToOklch({ r, g, b }) {
+  const l_ = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m_ = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s_ = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  const L = 0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_;
+  const a = 1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_;
+  const bb = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_;
+  const c = Math.sqrt(a * a + bb * bb);
+  let h = Math.atan2(bb, a) * 180 / Math.PI;
+  if (h < 0) h += 360;
+  return { l: L, c, h };
+}
+
 // src/vividness.ts
 var VIVIDNESS_PRESETS = {
   playful: 1.3,
@@ -1551,18 +1925,18 @@ var VIVIDNESS_PRESETS = {
   elegant: 0.5
 };
 var MAX_CHROMA = 0.4;
-function parseOklch(value) {
+function parseOklch2(value) {
   const match = value.trim().match(/^oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*\)$/);
   if (!match) return null;
   return { l: parseFloat(match[1]), c: parseFloat(match[2]), h: parseFloat(match[3]) };
 }
 function scaleChroma(cssValue, factor) {
-  const parsed = parseOklch(cssValue);
+  const parsed = parseOklch2(cssValue);
   if (!parsed) return cssValue;
   const newC = Math.min(MAX_CHROMA, Math.max(0, parsed.c * factor));
   return `oklch(${parsed.l} ${parseFloat(newC.toFixed(4))} ${parsed.h})`;
 }
-function adjustVividness(theme, factor) {
+function adjustVividness(theme, factor, options) {
   if (factor === 1) return theme;
   function scaleTokens(tokens) {
     const result = {};
@@ -1572,11 +1946,12 @@ function adjustVividness(theme, factor) {
     }
     return result;
   }
-  return {
+  const scaled = {
     ...theme,
     light: scaleTokens(theme.light),
     dark: scaleTokens(theme.dark)
   };
+  return options?.contrastFloor === false ? scaled : ensureThemeContrast(scaled);
 }
 
 // src/factory.ts
@@ -1585,9 +1960,27 @@ var DARK_PRIMARY_SHADE = 400;
 function token(color, shade) {
   return `${color}-${shade}`;
 }
+function tokenContrast(a, b) {
+  return contrastRatio(resolveColor(a), resolveColor(b));
+}
+function pickByContrast(candidates, bg, ratio) {
+  for (const c of candidates) {
+    if (tokenContrast(c, bg) >= ratio) return c;
+  }
+  return candidates[candidates.length - 1];
+}
+function chipForeground(chip, family) {
+  return pickByContrast(["white", token(family, 950), "black"], chip, CONTRAST_AA_TEXT);
+}
 function buildLightTokens(primary, neutral, secondary, accent, overrides) {
   const surface = neutral ?? primary;
   const accentColor = accent ?? secondary ?? primary;
+  const primaryChip = token(primary, LIGHT_PRIMARY_SHADE);
+  const ring = pickByContrast(
+    [primaryChip, token(primary, 700), token(primary, 800)],
+    token(surface, 50),
+    CONTRAST_AA_UI
+  );
   const base2 = {
     background: token(surface, 50),
     foreground: token(surface, 950),
@@ -1595,19 +1988,25 @@ function buildLightTokens(primary, neutral, secondary, accent, overrides) {
     cardForeground: token(surface, 950),
     popover: token(surface, 50),
     popoverForeground: token(surface, 950),
-    primary: token(primary, LIGHT_PRIMARY_SHADE),
-    primaryForeground: "white",
+    primary: primaryChip,
+    primaryForeground: chipForeground(primaryChip, primary),
     secondary: token(secondary ?? primary, 200),
     secondaryForeground: token(surface, 800),
     muted: token(surface, 100),
-    mutedForeground: token(surface, 500),
+    // -500 sits below 4.5:1 on a -100 surface for most hues; light families
+    // (yellow, lime...) need to walk further down the ladder
+    mutedForeground: pickByContrast(
+      [token(surface, 600), token(surface, 700), token(surface, 800)],
+      token(surface, 100),
+      CONTRAST_AA_TEXT
+    ),
     accent: token(accentColor, 200),
     accentForeground: token(surface, 800),
     destructive: "red-600",
     destructiveForeground: "white",
     border: token(surface, 200),
     input: token(surface, 200),
-    ring: token(primary, LIGHT_PRIMARY_SHADE)
+    ring
   };
   return overrides ? { ...base2, ...overrides } : base2;
 }
@@ -1627,7 +2026,12 @@ function buildDarkTokens(primary, neutral, secondary, accent, overrides) {
     secondary: token(secondary ?? primary, 800),
     secondaryForeground: token(surface, 200),
     muted: token(surface, 900),
-    mutedForeground: token(surface, 400),
+    // -400 on a -900 surface sits below 4.5:1 for most hues
+    mutedForeground: pickByContrast(
+      [token(surface, 300), token(surface, 200), token(surface, 100)],
+      token(surface, 900),
+      CONTRAST_AA_TEXT
+    ),
     accent: token(accentColor, 800),
     accentForeground: token(surface, 200),
     destructive: "red-400",

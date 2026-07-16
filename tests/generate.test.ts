@@ -88,3 +88,74 @@ describe('resolveTokens', () => {
     }
   })
 })
+
+describe('shadow / elevation vars', () => {
+  it('emits shadow scale + light shadow color in :root', () => {
+    const css = generateCSS(oceanTheme)
+    const root = css.split('.dark')[0]
+    expect(root).toContain('--shadow-color: color-mix(in oklch, var(--foreground) 15%, transparent);')
+    expect(root).toContain('--shadow-sm: 0 1px 2px 0 var(--shadow-color);')
+    expect(root).toContain('--shadow-md:')
+    expect(root).toContain('--shadow-lg:')
+    expect(root).toContain('--shadow-xl:')
+  })
+
+  it('overrides only --shadow-color in .dark', () => {
+    const css = generateCSS(oceanTheme)
+    const dark = css.split('.dark {')[1].split('}')[0]
+    expect(dark).toContain('--shadow-color: color-mix(in oklch, black 50%, transparent);')
+    expect(dark).not.toContain('--shadow-sm')
+  })
+
+  it('maps shadow vars in @theme inline', () => {
+    const css = generateCSS(oceanTheme)
+    const inline = css.split('@theme inline {')[1]
+    expect(inline).toContain('--shadow-md: var(--shadow-md);')
+  })
+
+  it('storedThemeToCSS emits the same shadow vars', () => {
+    const css = storedThemeToCSS(serializeTheme(oceanTheme))
+    expect(css).toContain('--shadow-sm: 0 1px 2px 0 var(--shadow-color);')
+    expect(css.split('.dark {')[1].split('}')[0]).toContain('--shadow-color: color-mix(in oklch, black 50%, transparent);')
+  })
+})
+
+describe('per-mode pattern opacity (darkOpacity)', () => {
+  const themed = {
+    ...oceanTheme,
+    pattern: { type: 'dots' as const, opacity: 0.08, darkOpacity: 0.16 },
+  }
+
+  it('generateCSS re-emits pattern vars in .dark when darkOpacity is set', () => {
+    const css = generateCSS(themed)
+    const root = css.split('.dark')[0]
+    const dark = css.split('.dark {')[1].split('}')[0]
+    expect(root).toContain('8%')
+    expect(dark).toContain('--pattern-image:')
+    expect(dark).toContain('16%')
+  })
+
+  it('generateCSS emits no .dark pattern override without darkOpacity', () => {
+    const css = generateCSS({ ...oceanTheme, pattern: { type: 'dots' as const, opacity: 0.08 } })
+    const dark = css.split('.dark {')[1].split('}')[0]
+    expect(dark).not.toContain('--pattern-image')
+  })
+
+  it('storedThemeToCSS round-trips darkOpacity through serializeTheme', () => {
+    const css = storedThemeToCSS(serializeTheme(themed))
+    const dark = css.split('.dark {')[1].split('}')[0]
+    expect(dark).toContain('--pattern-image:')
+    expect(dark).toContain('16%')
+  })
+})
+
+describe('accessibility media overrides', () => {
+  it('both emitters disable patterns + bg image under forced-colors / prefers-contrast', () => {
+    for (const css of [generateCSS(oceanTheme), storedThemeToCSS(serializeTheme(oceanTheme))]) {
+      expect(css).toContain('@media (forced-colors: active), (prefers-contrast: more)')
+      const block = css.split('@media (forced-colors: active), (prefers-contrast: more)')[1]
+      expect(block).toContain('--pattern-image: none;')
+      expect(block).toContain('--bg-image: none;')
+    }
+  })
+})

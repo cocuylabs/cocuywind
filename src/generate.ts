@@ -1,7 +1,6 @@
 import { resolveColor } from './colors.js'
-import type { Theme, ThemeTokens, StoredTheme, ResolvedTokens } from './types.js'
-import { raw } from './types.js'
-import { generatePattern } from './patterns.js'
+import type { Theme, ThemeTokens, StoredTheme, ResolvedTokens, ThemePattern } from './types.js'
+import { patternToCssVars } from './patterns.js'
 import { FONT_ADJUSTMENTS } from './fonts.js'
 
 /**
@@ -36,6 +35,57 @@ const TOKEN_TO_CSS_VAR: Record<keyof ThemeTokens, string> = {
 }
 
 const TOKEN_KEYS = Object.keys(TOKEN_TO_CSS_VAR) as (keyof ThemeTokens)[]
+
+/** Emit --pattern-* declarations for one mode into a lines buffer */
+function pushPatternVars(lines: string[], pattern: ThemePattern | undefined, mode: 'light' | 'dark'): void {
+  const vars = patternToCssVars(pattern, { mode })
+  for (const [cssVar, value] of Object.entries(vars)) {
+    lines.push(`  ${cssVar}: ${value};`)
+  }
+}
+
+/** Patterns only need re-emitting in .dark when the dark opacity differs */
+function patternNeedsDarkOverride(pattern: ThemePattern | undefined): boolean {
+  return !!pattern && pattern.type !== 'none' && pattern.darkOpacity !== undefined
+}
+
+/**
+ * Decorative layers (patterns, background images) are noise for users who ask
+ * the OS for higher contrast, and they fight the system palette under forced
+ * colors — switch them off in both cases.
+ */
+const A11Y_MEDIA_BLOCK = [
+  '@media (forced-colors: active), (prefers-contrast: more) {',
+  '  :root {',
+  '    --pattern-image: none;',
+  '    --bg-image: none;',
+  '  }',
+  '}',
+]
+
+/**
+ * Theme-aware shadow color per mode. Light mode tints the shadow with the
+ * theme's foreground (subtle hue-matched depth instead of flat gray); dark
+ * mode uses near-black at higher strength — light-tinted shadows read as
+ * glows on dark surfaces.
+ */
+export const SHADOW_COLOR: Record<'light' | 'dark', string> = {
+  light: 'color-mix(in oklch, var(--foreground) 15%, transparent)',
+  dark: 'color-mix(in oklch, black 50%, transparent)',
+}
+
+/**
+ * Elevation scale — all steps reference `--shadow-color`, so `.dark` only
+ * needs to override that one var. Consumers use them directly
+ * (`box-shadow: var(--shadow-md)`) or via Tailwind's `shadow-*` utilities
+ * (mapped in the emitted `@theme inline` block).
+ */
+export const SHADOW_SCALE: Record<string, string> = {
+  '--shadow-sm': '0 1px 2px 0 var(--shadow-color)',
+  '--shadow-md': '0 4px 8px -2px var(--shadow-color), 0 2px 4px -2px var(--shadow-color)',
+  '--shadow-lg': '0 12px 24px -6px var(--shadow-color), 0 4px 8px -4px var(--shadow-color)',
+  '--shadow-xl': '0 24px 48px -12px var(--shadow-color)',
+}
 
 /**
  * Resolves all ThemeTokens to a flat Record of CSS var → CSS value.
@@ -81,36 +131,17 @@ export function generateCSS(theme: Theme): string {
     if (headAdj?.letterSpacing) lines.push(`  --font-heading-tracking: ${headAdj.letterSpacing};`)
   }
 
-  // Pattern CSS variables
-  if (theme.pattern && theme.pattern.type !== 'none') {
-    const pattern = theme.pattern.tint
-      ? {
-          ...theme.pattern,
-          color: theme.pattern.tint === 'primary'
-            ? raw('var(--primary)')
-            : theme.pattern.tint === 'secondary'
-              ? raw('var(--secondary)')
-              : raw('var(--accent)'),
-          opacity: theme.pattern.tint === 'accent'
-            ? (theme.pattern.opacity ?? 0.08) * 2.0
-            : theme.pattern.tint === 'secondary'
-              ? (theme.pattern.opacity ?? 0.08) * 1.4
-            : theme.pattern.opacity,
-        }
-      : theme.pattern
-    const patternStyle = generatePattern(pattern)
-    lines.push(`  --pattern-image: ${patternStyle.backgroundImage};`)
-    lines.push(`  --pattern-size: ${patternStyle.backgroundSize};`)
-    if (patternStyle.backgroundPosition) {
-      lines.push(`  --pattern-position: ${patternStyle.backgroundPosition};`)
-    }
-  } else {
-    lines.push(`  --pattern-image: none;`)
-    lines.push(`  --pattern-size: auto;`)
-  }
+  // Pattern CSS variables — tint mapping lives in patternToCssVars
+  pushPatternVars(lines, theme.pattern, 'light')
 
   // Background image CSS variable (consumer uploads, provides URL)
   lines.push(`  --bg-image: ${theme.backgroundImage ?? 'none'};`)
+
+  // Theme-aware elevation
+  lines.push(`  --shadow-color: ${SHADOW_COLOR.light};`)
+  for (const [cssVar, value] of Object.entries(SHADOW_SCALE)) {
+    lines.push(`  ${cssVar}: ${value};`)
+  }
 
   lines.push('}', '')
 
@@ -129,7 +160,14 @@ export function generateCSS(theme: Theme): string {
   for (const [cssVar, value] of Object.entries(darkVars)) {
     lines.push(`  ${cssVar}: ${value};`)
   }
+  if (patternNeedsDarkOverride(theme.pattern)) {
+    pushPatternVars(lines, theme.pattern, 'dark')
+  }
+  lines.push(`  --shadow-color: ${SHADOW_COLOR.dark};`)
   lines.push('}', '')
+
+  // ─── Accessibility media overrides ───────────────────────────────────────
+  lines.push(...A11Y_MEDIA_BLOCK, '')
 
   // ─── @theme inline (maps CSS vars → Tailwind utility classes) ────────────
   lines.push('@theme inline {')
@@ -143,6 +181,9 @@ export function generateCSS(theme: Theme): string {
   lines.push(`  --radius-md: var(--radius);`)
   lines.push(`  --radius-lg: calc(var(--radius) + 4px);`)
   lines.push(`  --radius-xl: calc(var(--radius) + 8px);`)
+  for (const cssVar of Object.keys(SHADOW_SCALE)) {
+    lines.push(`  ${cssVar}: var(${cssVar});`)
+  }
   if (fonts.body)    lines.push(`  --font-sans: var(--font-body);`)
   if (fonts.heading) lines.push(`  --font-heading: var(--font-heading);`)
   lines.push('}')
@@ -179,35 +220,17 @@ export function storedThemeToCSS(stored: StoredTheme): string {
     if (headAdj?.letterSpacing) lines.push(`  --font-heading-tracking: ${headAdj.letterSpacing};`)
   }
 
-  if (pattern && pattern.type !== 'none') {
-    const patternConfig = pattern.tint
-      ? {
-          ...pattern,
-          color: pattern.tint === 'primary'
-            ? raw('var(--primary)')
-            : pattern.tint === 'secondary'
-              ? raw('var(--secondary)')
-              : raw('var(--accent)'),
-          opacity: pattern.tint === 'accent'
-            ? (pattern.opacity ?? 0.08) * 2.0
-            : pattern.tint === 'secondary'
-              ? (pattern.opacity ?? 0.08) * 1.4
-            : pattern.opacity,
-        }
-      : pattern
-    const patternStyle = generatePattern(patternConfig)
-    lines.push(`  --pattern-image: ${patternStyle.backgroundImage};`)
-    lines.push(`  --pattern-size: ${patternStyle.backgroundSize};`)
-    if (patternStyle.backgroundPosition) {
-      lines.push(`  --pattern-position: ${patternStyle.backgroundPosition};`)
-    }
-  } else {
-    lines.push(`  --pattern-image: none;`)
-    lines.push(`  --pattern-size: auto;`)
-  }
+  // Pattern CSS variables — tint mapping lives in patternToCssVars
+  pushPatternVars(lines, pattern, 'light')
 
   // Background image CSS variable
   lines.push(`  --bg-image: ${stored.backgroundImage ?? 'none'};`)
+
+  // Theme-aware elevation
+  lines.push(`  --shadow-color: ${SHADOW_COLOR.light};`)
+  for (const [cssVar, value] of Object.entries(SHADOW_SCALE)) {
+    lines.push(`  ${cssVar}: ${value};`)
+  }
 
   lines.push('}', '')
 
@@ -220,7 +243,14 @@ export function storedThemeToCSS(stored: StoredTheme): string {
   for (const [key, value] of Object.entries(styles.dark)) {
     lines.push(`  --${kebab(key)}: ${value};`)
   }
+  if (patternNeedsDarkOverride(pattern)) {
+    pushPatternVars(lines, pattern, 'dark')
+  }
+  lines.push(`  --shadow-color: ${SHADOW_COLOR.dark};`)
   lines.push('}', '')
+
+  // ─── Accessibility media overrides ───────────────────────────────────────
+  lines.push(...A11Y_MEDIA_BLOCK, '')
 
   // ─── @theme inline ───────────────────────────────────────────────────────
   lines.push('@theme inline {')
@@ -233,6 +263,9 @@ export function storedThemeToCSS(stored: StoredTheme): string {
   lines.push(`  --radius-md: var(--radius);`)
   lines.push(`  --radius-lg: calc(var(--radius) + 4px);`)
   lines.push(`  --radius-xl: calc(var(--radius) + 8px);`)
+  for (const cssVar of Object.keys(SHADOW_SCALE)) {
+    lines.push(`  ${cssVar}: var(${cssVar});`)
+  }
   if (fonts?.body)    lines.push(`  --font-sans: var(--font-body);`)
   if (fonts?.heading) lines.push(`  --font-heading: var(--font-heading);`)
   lines.push('}')

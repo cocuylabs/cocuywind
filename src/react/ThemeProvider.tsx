@@ -7,10 +7,9 @@ import React, {
   useState,
 } from 'react'
 import type { Theme } from '../types.js'
-import { raw } from '../types.js'
-import { generateThemeVariables } from '../generate.js'
+import { generateThemeVariables, SHADOW_COLOR, SHADOW_SCALE } from '../generate.js'
 import { googleFontsUrl, FONT_ADJUSTMENTS } from '../fonts.js'
-import { generatePattern } from '../patterns.js'
+import { patternToCssVars } from '../patterns.js'
 
 export type ColorMode = 'light' | 'dark' | 'system'
 
@@ -176,32 +175,20 @@ export function ThemeProvider({
     // Apply background image CSS variable
     root.style.setProperty('--bg-image', theme.backgroundImage ?? 'none')
 
-    // Apply pattern CSS variables
-    if (theme.pattern && theme.pattern.type !== 'none') {
-      const pattern = theme.pattern.tint
-        ? {
-            ...theme.pattern,
-            color: theme.pattern.tint === 'primary'
-              ? raw('var(--primary)')
-              : theme.pattern.tint === 'secondary'
-                ? raw('var(--secondary)')
-                : raw('var(--accent)'),
-            opacity: theme.pattern.tint === 'accent'
-              ? (theme.pattern.opacity ?? 0.08) * 2.0
-              : theme.pattern.tint === 'secondary'
-                ? (theme.pattern.opacity ?? 0.08) * 1.4
-              : theme.pattern.opacity,
-          }
-        : theme.pattern
-      const ps = generatePattern(pattern)
-      root.style.setProperty('--pattern-image', ps.backgroundImage)
-      root.style.setProperty('--pattern-size', ps.backgroundSize)
-      if (ps.backgroundPosition) root.style.setProperty('--pattern-position', ps.backgroundPosition)
-      else root.style.removeProperty('--pattern-position')
+    // Apply pattern CSS variables — tint mapping + darkOpacity live in patternToCssVars
+    const patternVars = patternToCssVars(theme.pattern, { mode: resolvedMode })
+    root.style.setProperty('--pattern-image', patternVars['--pattern-image'])
+    root.style.setProperty('--pattern-size', patternVars['--pattern-size'])
+    if (patternVars['--pattern-position']) {
+      root.style.setProperty('--pattern-position', patternVars['--pattern-position'])
     } else {
-      root.style.setProperty('--pattern-image', 'none')
-      root.style.setProperty('--pattern-size', 'auto')
       root.style.removeProperty('--pattern-position')
+    }
+
+    // Theme-aware elevation vars
+    root.style.setProperty('--shadow-color', SHADOW_COLOR[resolvedMode])
+    for (const [prop, value] of Object.entries(SHADOW_SCALE)) {
+      root.style.setProperty(prop, value)
     }
 
     // Toggle .dark class

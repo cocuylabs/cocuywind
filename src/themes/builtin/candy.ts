@@ -15,7 +15,7 @@ export const candyTheme = defineTheme({
     secondary:           'pink-100',
     secondaryForeground: 'pink-900',
     muted:               'pink-100',
-    mutedForeground:     'pink-500',
+    mutedForeground:     'pink-700',
     accent:              'purple-100',
     accentForeground:    'purple-900',
     destructive:         'red-600',

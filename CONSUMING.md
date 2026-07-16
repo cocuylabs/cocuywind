@@ -246,6 +246,9 @@ Calling `storedThemeToCSS(stored)` produces CSS that:
 - Also sets `--font-body-scale`, `--font-body-tracking`, `--font-heading-scale`, `--font-heading-tracking` when the font needs optical correction (see `FONT_ADJUSTMENTS`)
 - Emits `:root { font-family: var(--font-body); }` only when a body font is set
 - Always emits `h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading, inherit); }` (the `inherit` fallback means headings inherit body font when no heading font is set)
+- Sets a theme-aware elevation scale: `--shadow-color` (foreground-tinted; near-black in `.dark`) and `--shadow-sm/md/lg/xl` — use `box-shadow: var(--shadow-md)` or Tailwind `shadow-md` (mapped in `@theme inline`)
+- Re-emits pattern vars in `.dark { }` when the stored pattern has `darkOpacity`
+- Appends `@media (forced-colors: active), (prefers-contrast: more)` that disables `--pattern-image` / `--bg-image` for high-contrast users
 - Does **not** emit a body background rule — you own that (see below)
 
 ### Astro (recommended pattern)

@@ -15,7 +15,7 @@ export const midnightTheme = defineTheme({
     secondary:           'slate-200',
     secondaryForeground: 'slate-800',
     muted:               'slate-100',
-    mutedForeground:     'slate-500',
+    mutedForeground:     'slate-600',
     accent:              'indigo-100',
     accentForeground:    'indigo-900',
     destructive:         'red-600',

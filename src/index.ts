@@ -24,15 +24,31 @@ export {
   generateThemeVariables,
   storedThemeToCSS,
   resolveTokens,
+  SHADOW_COLOR,
+  SHADOW_SCALE,
 } from './generate.js'
 
 // ─── Factory ──────────────────────────────────────────────────────────────────
 export { createTheme, extendTheme, defineTheme } from './factory.js'
 export type { CreateThemeConfig } from './factory.js'
 
+// ─── Contrast ─────────────────────────────────────────────────────────────────
+export {
+  contrastRatio,
+  meetsContrast,
+  ensureContrast,
+  ensureThemeContrast,
+  parseColorToRgb,
+  relativeLuminance,
+  CONTRAST_AA_TEXT,
+  CONTRAST_AA_LARGE_TEXT,
+  CONTRAST_AA_UI,
+} from './contrast.js'
+export type { Rgb, ContrastFloorOptions } from './contrast.js'
+
 // ─── Vividness ────────────────────────────────────────────────────────────────
 export { adjustVividness, VIVIDNESS_PRESETS } from './vividness.js'
-export type { VividnessPreset } from './vividness.js'
+export type { VividnessPreset, AdjustVividnessOptions } from './vividness.js'
 
 // ─── Serialization ────────────────────────────────────────────────────────────
 export { serializeTheme, deserializeTheme, validateStoredTheme } from './serialize.js'
@@ -64,8 +80,13 @@ export { FONTS, FONT_ADJUSTMENTS, googleFontsUrl } from './fonts.js'
 export type { FontFamily, FontKey, FontAdjustment } from './fonts.js'
 
 // ─── Patterns ─────────────────────────────────────────────────────────────────
-export { generatePattern } from './patterns.js'
-export type { PatternStyle } from './patterns.js'
+export {
+  generatePattern,
+  patternToCssVars,
+  PATTERN_TINT_OPACITY_MULTIPLIER,
+  PATTERN_MAX_EFFECTIVE_OPACITY,
+} from './patterns.js'
+export type { PatternStyle, PatternCssVars, PatternCssVarsOptions } from './patterns.js'
 
 // ─── i18n ─────────────────────────────────────────────────────────────────────
 export { default as themeLabelsEn } from './i18n/theme-labels.en.json'

@@ -117,11 +117,22 @@ describe('adjustVividness', () => {
     expect(adjC).toBeCloseTo(0.1, 3)
   })
 
-  it('non-oklch raw values pass through unchanged', () => {
+  it('hex raw values are converted to oklch and scaled', () => {
     const theme = createTheme({ name: 't', label: 'T', primary: 'blue' })
     const withHex = { ...theme, light: { ...theme.light, primary: raw('#3b82f6') } }
-    const adjusted = adjustVividness(withHex, 0.5)
-    expect(adjusted.light.primary).toBe('#3b82f6')
+    const adjusted = adjustVividness(withHex, 0.5, { contrastFloor: false })
+    // resolveColor converts the hex to oklch, then chroma is halved
+    const converted = resolveColor('#3b82f6' as any)
+    const srcC = parseFloat(converted.match(/oklch\([\d.]+ ([\d.]+)/)![1])
+    const adjC = parseFloat((adjusted.light.primary as string).match(/oklch\([\d.]+ ([\d.]+)/)![1])
+    expect(adjC).toBeCloseTo(srcC * 0.5, 3)
+  })
+
+  it('non-oklch, non-hex raw values pass through unchanged', () => {
+    const theme = createTheme({ name: 't', label: 'T', primary: 'blue' })
+    const withHsl = { ...theme, light: { ...theme.light, primary: raw('hsl(217, 91%, 60%)') } }
+    const adjusted = adjustVividness(withHsl, 0.5, { contrastFloor: false })
+    expect(adjusted.light.primary).toBe('hsl(217, 91%, 60%)')
   })
 })
 

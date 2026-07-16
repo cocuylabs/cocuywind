@@ -8,6 +8,8 @@ import type {
 } from './types.js'
 import { adjustVividness, VIVIDNESS_PRESETS } from './vividness.js'
 import type { VividnessPreset } from './vividness.js'
+import { resolveColor } from './colors.js'
+import { contrastRatio, CONTRAST_AA_TEXT, CONTRAST_AA_UI } from './contrast.js'
 
 /** Light-mode shade selection for primary colors */
 const LIGHT_PRIMARY_SHADE = 600
@@ -18,6 +20,29 @@ type ShadeNum = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950
 
 function token(color: TailwindColor, shade: ShadeNum): ColorToken {
   return `${color}-${shade}` as ColorToken
+}
+
+/** Contrast ratio between two ColorTokens (resolved to CSS first) */
+function tokenContrast(a: ColorToken, b: ColorToken): number {
+  return contrastRatio(resolveColor(a), resolveColor(b))
+}
+
+/** First candidate meeting `ratio` against `bg`; last candidate as fallback */
+function pickByContrast(candidates: ColorToken[], bg: ColorToken, ratio: number): ColorToken {
+  for (const c of candidates) {
+    if (tokenContrast(c, bg) >= ratio) return c
+  }
+  return candidates[candidates.length - 1]
+}
+
+/**
+ * Foreground for a solid color chip: white when it meets AA body-text
+ * contrast (fails on light hues like yellow-600), then the darkest shade
+ * of the same family (keeps the tinted look), then black — mid-luminance
+ * hues like orange-600 defeat both white and their own -950.
+ */
+function chipForeground(chip: ColorToken, family: TailwindColor): ColorToken {
+  return pickByContrast(['white', token(family, 950), 'black'], chip, CONTRAST_AA_TEXT)
 }
 
 /**
@@ -35,6 +60,14 @@ function buildLightTokens(
 ): ThemeTokens {
   const surface = neutral ?? primary
   const accentColor = accent ?? secondary ?? primary
+  const primaryChip = token(primary, LIGHT_PRIMARY_SHADE)
+  // Light hues (yellow, lime...) at -600 fail 3:1 against a -50 background —
+  // step the focus ring down the ladder so it stays visible (WCAG 1.4.11).
+  const ring = pickByContrast(
+    [primaryChip, token(primary, 700), token(primary, 800)],
+    token(surface, 50),
+    CONTRAST_AA_UI,
+  )
   const base: ThemeTokens = {
     background:          token(surface, 50),
     foreground:          token(surface, 950),
@@ -42,19 +75,25 @@ function buildLightTokens(
     cardForeground:      token(surface, 950),
     popover:             token(surface, 50),
     popoverForeground:   token(surface, 950),
-    primary:             token(primary, LIGHT_PRIMARY_SHADE),
-    primaryForeground:   'white',
+    primary:             primaryChip,
+    primaryForeground:   chipForeground(primaryChip, primary),
     secondary:           token(secondary ?? primary, 200),
     secondaryForeground: token(surface, 800),
     muted:               token(surface, 100),
-    mutedForeground:     token(surface, 500),
+    // -500 sits below 4.5:1 on a -100 surface for most hues; light families
+    // (yellow, lime...) need to walk further down the ladder
+    mutedForeground:     pickByContrast(
+      [token(surface, 600), token(surface, 700), token(surface, 800)],
+      token(surface, 100),
+      CONTRAST_AA_TEXT,
+    ),
     accent:              token(accentColor, 200),
     accentForeground:    token(surface, 800),
     destructive:         'red-600' as ColorToken,
     destructiveForeground: 'white',
     border:              token(surface, 200),
     input:               token(surface, 200),
-    ring:                token(primary, LIGHT_PRIMARY_SHADE),
+    ring,
   }
   return overrides ? { ...base, ...overrides } : base
 }
@@ -87,7 +126,12 @@ function buildDarkTokens(
     secondary:           token(secondary ?? primary, 800),
     secondaryForeground: token(surface, 200),
     muted:               token(surface, 900),
-    mutedForeground:     token(surface, 400),
+    // -400 on a -900 surface sits below 4.5:1 for most hues
+    mutedForeground:     pickByContrast(
+      [token(surface, 300), token(surface, 200), token(surface, 100)],
+      token(surface, 900),
+      CONTRAST_AA_TEXT,
+    ),
     accent:              token(accentColor, 800),
     accentForeground:    token(surface, 200),
     destructive:         'red-400' as ColorToken,

@@ -41,7 +41,7 @@ interface ThemeFonts {
     /** Heading / display font — applied to h1–h6. Omit to use body font for headings too. */
     heading?: string;
 }
-type PatternType = 'none' | 'dots' | 'grid' | 'cross' | 'diagonal-lines' | 'horizontal-lines' | 'vertical-lines' | 'zigzag' | 'checkerboard' | 'triangles' | 'hexagons' | 'noise';
+type PatternType = 'none' | 'dots' | 'grid' | 'cross' | 'diagonal-lines' | 'horizontal-lines' | 'vertical-lines' | 'zigzag' | 'checkerboard' | 'triangles' | 'hexagons' | 'noise' | 'waves' | 'crosshatch' | 'isometric' | 'halftone' | 'confetti' | 'topography' | 'gradient' | 'gradient-radial';
 interface ThemePattern {
     type: PatternType;
     /** Defaults to `var(--foreground)` at low opacity */
@@ -53,6 +53,13 @@ interface ThemePattern {
     tint?: 'primary' | 'secondary' | 'accent';
     /** 0–1, default 0.08 */
     opacity?: number;
+    /**
+     * Dark-mode opacity override. When set, the CSS emitters re-emit the
+     * pattern vars inside `.dark { }` with this opacity — lets a pattern that
+     * reads well on light stay subtle (or become more visible) on dark.
+     * Optional and additive: omitted = same opacity in both modes (existing behavior).
+     */
+    darkOpacity?: number;
     /** default 'md' */
     size?: 'sm' | 'md' | 'lg';
 }

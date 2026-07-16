@@ -15,7 +15,7 @@ export const forestTheme = defineTheme({
     secondary:           'emerald-100',
     secondaryForeground: 'emerald-900',
     muted:               'stone-100',
-    mutedForeground:     'stone-500',
+    mutedForeground:     'stone-600',
     accent:              'emerald-100',
     accentForeground:    'emerald-900',
     destructive:         'red-600',

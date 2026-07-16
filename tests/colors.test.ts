@@ -41,8 +41,13 @@ describe('resolveColor', () => {
     expect(resolveColor(raw)).toBe(raw)
   })
 
-  it('passes hex colors through unchanged', () => {
-    expect(resolveColor('#3b82f6')).toBe('#3b82f6')
+  it('converts hex colors to oklch (so adjustVividness can scale them)', () => {
+    const resolved = resolveColor('#3b82f6' as any)
+    expect(resolved).toMatch(/^oklch\(/)
+    // #3b82f6 is Tailwind v3 blue-500 — hue should land near 260
+    const h = parseFloat(resolved.match(/oklch\([\d.]+ [\d.]+ ([\d.]+)\)/)![1])
+    expect(h).toBeGreaterThan(250)
+    expect(h).toBeLessThan(270)
   })
 
   it('passes hsl colors through unchanged', () => {

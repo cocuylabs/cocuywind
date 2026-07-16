@@ -15,7 +15,7 @@ export const defaultTheme = defineTheme({
     secondary:           'zinc-100',
     secondaryForeground: 'zinc-900',
     muted:               'zinc-100',
-    mutedForeground:     'zinc-500',
+    mutedForeground:     'zinc-600',
     accent:              'zinc-100',
     accentForeground:    'zinc-900',
     destructive:         'red-600',

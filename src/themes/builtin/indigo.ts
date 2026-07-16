@@ -15,7 +15,7 @@ export const indigoTheme = defineTheme({
     secondary:           'indigo-100',
     secondaryForeground: 'indigo-900',
     muted:               'slate-100',
-    mutedForeground:     'slate-500',
+    mutedForeground:     'slate-600',
     accent:              'violet-100',
     accentForeground:    'violet-900',
     destructive:         'red-600',

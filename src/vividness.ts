@@ -1,6 +1,7 @@
 import { resolveColor } from './colors.js'
 import { raw } from './types.js'
 import type { Theme, ThemeTokens } from './types.js'
+import { ensureThemeContrast } from './contrast.js'
 
 // ─── Types & Constants ────────────────────────────────────────────────────────
 
@@ -35,12 +36,26 @@ function scaleChroma(cssValue: string, factor: number): string {
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
+export interface AdjustVividnessOptions {
+  /**
+   * Repair any text/ring pairs the chroma change pushed below WCAG AA
+   * (via `ensureThemeContrast`). Default true — pass false for the raw,
+   * unguarded scaling.
+   */
+  contrastFloor?: boolean
+}
+
 /**
  * Scale the chroma (saturation) of every color token in a theme.
  *
  * Works on any Theme — factory-generated, TweakCN, or stolen.
  * All tokens are resolved to CSS oklch strings before scaling,
  * so the returned theme has no TailwindToken refs.
+ *
+ * Chroma changes shift WCAG contrast, so by default the result is passed
+ * through `ensureThemeContrast` — foreground tokens that fell below AA get
+ * their lightness nudged back to compliance. Disable with
+ * `{ contrastFloor: false }`.
  *
  * @param factor  Multiplier on the chroma (C) component of every OKLCH color.
  *                1.0 = unchanged, 0.5 = half-saturated, 1.3 = more vivid.
@@ -50,7 +65,11 @@ function scaleChroma(cssValue: string, factor: number): string {
  * adjustVividness(oceanTheme, VIVIDNESS_PRESETS.elegant)   // muted
  * adjustVividness(oceanTheme, VIVIDNESS_PRESETS.playful)   // boosted
  */
-export function adjustVividness(theme: Theme, factor: number): Theme {
+export function adjustVividness(
+  theme: Theme,
+  factor: number,
+  options?: AdjustVividnessOptions,
+): Theme {
   if (factor === 1.0) return theme
 
   function scaleTokens(tokens: ThemeTokens): ThemeTokens {
@@ -62,9 +81,10 @@ export function adjustVividness(theme: Theme, factor: number): Theme {
     return result
   }
 
-  return {
+  const scaled: Theme = {
     ...theme,
     light: scaleTokens(theme.light),
     dark:  scaleTokens(theme.dark),
   }
+  return options?.contrastFloor === false ? scaled : ensureThemeContrast(scaled)
 }

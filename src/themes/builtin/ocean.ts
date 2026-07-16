@@ -15,7 +15,7 @@ export const oceanTheme = defineTheme({
     secondary:           'sky-100',
     secondaryForeground: 'sky-900',
     muted:               'slate-100',
-    mutedForeground:     'slate-500',
+    mutedForeground:     'slate-600',
     accent:              'sky-100',
     accentForeground:    'sky-900',
     destructive:         'red-600',

@@ -15,7 +15,7 @@ export const roseTheme = defineTheme({
     secondary:           'pink-100',
     secondaryForeground: 'pink-900',
     muted:               'rose-100',
-    mutedForeground:     'rose-500',
+    mutedForeground:     'rose-700',
     accent:              'pink-100',
     accentForeground:    'pink-900',
     destructive:         'red-600',

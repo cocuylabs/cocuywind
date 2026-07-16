@@ -42,7 +42,7 @@ interface ThemeFonts {
     /** Heading / display font — applied to h1–h6. Omit to use body font for headings too. */
     heading?: string;
 }
-type PatternType = 'none' | 'dots' | 'grid' | 'cross' | 'diagonal-lines' | 'horizontal-lines' | 'vertical-lines' | 'zigzag' | 'checkerboard' | 'triangles' | 'hexagons' | 'noise';
+type PatternType = 'none' | 'dots' | 'grid' | 'cross' | 'diagonal-lines' | 'horizontal-lines' | 'vertical-lines' | 'zigzag' | 'checkerboard' | 'triangles' | 'hexagons' | 'noise' | 'waves' | 'crosshatch' | 'isometric' | 'halftone' | 'confetti' | 'topography' | 'gradient' | 'gradient-radial';
 interface ThemePattern {
     type: PatternType;
     /** Defaults to `var(--foreground)` at low opacity */
@@ -54,6 +54,13 @@ interface ThemePattern {
     tint?: 'primary' | 'secondary' | 'accent';
     /** 0–1, default 0.08 */
     opacity?: number;
+    /**
+     * Dark-mode opacity override. When set, the CSS emitters re-emit the
+     * pattern vars inside `.dark { }` with this opacity — lets a pattern that
+     * reads well on light stay subtle (or become more visible) on dark.
+     * Optional and additive: omitted = same opacity in both modes (existing behavior).
+     */
+    darkOpacity?: number;
     /** default 'md' */
     size?: 'sm' | 'md' | 'lg';
 }
@@ -148,6 +155,20 @@ declare const TAILWIND_COLORS: Record<TailwindToken, string>;
 declare function resolveColor(token: string): string;
 
 /**
+ * Theme-aware shadow color per mode. Light mode tints the shadow with the
+ * theme's foreground (subtle hue-matched depth instead of flat gray); dark
+ * mode uses near-black at higher strength — light-tinted shadows read as
+ * glows on dark surfaces.
+ */
+declare const SHADOW_COLOR: Record<'light' | 'dark', string>;
+/**
+ * Elevation scale — all steps reference `--shadow-color`, so `.dark` only
+ * needs to override that one var. Consumers use them directly
+ * (`box-shadow: var(--shadow-md)`) or via Tailwind's `shadow-*` utilities
+ * (mapped in the emitted `@theme inline` block).
+ */
+declare const SHADOW_SCALE: Record<string, string>;
+/**
  * Resolves all ThemeTokens to a flat Record of CSS var → CSS value.
  */
 declare function generateThemeVariables(tokens: ThemeTokens): Record<string, string>;
@@ -166,12 +187,25 @@ declare function resolveTokens(tokens: ThemeTokens): ResolvedTokens;
 
 type VividnessPreset = 'playful' | 'vivid' | 'default' | 'professional' | 'elegant';
 declare const VIVIDNESS_PRESETS: Record<VividnessPreset, number>;
+interface AdjustVividnessOptions {
+    /**
+     * Repair any text/ring pairs the chroma change pushed below WCAG AA
+     * (via `ensureThemeContrast`). Default true — pass false for the raw,
+     * unguarded scaling.
+     */
+    contrastFloor?: boolean;
+}
 /**
  * Scale the chroma (saturation) of every color token in a theme.
  *
  * Works on any Theme — factory-generated, TweakCN, or stolen.
  * All tokens are resolved to CSS oklch strings before scaling,
  * so the returned theme has no TailwindToken refs.
+ *
+ * Chroma changes shift WCAG contrast, so by default the result is passed
+ * through `ensureThemeContrast` — foreground tokens that fell below AA get
+ * their lightness nudged back to compliance. Disable with
+ * `{ contrastFloor: false }`.
  *
  * @param factor  Multiplier on the chroma (C) component of every OKLCH color.
  *                1.0 = unchanged, 0.5 = half-saturated, 1.3 = more vivid.
@@ -181,7 +215,7 @@ declare const VIVIDNESS_PRESETS: Record<VividnessPreset, number>;
  * adjustVividness(oceanTheme, VIVIDNESS_PRESETS.elegant)   // muted
  * adjustVividness(oceanTheme, VIVIDNESS_PRESETS.playful)   // boosted
  */
-declare function adjustVividness(theme: Theme, factor: number): Theme;
+declare function adjustVividness(theme: Theme, factor: number, options?: AdjustVividnessOptions): Theme;
 
 interface CreateThemeConfig {
     name: string;
@@ -244,6 +278,69 @@ declare function extendTheme(base: Theme, overrides: Partial<Omit<Theme, 'light'
  * defineTheme({ name: 'brand', label: 'Brand', light: {...}, dark: {...} })
  */
 declare function defineTheme(theme: Theme): Theme;
+
+/**
+ * WCAG 2.2 contrast utilities.
+ *
+ * Works on resolved CSS color strings (oklch, hex, rgb, hsl) — the formats
+ * that appear in StoredTheme.styles and in the TAILWIND_COLORS table. Colors
+ * that cannot be parsed statically (e.g. `var(--primary)`, `color-mix(...)`)
+ * return null from `parseColorToRgb` and NaN from `contrastRatio`.
+ */
+
+interface Rgb {
+    /** Linear-light sRGB channels, clamped to [0, 1] (gamut-mapped by clamp) */
+    r: number;
+    g: number;
+    b: number;
+}
+/**
+ * Parse a resolved CSS color string to linear sRGB.
+ * Supports oklch(), #hex, rgb()/rgba(), hsl()/hsla(). Returns null for
+ * anything else (var() references, color-mix, named colors...).
+ */
+declare function parseColorToRgb(value: string): Rgb | null;
+/** WCAG relative luminance from linear sRGB */
+declare function relativeLuminance(rgb: Rgb): number;
+/**
+ * WCAG 2.x contrast ratio between two resolved CSS colors (1–21).
+ * Returns NaN if either color cannot be parsed.
+ */
+declare function contrastRatio(colorA: string, colorB: string): number;
+/** WCAG 2.2 AA thresholds */
+declare const CONTRAST_AA_TEXT = 4.5;
+declare const CONTRAST_AA_LARGE_TEXT = 3;
+declare const CONTRAST_AA_UI = 3;
+/** True when the pair meets the given ratio (default AA body text, 4.5:1) */
+declare function meetsContrast(fg: string, bg: string, ratio?: number): boolean;
+/**
+ * Adjust a foreground color's OKLCH lightness (preserving hue and chroma)
+ * until it meets `ratio` against `bg`. If lightness alone cannot get there
+ * (very high chroma), chroma is reduced stepwise. Falls back to white/black.
+ *
+ * Returns `fg` unchanged when the pair already passes, or when either color
+ * cannot be parsed (var() refs etc. — nothing sensible to do statically).
+ *
+ * @example ensureContrast('oklch(0.7 0.15 250)', 'oklch(0.98 0.01 250)')
+ */
+declare function ensureContrast(fg: string, bg: string, ratio?: number): string;
+interface ContrastFloorOptions {
+    /** Ratio for text pairs (foreground-on-surface tokens). Default 4.5 (AA body text). */
+    textRatio?: number;
+    /** Ratio for the focus ring against the background. Default 3 (AA non-text). */
+    uiRatio?: number;
+}
+/**
+ * Repair a theme's foreground tokens so every text pair meets WCAG contrast.
+ *
+ * Only foreground tokens (and `ring`) are touched — surfaces keep the design's
+ * intent. Each failing foreground gets its OKLCH lightness adjusted via
+ * `ensureContrast`; passing tokens are returned unchanged (still TailwindToken
+ * refs if they were). Unparseable colors are left alone.
+ *
+ * @example ensureThemeContrast(adjustVividness(theme, 1.3))
+ */
+declare function ensureThemeContrast(theme: Theme, options?: ContrastFloorOptions): Theme;
 
 interface ThemeValidationResult {
     valid: boolean;
@@ -521,6 +618,7 @@ declare function googleFontsUrl(families: string[]): string;
 interface PatternStyle {
     backgroundImage: string;
     backgroundSize: string;
+    /** @deprecated Never set by any pattern type — will be removed in a future major. */
     backgroundColor?: string;
     backgroundPosition?: string;
 }
@@ -531,6 +629,42 @@ interface PatternStyle {
  * Inspired by pattern.css (MIT License).
  */
 declare function generatePattern(config: ThemePattern): PatternStyle;
+/**
+ * Opacity multipliers applied when a pattern uses `tint` instead of `color`.
+ * Secondary/accent surfaces are lighter than foreground, so tinted patterns
+ * need a boost to stay visible at the same nominal opacity.
+ */
+declare const PATTERN_TINT_OPACITY_MULTIPLIER: Record<'primary' | 'secondary' | 'accent', number>;
+/**
+ * Ceiling on the effective pattern opacity after tint multipliers.
+ * Patterns paint behind text — anything louder than this starts eating into
+ * text contrast on worst-case overlaps.
+ */
+declare const PATTERN_MAX_EFFECTIVE_OPACITY = 0.25;
+interface PatternCssVars {
+    '--pattern-image': string;
+    '--pattern-size': string;
+    '--pattern-position'?: string;
+}
+interface PatternCssVarsOptions {
+    /**
+     * Which mode's opacity to use. `'dark'` picks `pattern.darkOpacity` when
+     * set (falls back to `pattern.opacity`). Default `'light'`.
+     */
+    mode?: 'light' | 'dark';
+}
+/**
+ * Resolve a ThemePattern to its `--pattern-*` CSS custom properties, with the
+ * tint → color/opacity mapping applied. This is the single code path behind
+ * `generateCSS` and `storedThemeToCSS` — consumers building live previews
+ * (e.g. postMessage var updates) should call this instead of replicating the
+ * tint multipliers.
+ *
+ * @example
+ * patternToCssVars({ type: 'dots', tint: 'accent' })
+ * // → { '--pattern-image': 'radial-gradient(color-mix(in oklch, var(--accent) 16%, transparent) ...)', '--pattern-size': '20px 20px' }
+ */
+declare function patternToCssVars(pattern: ThemePattern | undefined, options?: PatternCssVarsOptions): PatternCssVars;
 
 var amber$2 = "Warm Amber";
 var bubblegum$2 = "Bubblegum";
@@ -1518,4 +1652,4 @@ declare const communityThemes: Theme[];
 /** All themes — 10 curated built-in + 17 Tailwind basic + 10 Claude + 37 tweakcn */
 declare const themes: Theme[];
 
-export { type ColorToken, type CreateThemeConfig, FONTS, FONT_ADJUSTMENTS, type FontAdjustment, type FontFamily, type FontKey, type PatternStyle, type PatternType, type RawColor, type ResolvedTokens, type StealMeta, type StoredTheme, TAILWIND_COLORS, type TailwindColor, type TailwindShade, type TailwindToken, type Theme, type ThemeFonts, type ThemePattern, type ThemeTokens, type ThemeValidationResult, type TweakCNRegistryEntry, type TweakCNThemeItem, VIVIDNESS_PRESETS, type VividnessPreset, adjustVividness, amberMinimalTheme, amberTheme, amethystHazeTheme, boldTechTheme, bookmarkletUrl, browserSnippet, bubblegumTheme, builtinThemes, caffeineTheme, candyTheme, candylandTheme, catppuccinTheme, claudeTheme, claudeThemes, claymorphismTheme, cleanSlateTheme, communityThemes, cosmicNightTheme, createTheme, cyberpunkTheme, defaultTheme, defineTheme, deserializeTheme, doom64Theme, elegantLuxuryTheme, extendTheme, fetchAllTweakCNThemes, fetchTweakCNRegistry, fetchTweakCNTheme, forestTheme, generateCSS, generatePattern, generateThemeVariables, googleFontsUrl, graphiteTheme, indigoTheme, kodamaGroveTheme, midnightBloomTheme, midnightTheme, mochaMousseTheme, modernMinimalTheme, natureTheme, neoBrutalismTheme, northernLightsTheme, notebookTheme, oceanBreezeTheme, oceanTheme, pastelDreamsTheme, perpetuityTheme, quantumRoseTheme, raw, resolveColor, resolveTokens, retroArcadeTheme, roseTheme, serializeTheme, solarDuskTheme, starryNightTheme, storedThemeToCSS, sunsetHorizonTheme, sunsetTheme, supabaseTheme, t3ChatTheme, tailwindBasicThemes, tangerineTheme, tealTheme, themeCategoryLabels_en as themeCategoryLabelsEn, themeCategoryLabels_es as themeCategoryLabelsEs, themeCategoryLabels_pt as themeCategoryLabelsPt, themeFromCSS, themeFromCSSVars, themeFromSnippetOutput, themeFromTweakCNItem, themeLabels_en as themeLabelsEn, themeLabels_es as themeLabelsEs, themeLabels_pt as themeLabelsPt, themes, tweakcnBookmarkletUrl, tweakcnSnippet, tweakcnThemes, twitterTheme, validateStoredTheme, vintagePaperTheme, violetBloomTheme };
+export { type AdjustVividnessOptions, CONTRAST_AA_LARGE_TEXT, CONTRAST_AA_TEXT, CONTRAST_AA_UI, type ColorToken, type ContrastFloorOptions, type CreateThemeConfig, FONTS, FONT_ADJUSTMENTS, type FontAdjustment, type FontFamily, type FontKey, PATTERN_MAX_EFFECTIVE_OPACITY, PATTERN_TINT_OPACITY_MULTIPLIER, type PatternCssVars, type PatternCssVarsOptions, type PatternStyle, type PatternType, type RawColor, type ResolvedTokens, type Rgb, SHADOW_COLOR, SHADOW_SCALE, type StealMeta, type StoredTheme, TAILWIND_COLORS, type TailwindColor, type TailwindShade, type TailwindToken, type Theme, type ThemeFonts, type ThemePattern, type ThemeTokens, type ThemeValidationResult, type TweakCNRegistryEntry, type TweakCNThemeItem, VIVIDNESS_PRESETS, type VividnessPreset, adjustVividness, amberMinimalTheme, amberTheme, amethystHazeTheme, boldTechTheme, bookmarkletUrl, browserSnippet, bubblegumTheme, builtinThemes, caffeineTheme, candyTheme, candylandTheme, catppuccinTheme, claudeTheme, claudeThemes, claymorphismTheme, cleanSlateTheme, communityThemes, contrastRatio, cosmicNightTheme, createTheme, cyberpunkTheme, defaultTheme, defineTheme, deserializeTheme, doom64Theme, elegantLuxuryTheme, ensureContrast, ensureThemeContrast, extendTheme, fetchAllTweakCNThemes, fetchTweakCNRegistry, fetchTweakCNTheme, forestTheme, generateCSS, generatePattern, generateThemeVariables, googleFontsUrl, graphiteTheme, indigoTheme, kodamaGroveTheme, meetsContrast, midnightBloomTheme, midnightTheme, mochaMousseTheme, modernMinimalTheme, natureTheme, neoBrutalismTheme, northernLightsTheme, notebookTheme, oceanBreezeTheme, oceanTheme, parseColorToRgb, pastelDreamsTheme, patternToCssVars, perpetuityTheme, quantumRoseTheme, raw, relativeLuminance, resolveColor, resolveTokens, retroArcadeTheme, roseTheme, serializeTheme, solarDuskTheme, starryNightTheme, storedThemeToCSS, sunsetHorizonTheme, sunsetTheme, supabaseTheme, t3ChatTheme, tailwindBasicThemes, tangerineTheme, tealTheme, themeCategoryLabels_en as themeCategoryLabelsEn, themeCategoryLabels_es as themeCategoryLabelsEs, themeCategoryLabels_pt as themeCategoryLabelsPt, themeFromCSS, themeFromCSSVars, themeFromSnippetOutput, themeFromTweakCNItem, themeLabels_en as themeLabelsEn, themeLabels_es as themeLabelsEs, themeLabels_pt as themeLabelsPt, themes, tweakcnBookmarkletUrl, tweakcnSnippet, tweakcnThemes, twitterTheme, validateStoredTheme, vintagePaperTheme, violetBloomTheme };
