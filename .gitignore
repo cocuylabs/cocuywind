@@ -1,0 +1,10 @@
+# Dependencies
+node_modules/
+
+# Playground build output (dist/ at the root stays committed — consumers
+# install from git main and consume the built library)
+playground/dist/
+
+# Editor / OS
+.DS_Store
+*.log
