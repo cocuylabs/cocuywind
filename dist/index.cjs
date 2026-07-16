@@ -20,6 +20,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
+  COCUYWIND_VERSION: () => COCUYWIND_VERSION,
   CONTRAST_AA_LARGE_TEXT: () => CONTRAST_AA_LARGE_TEXT,
   CONTRAST_AA_TEXT: () => CONTRAST_AA_TEXT,
   CONTRAST_AA_UI: () => CONTRAST_AA_UI,
@@ -128,6 +129,9 @@ module.exports = __toCommonJS(src_exports);
 
 // src/types.ts
 var raw = (value) => value;
+
+// src/version.ts
+var COCUYWIND_VERSION = true ? "0.1.0+2026-07-16.5b84495" : "dev";
 
 // src/colors.ts
 var TAILWIND_COLORS = {
@@ -14324,6 +14328,7 @@ var communityThemes = [
 var themes = [...builtinThemes, ...claudeThemes, ...tweakcnThemes];
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  COCUYWIND_VERSION,
   CONTRAST_AA_LARGE_TEXT,
   CONTRAST_AA_TEXT,
   CONTRAST_AA_UI,

@@ -159,3 +159,11 @@ describe('accessibility media overrides', () => {
     }
   })
 })
+
+describe('COCUYWIND_VERSION', () => {
+  it('is a non-empty string ("dev" when running from source)', async () => {
+    const { COCUYWIND_VERSION } = await import('../src/version.js')
+    expect(typeof COCUYWIND_VERSION).toBe('string')
+    expect(COCUYWIND_VERSION.length).toBeGreaterThan(0)
+  })
+})

@@ -1,6 +1,9 @@
 // src/types.ts
 var raw = (value) => value;
 
+// src/version.ts
+var COCUYWIND_VERSION = true ? "0.1.0+2026-07-16.5b84495" : "dev";
+
 // src/colors.ts
 var TAILWIND_COLORS = {
   // ─── white / black ────────────────────────────────────────────────────────
@@ -14195,6 +14198,7 @@ var communityThemes = [
 // src/themes/index.ts
 var themes = [...builtinThemes, ...claudeThemes, ...tweakcnThemes];
 export {
+  COCUYWIND_VERSION,
   CONTRAST_AA_LARGE_TEXT,
   CONTRAST_AA_TEXT,
   CONTRAST_AA_UI,

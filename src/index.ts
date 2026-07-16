@@ -15,6 +15,9 @@ export type {
 } from './types.js'
 export { raw } from './types.js'
 
+// ─── Version ──────────────────────────────────────────────────────────────────
+export { COCUYWIND_VERSION } from './version.js'
+
 // ─── Colors ───────────────────────────────────────────────────────────────────
 export { TAILWIND_COLORS, resolveColor } from './colors.js'
 
