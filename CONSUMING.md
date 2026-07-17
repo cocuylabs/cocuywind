@@ -439,24 +439,34 @@ interface StoredTheme {
 
 If you use `cocuywind/react` components (ThemePicker and the sub-pickers), they are styled with Tailwind classes (shadcn-style tokens like `bg-background`, `border-border`, etc.).
 
-Make sure your Tailwind config includes the library in `content`, otherwise utility classes (including the palette swatch dots) will be purged and the UI will look empty.
+**Tailwind v4 does not scan `node_modules`** — auto content detection skips gitignored paths. Register the library explicitly or its classes are purged:
 
-Examples:
+```css
+/* your globals.css — path is relative to THIS file */
+@import "tailwindcss";
+
+@source "../../node_modules/cocuywind";
+/* or, with a local workspace checkout: */
+@source "../../../cocuywind/src";
+```
+
+<details>
+<summary>Tailwind v3</summary>
 
 ```js
 // tailwind.config.js
 export default {
   content: [
     './src/**/*.{ts,tsx}',
-    // If you depend on the published package
     './node_modules/cocuywind/dist/**/*.{js,mjs}',
-    // Or if you use a local workspace checkout
-    '../cocuywind/src/**/*.{ts,tsx}',
   ],
 }
 ```
+</details>
 
 Also ensure your app includes the shadcn CSS variables (or an equivalent theme) so classes like `bg-background`, `text-foreground`, and `border-border` resolve correctly.
+
+Skipping this fails **silently and partially**: classes your own source also uses still work, so the picker looks styled while individual controls quietly lose state indicators (e.g. the selected swatch's `border-foreground scale-110`). See [README → Tailwind setup for `cocuywind/react`](./README.md#tailwind-setup-for-cocuywindreact) for the full failure mode and how to verify.
 
 ### The 19 token keys (in `styles.light` / `styles.dark`)
 

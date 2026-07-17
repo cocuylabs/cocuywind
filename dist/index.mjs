@@ -2,7 +2,7 @@
 var raw = (value) => value;
 
 // src/version.ts
-var COCUYWIND_VERSION = true ? "0.1.0+2026-07-16.5b84495" : "dev";
+var COCUYWIND_VERSION = true ? "0.1.0+2026-07-16.d85084a" : "dev";
 
 // src/colors.ts
 var TAILWIND_COLORS = {

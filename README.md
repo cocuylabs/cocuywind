@@ -109,6 +109,15 @@ npm install cocuywind
 yarn add cocuywind
 ```
 
+Installing from a Git remote works the same way — only `dist/` is published:
+
+```jsonc
+// package.json
+"dependencies": {
+  "cocuywind": "github:cocuylabs/cocuywind#main"
+}
+```
+
 ---
 
 ## Package Exports
@@ -117,6 +126,65 @@ yarn add cocuywind
 cocuywind        → core library (zero runtime dependencies)
 cocuywind/react  → React components and hooks (requires react ≥ 18)
 ```
+
+---
+
+## Tailwind setup for `cocuywind/react`
+
+**Required if you render any component from `cocuywind/react`.** Skip this section if you only use the core library (`serializeTheme`, `storedThemeToCSS`, …) — that path emits its own CSS and needs no Tailwind config.
+
+The React components are styled with shadcn-flavored Tailwind classes (`bg-background`, `border-border`, `border-foreground`, `scale-110`, …). Tailwind only emits a class it has seen in a scanned file — and **Tailwind v4 never scans `node_modules`**, because auto content detection skips anything gitignored. Cocuywind's classes live in `node_modules/cocuywind/dist`, so unless you say otherwise, they are all dropped.
+
+### 1. Register cocuywind as a source
+
+```css
+/* your globals.css — path is relative to THIS file */
+@import "tailwindcss";
+
+@source "../../node_modules/cocuywind";
+```
+
+With a local workspace checkout, point at the checkout's `src` instead — the exact number of `../` depends on where your CSS file sits:
+
+```css
+@source "../../../cocuywind/src";
+```
+
+Point `@source` at a directory, not a glob — Tailwind globs it for you. The path resolves through pnpm's symlinked `node_modules` fine.
+
+<details>
+<summary>Tailwind v3</summary>
+
+```js
+// tailwind.config.js
+export default {
+  content: [
+    './src/**/*.{ts,tsx}',
+    './node_modules/cocuywind/dist/**/*.{js,mjs}',
+  ],
+}
+```
+</details>
+
+### 2. Define the shadcn tokens
+
+The components reference `--background`, `--foreground`, `--border`, `--primary`, etc. Provide them via the shadcn CSS variables, or any equivalent `@theme inline` block ([Quickstart](#quickstart-nextjs-app-router) shows one).
+
+### What it looks like when you skip step 1
+
+**Nothing errors.** No build warning, no console message — the components render, just missing whatever classes your own source didn't happen to use too. Classes you share with cocuywind (`bg-primary`, `rounded-full`) survive by coincidence, which makes the result look mostly-styled rather than obviously broken.
+
+The tell is a control that renders but has no visible state. Real case: `ThemeCustomPalettePicker` marks the active swatch with `border-foreground scale-110`. Neither class appeared anywhere in the consuming app, both were purged, and the picker shipped with no selected-color indicator at all — every swatch identical, no error anywhere.
+
+To confirm the directive is doing its job, grep the compiled CSS for a class that **only** cocuywind uses:
+
+```sh
+grep -c '\.border-foreground ' .next/**/*.css   # 0 = @source is not taking effect
+```
+
+### Known non-starter
+
+`@source "cocuywind";` — a bare package name resolves to zero files and emits nothing, silently. Use the relative path.
 
 ---
 
